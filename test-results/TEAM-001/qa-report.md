@@ -192,3 +192,12 @@ FAIL 確認程序（§5.2A）對 F-R1-01 的紀錄：
 3. 規格 §9.3 推定 1 已被本輪原始輸出反證，建議 Architect／PO 檢討該段文字（QA 不修改規格）。
 4. 本輪 QA 未讀取 `.ai-team-smoke-test/add.mjs` 原始碼，也未讀取 `add.dev.test.mjs`、`snapshots/` 或規格檔本身。
 
+---
+
+## Repository 歸檔位置補充（2026-11-23）
+
+本報告保留原始執行時的輸出路徑紀錄：`test-results/_tmp/TEAM-001/round-1/node-test-output.txt`。為避免將暫存目錄納入版本控制，原始輸出內容已完整歸檔至本 Repo 的永久證據路徑：
+
+`test-results/TEAM-001/evidence/round-1-node-test-output.txt`
+
+兩者指向同一輪 QA 執行輸出；本補充只記錄版本庫歸檔位置，不改變原始 QA 結論 **INCOMPLETE**，亦不代表 35 個案例已執行。
