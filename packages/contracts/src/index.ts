@@ -1,7 +1,18 @@
 /**
  * @shinuan/contracts
  *
- * Phase A 空白骨架：共用型別與資料契約的入口。
- * 正式契約（依 Master PRD 定義）將由後續任務加入，本檔不含任何遊戲規則。
+ * 跨模組共用型別與資料契約入口（Master PRD v2.1.29）。
+ * 本套件零外部依賴，只含型別與 PRD 原文列舉／白名單常數，不含任何遊戲規則計算邏輯。
  */
 export const CONTRACTS_PACKAGE_NAME = '@shinuan/contracts' as const;
+
+export * from './genetics';
+export * from './catalog';
+export * from './pet';
+export * from './behavior';
+export * from './commands';
+export * from './events';
+export * from './save';
+export * from './ports';
+export * from './view-model';
+export * from './config';
