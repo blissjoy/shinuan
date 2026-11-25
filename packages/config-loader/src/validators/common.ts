@@ -66,7 +66,11 @@ export function expectObject(
   return value;
 }
 
-/** 允許部分欄位之物件（用於相容規則 when/set）：只檢查型別與未知欄位。 */
+/**
+ * 允許部分欄位之物件（用於相容規則 when/set）：只檢查型別與未知欄位。
+ * 允許之鍵若「存在但值為 undefined」（如 `{ head: undefined }`）一律回報 `INVALID_TYPE`，
+ * 不得視同未提供而靜默略過（S1-02B DEF-01）。
+ */
 export function expectPartialObject(
   c: ErrorCollector,
   value: unknown,
@@ -82,9 +86,45 @@ export function expectPartialObject(
   for (const key of Object.keys(value)) {
     if (!allowed.has(key)) {
       c.add(`${path}.${key}`, 'UNKNOWN_FIELD', `Unknown field "${key}" is not allowed.`);
+    } else if (value[key] === undefined) {
+      c.add(`${path}.${key}`, 'INVALID_TYPE', `Field "${key}" must not be explicitly undefined.`);
     }
   }
   return value;
+}
+
+/**
+ * 頂層輸入為 `undefined` 時回報 `$` 之 `INVALID_TYPE` 並回傳 true（呼叫端應立即結束驗證）。
+ * 用於各 `validateXxxConfig`，避免依賴 `expectObject` 對 `undefined` 之靜默略過（S1-02B DEF-01）。
+ */
+export function rejectUndefinedRoot(c: ErrorCollector, input: unknown): boolean {
+  if (input !== undefined) return false;
+  c.add('$', 'INVALID_TYPE', 'Expected object but got undefined.');
+  return true;
+}
+
+/**
+ * 以索引式走訪陣列（含稀疏陣列空洞）：
+ * 空洞（`!(i in arr)`）或值為 `undefined` 之元素一律回報 `${basePath}[i]` 之 `INVALID_TYPE` 且不呼叫 `visit`；
+ * 其餘元素依序呼叫 `visit(value, index, path)`。回傳是否所有元素皆存在且非 `undefined`（S1-02B DEF-01／OBS-01）。
+ */
+export function forEachArrayElement(
+  c: ErrorCollector,
+  arr: readonly unknown[],
+  basePath: string,
+  visit: (value: unknown, index: number, path: string) => void,
+): boolean {
+  let allPresent = true;
+  for (let i = 0; i < arr.length; i += 1) {
+    const path = `${basePath}[${i}]`;
+    if (!(i in arr) || arr[i] === undefined) {
+      c.add(path, 'INVALID_TYPE', !(i in arr) ? 'Sparse array hole is not allowed.' : 'Expected a value but got undefined.');
+      allPresent = false;
+      continue;
+    }
+    visit(arr[i], i, path);
+  }
+  return allPresent;
 }
 
 export function expectArray(c: ErrorCollector, value: unknown, path: string): readonly unknown[] | undefined {

@@ -14,13 +14,14 @@ import type { ValidationResult } from '../types';
 import {
   ErrorCollector,
   checkVersion,
-  describeValue,
   expectArray,
   expectEnum,
   expectObject,
   expectPartialObject,
   expectString,
   finish,
+  forEachArrayElement,
+  rejectUndefinedRoot,
 } from './common';
 
 export const COMPATIBILITY_FILE = 'genetics/appearance-compatibility.v1.json';
@@ -65,10 +66,7 @@ export function validateAppearanceCompatibilityConfig(
   file: string = COMPATIBILITY_FILE,
 ): ValidationResult<AppearanceCompatibilityConfig> {
   const c = new ErrorCollector(file);
-  if (input === undefined) {
-    c.add('$', 'INVALID_TYPE', `Expected object but got ${describeValue(input)}.`);
-    return finish(c, input);
-  }
+  if (rejectUndefinedRoot(c, input)) return finish(c, input);
   const root = expectObject(c, input, '$', ROOT_KEYS);
   if (root === undefined) return finish(c, input);
   checkVersion(c, root['version'], '$.version');
@@ -79,8 +77,7 @@ export function validateAppearanceCompatibilityConfig(
     if (rules.length === 0) c.add('$.rules', 'EMPTY_RULES', 'rules must not be empty.');
     const ids = new Set<string>();
     let previousOrder: number | undefined;
-    rules.forEach((entry, index) => {
-      const path = `$.rules[${index}]`;
+    forEachArrayElement(c, rules, '$.rules', (entry, _index, path) => {
       const rule = expectObject(c, entry, path, RULE_KEYS);
       if (rule === undefined) return;
       const id = expectString(c, rule['id'], `${path}.id`);
