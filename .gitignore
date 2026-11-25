@@ -1,0 +1,26 @@
+# === 拾暖伴伴（shinuan）.gitignore ===
+# 修改本檔屬 GOV-003 R3-B，須 PO 逐次親自核准。
+
+# Protected PO Notes（AGENTS.md §1.1；PRD §5.4.3 第 1 條）— 必須永久保留
+/docs/PO-step-by-step/
+
+# 本機工具入口檔（Untracked，嚴禁納入 Git）
+/GEMINI.md
+
+# 依賴與建置產物
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# 機密
+.env
+.env.*
+
+# 測試過程暫存
+test-results/_tmp/
+
+# 系統與編輯器雜檔
+.DS_Store
+Thumbs.db
+*.log
