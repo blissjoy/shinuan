@@ -1,0 +1,25 @@
+{
+  "name": "shinuan",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "拾暖伴伴 (shinuan) Phase A monorepo",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "typecheck": "tsc -p packages/contracts && tsc -p packages/config-loader && tsc -p packages/game-core && tsc -p apps/local-cli && tsc -p apps/local-sandbox && tsc -p tests",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:integrity": "node scripts/check-shinuan-integrity.mjs",
+    "cli": "tsx apps/local-cli/src/index.ts",
+    "sandbox": "tsx apps/local-sandbox/src/server.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.10",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}
