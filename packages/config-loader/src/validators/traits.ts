@@ -13,12 +13,13 @@ import type { ValidationResult } from '../types';
 import {
   ErrorCollector,
   checkVersion,
-  describeValue,
   expectArray,
   expectEnum,
   expectFiniteNumber,
   expectObject,
   finish,
+  forEachArrayElement,
+  rejectUndefinedRoot,
 } from './common';
 
 export const TRAITS_FILE = 'traits/traits.v1.json';
@@ -43,8 +44,7 @@ function checkLayerPool(c: ErrorCollector, value: unknown, path: string, layer: 
   const seen = new Set<string>();
   let sum = 0;
   let weightsValid = true;
-  pool.forEach((entry, index) => {
-    const p = `${path}[${index}]`;
+  const allPresent = forEachArrayElement(c, pool, path, (entry, _index, p) => {
     const obj = expectObject(c, entry, p, WEIGHTED_KEYS);
     if (obj === undefined) {
       weightsValid = false;
@@ -74,6 +74,7 @@ function checkLayerPool(c: ErrorCollector, value: unknown, path: string, layer: 
       sum += weight;
     }
   });
+  if (!allPresent) weightsValid = false;
   if (weightsValid && Math.abs(sum - 1) >= TRAIT_WEIGHT_SUM_TOLERANCE) {
     c.add(path, 'WEIGHT_SUM_MISMATCH', `Weights must sum to 1.0 (got ${sum}).`);
   }
@@ -82,10 +83,7 @@ function checkLayerPool(c: ErrorCollector, value: unknown, path: string, layer: 
 /** 驗證 `TraitsConfig`：6 品種 × 7 圖層、合法枚舉、禁稀有突變、無重複、權重 > 0 且總和 1.0。 */
 export function validateTraitsConfig(input: unknown, file: string = TRAITS_FILE): ValidationResult<TraitsConfig> {
   const c = new ErrorCollector(file);
-  if (input === undefined) {
-    c.add('$', 'INVALID_TYPE', `Expected object but got ${describeValue(input)}.`);
-    return finish(c, input);
-  }
+  if (rejectUndefinedRoot(c, input)) return finish(c, input);
   const root = expectObject(c, input, '$', ROOT_KEYS);
   if (root === undefined) return finish(c, input);
   checkVersion(c, root['version'], '$.version');

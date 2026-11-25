@@ -12,6 +12,7 @@ import type { ConfigValidationError, LoadGameConfigOptions, LoadGameConfigResult
 import { BREEDS_FILE, validateBreedsConfig } from './validators/breeds';
 import { COMPATIBILITY_FILE, validateAppearanceCompatibilityConfig } from './validators/compatibility';
 import { FOOD_CATALOG_FILE, validateFoodCatalogConfig } from './validators/food-catalog';
+import { describeValue, isPlainObject } from './validators/common';
 import { TRAITS_FILE, validateTraitsConfig } from './validators/traits';
 
 /** 4 份設定檔相對於 contentDir 之路徑（POSIX 形式，亦作為錯誤之 file 標籤）。 */
@@ -62,7 +63,10 @@ export function checkRequiredFreeItems(
   return errors;
 }
 
-/** 以 4 個驗證器＋免費品檢查驗證一份完整設定（供 content 載入與內建預設共用）。 */
+/**
+ * 以 4 個驗證器＋免費品檢查驗證一份完整設定（供 content 載入與內建預設共用）。
+ * 頂層輸入非一般物件（如 `null`、陣列、原始值）時回傳 `<config>` 之 `INVALID_TYPE`，不拋例外（S1-02B OBS-02）。
+ */
 export function validateGameConfig(
   input: {
     readonly breeds: unknown;
@@ -72,6 +76,15 @@ export function validateGameConfig(
   },
   fileLabel: (file: string) => string = (file) => file,
 ): ValidationResult<ValidatedGameConfig> {
+  const raw: unknown = input;
+  if (!isPlainObject(raw)) {
+    return {
+      ok: false,
+      errors: [
+        { file: '<config>', path: '$', code: 'INVALID_TYPE', message: `Expected object but got ${describeValue(raw)}.` },
+      ],
+    };
+  }
   const breeds = validateBreedsConfig(input.breeds, fileLabel(BREEDS_FILE));
   const traits = validateTraitsConfig(input.traits, fileLabel(TRAITS_FILE));
   const compat = validateAppearanceCompatibilityConfig(input.appearanceCompatibility, fileLabel(COMPATIBILITY_FILE));

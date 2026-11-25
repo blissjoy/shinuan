@@ -11,8 +11,16 @@ import {
   type FoodCatalogItem,
 } from '@shinuan/contracts';
 import type { ConfigValidationError, ValidationResult } from './types';
-import { ErrorCollector, checkVersion, describeValue, expectArray, expectObject, isValidIsoTimestamp } from './validators/common';
-import { checkFoodCatalogItem, checkItemUniqueness, validateFoodCatalogConfig } from './validators/food-catalog';
+import {
+  ErrorCollector,
+  checkVersion,
+  describeValue,
+  expectArray,
+  expectObject,
+  isPlainObject,
+  isValidIsoTimestamp,
+} from './validators/common';
+import { checkFoodCatalogItems, checkItemUniqueness, validateFoodCatalogConfig } from './validators/food-catalog';
 
 // ---------------------------------------------------------------------------
 // CSV
@@ -337,6 +345,16 @@ function externalKey(partnerId: string | null, externalSkuId: string | null): st
  * - 合併結果必須通過 `validateFoodCatalogConfig`（7 級距全檢），否則拒絕整批。
  */
 export function mergeCatalogFeed(input: MergeCatalogFeedInput): ValidationResult<MergeCatalogFeedResult> {
+  // 0. 頂層輸入須為一般物件（null／陣列／原始值一律以資料回報，不拋 TypeError；S1-02B OBS-02）
+  const raw: unknown = input;
+  if (!isPlainObject(raw)) {
+    return {
+      ok: false,
+      errors: [
+        { file: '<import>', path: '$', code: 'INVALID_TYPE', message: `Expected object but got ${describeValue(raw)}.` },
+      ],
+    };
+  }
   const incomingFile = input.incomingFile ?? '<incoming>';
   const existingFile = input.existingFile ?? '<existing>';
   const c = new ErrorCollector(incomingFile);
@@ -360,12 +378,12 @@ export function mergeCatalogFeed(input: MergeCatalogFeedInput): ValidationResult
   const incoming = expectArray(c, input.incoming, '$');
   if (input.incoming === undefined) c.add('$', 'INVALID_TYPE', 'Expected array but got undefined.');
   if (incoming !== undefined) {
-    const keys = incoming.map((item, index) =>
-      checkFoodCatalogItem(c, item, `$[${index}]`, { enforceGameBalanceRules: false }),
-    );
+    const keys = checkFoodCatalogItems(c, incoming, '$', { enforceGameBalanceRules: false });
     checkItemUniqueness(c, keys, '$');
-    incoming.forEach((raw, index) => {
-      const fst = (raw as { externalSource?: { feedSourceType?: unknown } } | null)?.externalSource?.feedSourceType;
+    for (let index = 0; index < incoming.length; index += 1) {
+      if (!(index in incoming)) continue; // 空洞已由 checkFoodCatalogItems 回報 INVALID_TYPE
+      const item: unknown = incoming[index];
+      const fst = (item as { externalSource?: { feedSourceType?: unknown } } | null)?.externalSource?.feedSourceType;
       if (typeof mode === 'string' && typeof fst === 'string' && fst !== mode) {
         c.add(
           `$[${index}].externalSource.feedSourceType`,
@@ -386,7 +404,7 @@ export function mergeCatalogFeed(input: MergeCatalogFeedInput): ValidationResult
           );
         }
       }
-    });
+    }
   }
   errors.push(...c.errors);
   if (errors.length > 0 || !existingResult.ok || incoming === undefined) return { ok: false, errors };

@@ -19,7 +19,6 @@ import type { ValidationResult } from '../types';
 import {
   ErrorCollector,
   checkVersion,
-  describeValue,
   expectArray,
   expectEnum,
   expectFiniteNumber,
@@ -27,9 +26,11 @@ import {
   expectObject,
   expectString,
   finish,
+  forEachArrayElement,
   isValidHttpUrl,
   isValidIsoDate,
   isValidIsoTimestamp,
+  rejectUndefinedRoot,
 } from './common';
 
 export const FOOD_CATALOG_FILE = 'products/food-catalog.v1.json';
@@ -214,6 +215,26 @@ export function checkFoodCatalogItem(
   return keys;
 }
 
+/** 空洞／undefined 元素之佔位鍵值（不參與唯一性比對）。 */
+const ABSENT_ITEM_KEYS: CheckedItemKeys = Object.freeze({ itemId: undefined, partnerId: undefined, externalSkuId: undefined });
+
+/**
+ * 以索引式走訪逐筆檢查商品陣列（空洞或 undefined 元素回報 `INVALID_TYPE`，S1-02B DEF-01／OBS-01）。
+ * 回傳與輸入等長、無空洞之鍵值陣列，供 `checkItemUniqueness` 以原索引回報。
+ */
+export function checkFoodCatalogItems(
+  c: ErrorCollector,
+  items: readonly unknown[],
+  basePath: string,
+  options: FoodCatalogItemCheckOptions = {},
+): CheckedItemKeys[] {
+  const keys: CheckedItemKeys[] = Array.from({ length: items.length }, () => ABSENT_ITEM_KEYS);
+  forEachArrayElement(c, items, basePath, (item, index, path) => {
+    keys[index] = checkFoodCatalogItem(c, item, path, options);
+  });
+  return keys;
+}
+
 /** 檢查一批商品之 itemId 與 `(partnerId, externalSkuId)` 唯一性。 */
 export function checkItemUniqueness(c: ErrorCollector, keys: readonly CheckedItemKeys[], basePath: string): void {
   const ids = new Map<string, number>();
@@ -253,16 +274,13 @@ export function validateFoodCatalogConfig(
   file: string = FOOD_CATALOG_FILE,
 ): ValidationResult<FoodCatalogConfig> {
   const c = new ErrorCollector(file);
-  if (input === undefined) {
-    c.add('$', 'INVALID_TYPE', `Expected object but got ${describeValue(input)}.`);
-    return finish(c, input);
-  }
+  if (rejectUndefinedRoot(c, input)) return finish(c, input);
   const root = expectObject(c, input, '$', ROOT_KEYS);
   if (root === undefined) return finish(c, input);
   checkVersion(c, root['version'], '$.version');
   const items = expectArray(c, root['items'], '$.items');
   if (items !== undefined) {
-    const keys = items.map((item, index) => checkFoodCatalogItem(c, item, `$.items[${index}]`));
+    const keys = checkFoodCatalogItems(c, items, '$.items');
     checkItemUniqueness(c, keys, '$.items');
   }
   return finish(c, input);

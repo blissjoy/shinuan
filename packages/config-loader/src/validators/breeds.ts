@@ -14,7 +14,9 @@ import {
   expectObject,
   expectString,
   finish,
+  forEachArrayElement,
   isPlainObject,
+  rejectUndefinedRoot,
 } from './common';
 
 export const BREEDS_FILE = 'genetics/breeds.v1.json';
@@ -63,10 +65,7 @@ function checkSwatch(c: ErrorCollector, value: unknown, path: string): void {
 /** 驗證 `BreedsConfig`：精確包含 6 品種、性格 [0,100]、色盤非空且色碼合法。 */
 export function validateBreedsConfig(input: unknown, file: string = BREEDS_FILE): ValidationResult<BreedsConfig> {
   const c = new ErrorCollector(file);
-  if (input === undefined) {
-    c.add('$', 'INVALID_TYPE', `Expected object but got ${describeValue(input)}.`);
-    return finish(c, input);
-  }
+  if (rejectUndefinedRoot(c, input)) return finish(c, input);
   const root = expectObject(c, input, '$', ROOT_KEYS);
   if (root === undefined) return finish(c, input);
   checkVersion(c, root['version'], '$.version');
@@ -74,8 +73,7 @@ export function validateBreedsConfig(input: unknown, file: string = BREEDS_FILE)
   const breeds = expectArray(c, root['breeds'], '$.breeds');
   if (breeds !== undefined) {
     const seen = new Set<BreedId>();
-    breeds.forEach((entry, index) => {
-      const path = `$.breeds[${index}]`;
+    forEachArrayElement(c, breeds, '$.breeds', (entry, _index, path) => {
       const breed = expectObject(c, entry, path, BREED_KEYS);
       if (breed === undefined) return;
       const id = expectEnum(c, breed['id'], `${path}.id`, BREED_IDS);
@@ -101,7 +99,9 @@ export function validateBreedsConfig(input: unknown, file: string = BREEDS_FILE)
         if (palette.length === 0) {
           c.add(`${path}.colorPalette`, 'EMPTY_COLOR_PALETTE', 'colorPalette must not be empty.');
         }
-        palette.forEach((swatch, i) => checkSwatch(c, swatch, `${path}.colorPalette[${i}]`));
+        forEachArrayElement(c, palette, `${path}.colorPalette`, (swatch, _i, swatchPath) =>
+          checkSwatch(c, swatch, swatchPath),
+        );
       }
     });
     for (const id of BREED_IDS) {
