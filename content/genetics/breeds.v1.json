@@ -1,0 +1,200 @@
+{
+  "version": "v1",
+  "breeds": [
+    {
+      "id": "domestic",
+      "displayName": "米克斯",
+      "basePersonality": {
+        "affection": 60,
+        "laziness": 50,
+        "tsundere": 50,
+        "curiosity": 80
+      },
+      "colorPalette": [
+        {
+          "primary": {
+            "kind": "range",
+            "fromHex": "#E68A3E",
+            "toHex": "#F5C284"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "range",
+            "fromHex": "#6E5D4F",
+            "toHex": "#A89888"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#2B2B2B"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#F8F8F8"
+          },
+          "secondaryHex": null
+        }
+      ]
+    },
+    {
+      "id": "munchkin",
+      "displayName": "曼赤肯",
+      "basePersonality": {
+        "affection": 75,
+        "laziness": 45,
+        "tsundere": 40,
+        "curiosity": 85
+      },
+      "colorPalette": [
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#F5E6D3"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#D98245"
+          },
+          "secondaryHex": "#333333"
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#7A8591"
+          },
+          "secondaryHex": null
+        }
+      ]
+    },
+    {
+      "id": "ragdoll",
+      "displayName": "布偶貓",
+      "basePersonality": {
+        "affection": 90,
+        "laziness": 75,
+        "tsundere": 20,
+        "curiosity": 50
+      },
+      "colorPalette": [
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#FAF5EE"
+          },
+          "secondaryHex": "#4A3728"
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#FAF5EE"
+          },
+          "secondaryHex": "#6B7A8F"
+        }
+      ]
+    },
+    {
+      "id": "british_shorthair",
+      "displayName": "英國短毛貓",
+      "basePersonality": {
+        "affection": 55,
+        "laziness": 85,
+        "tsundere": 65,
+        "curiosity": 40
+      },
+      "colorPalette": [
+        {
+          "primary": {
+            "kind": "range",
+            "fromHex": "#6C7680",
+            "toHex": "#8C96A0"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#D8DEE3"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#D9A760"
+          },
+          "secondaryHex": null
+        }
+      ]
+    },
+    {
+      "id": "exotic",
+      "displayName": "異國短/長毛 (加菲/喜馬拉雅)",
+      "basePersonality": {
+        "affection": 70,
+        "laziness": 80,
+        "tsundere": 55,
+        "curiosity": 45
+      },
+      "colorPalette": [
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#D97236"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#F2E4D5"
+          },
+          "secondaryHex": "#5C4033"
+        }
+      ]
+    },
+    {
+      "id": "maine_coon",
+      "displayName": "緬因貓",
+      "basePersonality": {
+        "affection": 80,
+        "laziness": 50,
+        "tsundere": 35,
+        "curiosity": 75
+      },
+      "colorPalette": [
+        {
+          "primary": {
+            "kind": "range",
+            "fromHex": "#594636",
+            "toHex": "#8C735B"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#3A3D40"
+          },
+          "secondaryHex": null
+        },
+        {
+          "primary": {
+            "kind": "single",
+            "hex": "#C86D3B"
+          },
+          "secondaryHex": null
+        }
+      ]
+    }
+  ]
+}

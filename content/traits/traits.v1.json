@@ -1,0 +1,293 @@
+{
+  "version": "v1",
+  "traitPools": {
+    "domestic": {
+      "head": [
+        {
+          "trait": "standard_round",
+          "weight": 1
+        }
+      ],
+      "ears": [
+        {
+          "trait": "pointed_medium",
+          "weight": 1
+        }
+      ],
+      "eyes": [
+        {
+          "trait": "almond",
+          "weight": 1
+        }
+      ],
+      "pupilColor": [
+        {
+          "trait": "amber",
+          "weight": 1
+        }
+      ],
+      "coatPattern": [
+        {
+          "trait": "tabby_mackerel",
+          "weight": 0.7
+        },
+        {
+          "trait": "calico",
+          "weight": 0.3
+        }
+      ],
+      "tail": [
+        {
+          "trait": "long_straight",
+          "weight": 1
+        }
+      ],
+      "body": [
+        {
+          "trait": "normal",
+          "weight": 1
+        }
+      ]
+    },
+    "munchkin": {
+      "head": [
+        {
+          "trait": "standard_round",
+          "weight": 1
+        }
+      ],
+      "ears": [
+        {
+          "trait": "small_round",
+          "weight": 1
+        }
+      ],
+      "eyes": [
+        {
+          "trait": "big_round",
+          "weight": 1
+        }
+      ],
+      "pupilColor": [
+        {
+          "trait": "copper",
+          "weight": 1
+        }
+      ],
+      "coatPattern": [
+        {
+          "trait": "bicolor_tuxedo",
+          "weight": 0.7
+        },
+        {
+          "trait": "calico",
+          "weight": 0.3
+        }
+      ],
+      "tail": [
+        {
+          "trait": "long_straight",
+          "weight": 1
+        }
+      ],
+      "body": [
+        {
+          "trait": "short_legs",
+          "weight": 1
+        }
+      ]
+    },
+    "ragdoll": {
+      "head": [
+        {
+          "trait": "standard_round",
+          "weight": 1
+        }
+      ],
+      "ears": [
+        {
+          "trait": "pointed_medium",
+          "weight": 1
+        }
+      ],
+      "eyes": [
+        {
+          "trait": "big_round",
+          "weight": 1
+        }
+      ],
+      "pupilColor": [
+        {
+          "trait": "sapphire",
+          "weight": 1
+        }
+      ],
+      "coatPattern": [
+        {
+          "trait": "colorpoint",
+          "weight": 0.7
+        },
+        {
+          "trait": "bicolor_tuxedo",
+          "weight": 0.3
+        }
+      ],
+      "tail": [
+        {
+          "trait": "fluffy_plume",
+          "weight": 1
+        }
+      ],
+      "body": [
+        {
+          "trait": "large_fluffy",
+          "weight": 1
+        }
+      ]
+    },
+    "british_shorthair": {
+      "head": [
+        {
+          "trait": "chubby_round",
+          "weight": 1
+        }
+      ],
+      "ears": [
+        {
+          "trait": "small_round",
+          "weight": 1
+        }
+      ],
+      "eyes": [
+        {
+          "trait": "big_round",
+          "weight": 1
+        }
+      ],
+      "pupilColor": [
+        {
+          "trait": "copper",
+          "weight": 1
+        }
+      ],
+      "coatPattern": [
+        {
+          "trait": "solid",
+          "weight": 0.7
+        },
+        {
+          "trait": "tabby_mackerel",
+          "weight": 0.3
+        }
+      ],
+      "tail": [
+        {
+          "trait": "short_bobtail",
+          "weight": 1
+        }
+      ],
+      "body": [
+        {
+          "trait": "chubby",
+          "weight": 1
+        }
+      ]
+    },
+    "exotic": {
+      "head": [
+        {
+          "trait": "flat_face",
+          "weight": 1
+        }
+      ],
+      "ears": [
+        {
+          "trait": "small_round",
+          "weight": 1
+        }
+      ],
+      "eyes": [
+        {
+          "trait": "big_round",
+          "weight": 1
+        }
+      ],
+      "pupilColor": [
+        {
+          "trait": "copper",
+          "weight": 1
+        }
+      ],
+      "coatPattern": [
+        {
+          "trait": "tabby_mackerel",
+          "weight": 0.7
+        },
+        {
+          "trait": "colorpoint",
+          "weight": 0.3
+        }
+      ],
+      "tail": [
+        {
+          "trait": "short_bobtail",
+          "weight": 1
+        }
+      ],
+      "body": [
+        {
+          "trait": "chubby",
+          "weight": 1
+        }
+      ]
+    },
+    "maine_coon": {
+      "head": [
+        {
+          "trait": "square_muzzle",
+          "weight": 1
+        }
+      ],
+      "ears": [
+        {
+          "trait": "tufted_large",
+          "weight": 1
+        }
+      ],
+      "eyes": [
+        {
+          "trait": "almond",
+          "weight": 1
+        }
+      ],
+      "pupilColor": [
+        {
+          "trait": "emerald",
+          "weight": 1
+        }
+      ],
+      "coatPattern": [
+        {
+          "trait": "tabby_mackerel",
+          "weight": 0.7
+        },
+        {
+          "trait": "tortoiseshell",
+          "weight": 0.3
+        }
+      ],
+      "tail": [
+        {
+          "trait": "fluffy_plume",
+          "weight": 1
+        }
+      ],
+      "body": [
+        {
+          "trait": "giant_fluffy",
+          "weight": 1
+        }
+      ]
+    }
+  }
+}
