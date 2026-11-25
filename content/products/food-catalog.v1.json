@@ -1,0 +1,309 @@
+{
+  "version": "v1",
+  "items": [
+    {
+      "itemId": "free_basic_kibble",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "基礎日常乾糧",
+        "productType": "free",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 28,
+          "crudeFatPercent": 12,
+          "moisturePercent": 10
+        },
+        "ingredients": "穀物、家禽副產品粉、維生素",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "kibble",
+        "price": 0,
+        "gameEffect": {
+          "hunger": 25,
+          "hydration": -2,
+          "mood": 2
+        },
+        "status": "active"
+      }
+    },
+    {
+      "itemId": "free_fresh_water",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "過濾飲用水",
+        "productType": "free",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 0,
+          "crudeFatPercent": 0,
+          "moisturePercent": 100
+        },
+        "ingredients": "純淨過濾水 100%（建議每日更換維持新鮮）",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "water",
+        "price": 0,
+        "gameEffect": {
+          "hunger": 0,
+          "hydration": 32,
+          "mood": 2
+        },
+        "status": "active"
+      }
+    },
+    {
+      "itemId": "shop_chicken_can",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "鮮燉嫩雞主食罐",
+        "productType": "regular",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 12.5,
+          "crudeFatPercent": 4.5,
+          "moisturePercent": 78
+        },
+        "ingredients": "去骨雞胸肉、雞高湯、牛磺酸",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "wet_food",
+        "price": 60,
+        "gameEffect": {
+          "hunger": 25,
+          "hydration": 20,
+          "mood": 5
+        },
+        "status": "active"
+      }
+    },
+    {
+      "itemId": "shop_salmon_mousse",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "野生鮭魚慕斯罐",
+        "productType": "regular",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 11.8,
+          "crudeFatPercent": 5.2,
+          "moisturePercent": 80
+        },
+        "ingredients": "野生鮭魚、魚油、洋車前子膳食纖維",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "wet_food",
+        "price": 80,
+        "gameEffect": {
+          "hunger": 25,
+          "hydration": 22,
+          "mood": 8
+        },
+        "status": "active"
+      }
+    },
+    {
+      "itemId": "brand_nu4pet_kitten",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "【陪心】屁孩罐－葡聚醣雞肉",
+        "productType": "sponsored",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 13,
+          "crudeFatPercent": 5,
+          "moisturePercent": 79
+        },
+        "ingredients": "台灣鮮雞肉、β-葡聚醣、魚油、維生素 E",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "wet_food",
+        "price": 90,
+        "gameEffect": {
+          "hunger": 26,
+          "hydration": 21,
+          "mood": 8
+        },
+        "status": "active"
+      }
+    },
+    {
+      "itemId": "brand_ziwi_venison",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "【Ziwi 巔峰】紐西蘭鹿肉主食罐",
+        "productType": "sponsored",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 12,
+          "crudeFatPercent": 6.5,
+          "moisturePercent": 78
+        },
+        "ingredients": "紐西蘭放牧鹿肉、鹿肝、綠唇貝、海帶",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "wet_food",
+        "price": 110,
+        "gameEffect": {
+          "hunger": 28,
+          "hydration": 20,
+          "mood": 9
+        },
+        "status": "active"
+      }
+    },
+    {
+      "itemId": "brand_rc_hairball",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "【皇家】IH34 化毛配方乾糧",
+        "productType": "sponsored",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 34,
+          "crudeFatPercent": 15,
+          "moisturePercent": 8
+        },
+        "ingredients": "脫水禽肉蛋白、洋車前子殼、甜菜漿",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "kibble",
+        "price": 95,
+        "gameEffect": {
+          "hunger": 28,
+          "hydration": -1,
+          "mood": 6
+        },
+        "status": "active"
+      }
+    },
+    {
+      "itemId": "shop_freeze_dried",
+      "externalSource": {
+        "partnerId": null,
+        "externalSkuId": null,
+        "feedSourceType": "manual",
+        "syncedAt": null
+      },
+      "vendorInfo": {
+        "name": "凍乾原肉丁零食",
+        "productType": "regular",
+        "dataType": "mock",
+        "imageUrl": null,
+        "purchaseUrl": null,
+        "promoCode": null,
+        "nutrition": {
+          "crudeProteinPercent": 82,
+          "crudeFatPercent": 8,
+          "moisturePercent": 5
+        },
+        "ingredients": "100% 冷凍乾燥雞胸肉丁",
+        "sourceName": "MVP 模擬測試資料",
+        "sourceUrl": null,
+        "dataVerifiedAt": null,
+        "lastReviewedAt": "2026-11-25",
+        "disclaimer": "MVP 測試模擬資料，實際成分以原廠包裝標示為準"
+      },
+      "gameBalance": {
+        "category": "treat",
+        "price": 50,
+        "gameEffect": {
+          "hunger": 8,
+          "hydration": -1,
+          "mood": 14
+        },
+        "status": "active"
+      }
+    }
+  ]
+}

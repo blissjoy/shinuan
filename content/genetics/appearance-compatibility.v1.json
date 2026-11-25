@@ -1,0 +1,47 @@
+{
+  "version": "v1",
+  "rules": [
+    {
+      "id": "flat_face_giant_body",
+      "order": 1,
+      "when": {
+        "head": "flat_face",
+        "body": "giant_fluffy"
+      },
+      "set": {
+        "body": "chubby"
+      }
+    },
+    {
+      "id": "colorpoint_amber_pupil",
+      "order": 2,
+      "when": {
+        "coatPattern": "colorpoint",
+        "pupilColor": "amber"
+      },
+      "set": {
+        "pupilColor": "sapphire"
+      }
+    },
+    {
+      "id": "folded_ear_giant_body",
+      "order": 3,
+      "when": {
+        "ears": "folded_tip",
+        "body": "giant_fluffy"
+      },
+      "set": {
+        "ears": "tufted_large"
+      }
+    }
+  ],
+  "safeDefaultAppearance": {
+    "head": "standard_round",
+    "ears": "pointed_medium",
+    "eyes": "almond",
+    "pupilColor": "amber",
+    "coatPattern": "solid",
+    "tail": "long_straight",
+    "body": "normal"
+  }
+}

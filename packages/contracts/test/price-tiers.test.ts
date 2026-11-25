@@ -69,6 +69,9 @@ describe('FOOD_PRICE_TIER_RULES（PRD §8.C.2 7 個級距）', () => {
     for (const rule of FOOD_PRICE_TIER_RULES) {
       expect(Object.isFrozen(rule)).toBe(true);
       expect(Object.isFrozen(rule.price)).toBe(true);
+      expect(Object.isFrozen(rule.hunger)).toBe(true);
+      expect(Object.isFrozen(rule.hydration)).toBe(true);
+      expect(Object.isFrozen(rule.mood)).toBe(true);
     }
   });
 });

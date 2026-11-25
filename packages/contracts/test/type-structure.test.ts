@@ -10,6 +10,9 @@ import {
   type BehaviorDecision,
   type Clock,
   type DailyLimits,
+  type ExternalSource,
+  type FoodCatalogItem,
+  type GameBalance,
   type GameCommand,
   type GameRepository,
   type GameState,
@@ -18,6 +21,7 @@ import {
   type PetState,
   type PetViewModel,
   type RandomGenerator,
+  type VendorInfo,
 } from '../src/index';
 
 const appearance: PetAppearance = {
@@ -242,5 +246,87 @@ describe('外部注入介面（PRD §0、§5.1）', () => {
     await repo.save({ schemaVersion: 2, gameCoreVersion: '0.0.0', pet, dailyLimits });
     expect((await repo.load())?.schemaVersion).toBe(2);
     expectTypeOf<GameRepository['load']>().returns.toEqualTypeOf<Promise<GameState | null>>();
+  });
+});
+
+describe('FoodCatalogItem 三區塊結構（PRD §8.C.2）', () => {
+  it('頂層僅含 itemId 與 externalSource／vendorInfo／gameBalance 三區塊', () => {
+    expectTypeOf<keyof FoodCatalogItem>().toEqualTypeOf<
+      'itemId' | 'externalSource' | 'vendorInfo' | 'gameBalance'
+    >();
+    expectTypeOf<FoodCatalogItem['externalSource']>().toEqualTypeOf<ExternalSource>();
+    expectTypeOf<FoodCatalogItem['vendorInfo']>().toEqualTypeOf<VendorInfo>();
+    expectTypeOf<FoodCatalogItem['gameBalance']>().toEqualTypeOf<GameBalance>();
+  });
+
+  it('externalSource 欄位完整', () => {
+    expectTypeOf<keyof ExternalSource>().toEqualTypeOf<
+      'partnerId' | 'externalSkuId' | 'feedSourceType' | 'syncedAt'
+    >();
+    expectTypeOf<ExternalSource['partnerId']>().toEqualTypeOf<string | null>();
+    expectTypeOf<ExternalSource['externalSkuId']>().toEqualTypeOf<string | null>();
+    expectTypeOf<ExternalSource['feedSourceType']>().toEqualTypeOf<'manual' | 'partner_api' | 'partner_csv'>();
+    expectTypeOf<ExternalSource['syncedAt']>().toEqualTypeOf<string | null>();
+  });
+
+  it('vendorInfo 欄位完整且不含遊戲平衡欄位', () => {
+    expectTypeOf<keyof VendorInfo>().toEqualTypeOf<
+      | 'name'
+      | 'productType'
+      | 'dataType'
+      | 'imageUrl'
+      | 'purchaseUrl'
+      | 'promoCode'
+      | 'nutrition'
+      | 'ingredients'
+      | 'sourceName'
+      | 'sourceUrl'
+      | 'dataVerifiedAt'
+      | 'lastReviewedAt'
+      | 'disclaimer'
+    >();
+    expectTypeOf<keyof VendorInfo['nutrition']>().toEqualTypeOf<
+      'crudeProteinPercent' | 'crudeFatPercent' | 'moisturePercent'
+    >();
+    expectTypeOf<VendorInfo['productType']>().toEqualTypeOf<'regular' | 'sponsored' | 'free'>();
+    expectTypeOf<VendorInfo['dataType']>().toEqualTypeOf<'real' | 'mock'>();
+    expectTypeOf<'price' extends keyof VendorInfo ? true : false>().toEqualTypeOf<false>();
+    expectTypeOf<'gameEffect' extends keyof VendorInfo ? true : false>().toEqualTypeOf<false>();
+  });
+
+  it('gameBalance 欄位完整', () => {
+    expectTypeOf<keyof GameBalance>().toEqualTypeOf<'category' | 'price' | 'gameEffect' | 'status'>();
+    expectTypeOf<keyof GameBalance['gameEffect']>().toEqualTypeOf<'hunger' | 'hydration' | 'mood'>();
+    expectTypeOf<GameBalance['category']>().toEqualTypeOf<'water' | 'kibble' | 'wet_food' | 'treat'>();
+    expectTypeOf<GameBalance['status']>().toEqualTypeOf<'active' | 'pending_review' | 'discontinued'>();
+  });
+
+  it('可建立完整三區塊商品，且缺少任一區塊不合法', () => {
+    const item: FoodCatalogItem = {
+      itemId: 'free_fresh_water',
+      externalSource: { partnerId: null, externalSkuId: null, feedSourceType: 'manual', syncedAt: null },
+      vendorInfo: {
+        name: '過濾飲用水',
+        productType: 'free',
+        dataType: 'mock',
+        imageUrl: null,
+        purchaseUrl: null,
+        promoCode: null,
+        nutrition: { crudeProteinPercent: 0, crudeFatPercent: 0, moisturePercent: 100 },
+        ingredients: '純淨過濾水 100%（建議每日更換維持新鮮）',
+        sourceName: 'MVP 模擬測試資料',
+        sourceUrl: null,
+        dataVerifiedAt: null,
+        lastReviewedAt: '2026-11-25',
+        disclaimer: null,
+      },
+      gameBalance: { category: 'water', price: 0, gameEffect: { hunger: 0, hydration: 32, mood: 2 }, status: 'active' },
+    };
+    expect(Object.keys(item).sort()).toEqual(['externalSource', 'gameBalance', 'itemId', 'vendorInfo']);
+
+    const { gameBalance: _gb, ...withoutBalance } = item;
+    // @ts-expect-error 缺少 gameBalance 區塊不合法
+    const invalid: FoodCatalogItem = withoutBalance;
+    expect('gameBalance' in invalid).toBe(false);
   });
 });

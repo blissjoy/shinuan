@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "check:integrity": "node scripts/check-shinuan-integrity.mjs",
     "cli": "tsx apps/local-cli/src/index.ts",
-    "sandbox": "tsx apps/local-sandbox/src/server.ts"
+    "sandbox": "tsx apps/local-sandbox/src/server.ts",
+    "import-catalog": "tsx scripts/import-catalog.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.10",

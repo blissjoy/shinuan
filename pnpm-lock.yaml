@@ -25,7 +25,11 @@ importers:
 
   apps/local-sandbox: {}
 
-  packages/config-loader: {}
+  packages/config-loader:
+    dependencies:
+      '@shinuan/contracts':
+        specifier: workspace:*
+        version: link:../contracts
 
   packages/contracts: {}
 
