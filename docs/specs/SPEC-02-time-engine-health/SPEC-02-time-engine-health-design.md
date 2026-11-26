@@ -1,4 +1,8 @@
+<a id="top"></a>
+
 # SPEC-02 技術設計文件（Design Spec）：`TimeEngine`、精確交點切割、`MoodHealthPenalty`、`RecoveryState` 與 `CarePause`
+
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-02) ｜ [所屬規格 SPEC-02](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-02) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #13](https://github.com/blissjoy/shinuan/issues/13) / [#14](https://github.com/blissjoy/shinuan/issues/14)
 
 > **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並明確要求 Claude 實作時對本設計執行自我審核、遇邏輯／邊界疑問立即停工提出質疑，嚴禁硬做；已定稿 `SHINUAN-S2-01` 與 `SHINUAN-S2-02` 派工包）**
 > **對應唯一正式規格：** `Master PRD v2.1.30`（§0、§4.2、§5.1、§8.A.1、§8.C.1、§8.E.2 `TC-03`／`TC-04`／`TC-09`、§8.E.3 `TC-MH-01`～`TC-MH-12`、§10.2）

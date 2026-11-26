@@ -1,4 +1,8 @@
+<a id="top"></a>
+
 # SHINUAN-S1-01 技術設計文件（Design Spec）：`@shinuan/contracts` 跨模組型別與資料契約
+
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #3](https://github.com/blissjoy/shinuan/issues/3)
 
 - **Task ID / GitHub Issue：** `SHINUAN-S1-01` / `#3`
 - **所屬 Epic 與規格來源：** `docs/specs/PHASE-A-SPEC-MAP.md`（`SPEC-01` 契約、設定與基因引擎）

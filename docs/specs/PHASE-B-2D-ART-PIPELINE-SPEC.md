@@ -1,4 +1,8 @@
+<a id="top"></a>
+
 # Phase B 美術工程規範｜2D 手繪粉彩貓咪「12 零件紙娃娃拆圖 ＋ 3 層動態著色 ＋ AI 生成指令包」
+
+> **導覽與追溯：** [← 回到規格入口](README.md#phase-b) ｜ [Phase A 規格地圖](PHASE-A-SPEC-MAP.md) ｜ [Master PRD v2.1.30](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md)
 
 - **文件性質：** Phase B 2D 美術與前端渲染對接規格書（PO 2026-11-26 定調採用 2D 粉彩紙娃娃骨骼動畫路線）
 - **風格基準（Style North Star）：** PO 手繪粉彩繪本風格原型圖（已封存於 `D:\Dropbox\ai-bridge\shinuan\tasks\SHINUAN-S1-04\prototype\assets\{dad_exotic_seal.jpg, mom_exotic_cream.jpg}`）
