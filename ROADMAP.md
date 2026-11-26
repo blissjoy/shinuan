@@ -1,6 +1,6 @@
 # 拾暖伴伴（shinuan）ROADMAP — Phase A～E 進度看板
 
-- **規格基準：** Master PRD v2.1.29（§7 開發與實作路線圖、§11.2 Sprint 執行順序）
+- **規格基準：** Master PRD v2.1.30（§7 開發與實作路線圖、§11.2 Sprint 執行順序）
 - **Phase A 細部拆解：** [`docs/specs/PHASE-A-SPEC-MAP.md`](docs/specs/PHASE-A-SPEC-MAP.md)
 - **任務追蹤：** GitHub Issues ＋ Branch ＋ PR（`AGENTS.md` §6）
 - **狀態圖例：** ⬜ 未開始　🟡 進行中　🔍 待 QA／審查　✅ 已合併（PO 核准）
@@ -13,10 +13,11 @@
 
 | Sprint | 大規格 | 小單 | 主題 | 驗收門檻 | 狀態 |
 | --- | --- | --- | --- | --- | --- |
-| Sprint 0 | SPEC-00 底座與拾戰治理導入 | SHINUAN-S0-01（Issue #1） | 治理導入、安全補洞、PRD v2.1.29 定版、pnpm Monorepo ＋ TypeScript strict ＋ Vitest ＋ 純淨度檢核 ＋ 空白看板 | `pnpm typecheck`、`pnpm test`、`node scripts/check-shinuan-integrity.mjs` 全綠 | 🟡 |
-| Sprint 1 | SPEC-01 契約、設定與基因引擎 | SHINUAN-S1-01 | `packages/contracts` 型別與介面契約 | typecheck ＋ 契約單元測試 | ⬜ |
-| Sprint 1 | SPEC-01 | SHINUAN-S1-02 | `content/` 靜態 JSON ＋ `config-loader` ＋ 批次匯入驗證 | 級距白名單、損毀設定 Fallback 測試 | ⬜ |
-| Sprint 1 | SPEC-01 | SHINUAN-S1-03 | `GeneticsEngine` ＋ 領養盲盒可視化頁 | TC-01、TC-02 | ⬜ |
+| Sprint 0 | SPEC-00 底座與拾戰治理導入 | SHINUAN-S0-01（Issue #1 / PR #2） | 治理導入、安全補洞、PRD v2.1.29 定版、pnpm Monorepo ＋ TypeScript strict ＋ Vitest ＋ 純淨度檢核 ＋ 空白看板 | `pnpm typecheck`、`pnpm test`、`node scripts/check-shinuan-integrity.mjs` 全綠 | ✅ |
+| Sprint 1 | SPEC-01 契約、設定與基因引擎 | SHINUAN-S1-01（Issue #3 / PR #4） | `packages/contracts` 型別與介面契約 | typecheck ＋ 契約單元測試 | ✅ |
+| Sprint 1 | SPEC-01 | SHINUAN-S1-02（Issue #5 / PR #6）＋ S1-02B（Issue #7 / PR #8） | `content/` 靜態 JSON ＋ `config-loader` ＋ 批次匯入驗證與 Fail-Closed 邊界修補 | 級距白名單、損毀設定 Fallback 測試 | ✅ |
+| Sprint 1 | SPEC-01 | SHINUAN-S1-03（Issue #9） | `GeneticsEngine`（純品種模式）＋ 領養盲盒可視化頁 | TC-01、TC-02 | 🟡 |
+| Sprint 1 | SPEC-01 | SHINUAN-S1-04（規格定案於 Issue #10） | 真實毛色／毛長／眼色／鼻頭肉球遺傳、一胎 3～5 隻、E1 彩蛋、R1 防盲抽與皮克敏式 2D 換色看板 | TC-10（＋ TC-01/TC-02 零破壞回歸） | ⬜ |
 | Sprint 2 | SPEC-02 時間引擎與健康救援 | SHINUAN-S2-01 | `TimeEngine` 基礎推進與需求衰退 | TC-03 | ⬜ |
 | Sprint 2 | SPEC-02 | SHINUAN-S2-02 | 精確交點切割、`MoodHealthPenalty`、`RecoveryState` | TC-04、TC-MH-01～10、TC-MH-12 | ⬜ |
 | Sprint 2 | SPEC-03 經濟、背包與防損存檔 | SHINUAN-S3-01 | `EconomyEngine` 與商品探索／背包 | TC-07 | ⬜ |
@@ -25,7 +26,7 @@
 | Sprint 3 | SPEC-04 | SHINUAN-S4-02 | `apps/local-cli` ＋ `GameEngine` 總組裝 | 端對端整合測試 | ⬜ |
 | Sprint 3 | SPEC-04 | SHINUAN-S4-03 | 365 天長時模擬與 Phase A 結案報告 | TC-08、TC-09 | ⬜ |
 
-**Phase A 結案條件：** 上表全部 ✅，且 TC-01～TC-09、TC-MH-01～TC-MH-12 經獨立 QA 實測通過。
+**Phase A 結案條件：** 上表全部 ✅，且 TC-01～TC-10、TC-MH-01～TC-MH-12 經獨立 QA 實測通過。
 
 ---
 

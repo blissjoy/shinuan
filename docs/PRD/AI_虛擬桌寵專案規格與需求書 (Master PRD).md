@@ -1,20 +1,24 @@
-# 拾暖伴伴 (shinuan) AI 虛擬桌寵專案規格與需求書 (Master PRD v2.1.29)
+# 拾暖伴伴 (shinuan) AI 虛擬桌寵專案規格與需求書 (Master PRD v2.1.30)
 
-**【版本資訊】** Master PRD v2.1.29（2026-11-25 Phase A 開發基準候選稿，承接 v2.1.28）  
-**【本次修訂重點（v2.1.28 → v2.1.29）】**
+**【版本資訊】** Master PRD v2.1.30（2026-11-26 規格修訂候選稿，承接 v2.1.29）
+**【本次修訂重點（v2.1.29 → v2.1.30，PO 2026-11-26 決議）】**
 
-1. **全篇排版與編號校正**：修正原 Google Docs 匯出造成之章節／條列編號跳號、錯字（§8.C.1 兩處「綠即」→「立即」）及原始 HTML 實體殘留（`&approx;`、`&lt;`、`&gt;`）。
-2. **補齊 4 項開工前規格定案（PO 2026-11-25 決議）**：
-   - `QuirkModifiers` MVP 4 款小怪癖白名單與誕生抽取順序（不影響 `TC-01` 外觀）。
-   - `GeneticsEngine` 實作基準：字串 `seed` 採 FNV-1a 32-bit 轉 `mulberry32-v1`、`colorParams` Schema、`munchkin + maine_coon` 單值枚舉澄清、跨品種初始基礎性格公式。
-   - **遺傳比例 PO 調整**：雙親同種純種品種貓改為 **90% / 10%**（含步驟 1 特殊骨架與步驟 2 一般圖層）；單親加菲（`exotic`）跨品種扁臉提高 15%（**45% → 60%**）；米克斯（`domestic`）＋品種貓跨品種配對時米克斯佔 **30%**（一般圖層 30%/50%/20%、毛色 30%/70%、初始性格 30%/70%）；同步更新 `TC-02`。
-   - `Clock` 介面新增 `getTimezoneOffsetMinutes(): number` 支援純 TS 時區注入。
-   - 補齊 `GameCommand` 完整聯集（獨立保留 `DrinkWater`）、超過每日 25 積分上限後 `mood +3` 照常生效、免費品免扣背包庫存、跨日結算與高健康日結獎勵明確觸發時機。
-   - `PetState` 與 `PetViewModel` 新增寵物晶片號碼欄位 `microchipId`（預設 `null`，留給日後施打晶片／飼主登錄儀式感），`PetGenetics` 新增 `fatherPetId` / `motherPetId`（預留未來寵物族譜追溯）。
-3. **預留商業化廠商 API／批次匯入 Schema**：`food-catalog.v1.json` 劃分 `externalSource`、`vendorInfo`、`gameBalance` 三區塊與軟下架狀態 `status`，支援內部批次建檔與未來品牌商第三方 API 匯入（廠商無權覆寫遊戲平衡數值）。
-4. **納入 Phase A 可視化驗收看板（`apps/local-sandbox/`）** 與拾戰 AI Studio 已生效公司治理規範對齊說明（§5.4）。
+1. **個體父母繁育與真實貓咪毛色、毛長、眼色與鼻頭／肉球遺傳模型（§3.1、§8.A.5）：**
+   - 新增系統內定父母貓設定契約（`content/genetics/preset-parents.v1.json`），採**資料驅動原則**（父母名字、隻數、花色與基因型由外部 JSON 動態維護，不寫死於規格；通用驗證確保 6 品種皆含公／母候選且內定公貓不含三花／玳瑁）。
+   - 個體父母模式採用真實貓咪 **8 基因座孟德爾遺傳**（毛色 7 基因座 `O/o`、`B/b`、`D/d`、`A/a`、`C/cs`、`S/s`、`W/w`＋銀金漸層 `I/i`，外加**毛長 `L/l` (`FGF5`)** 連動長短尾蓬鬆度）、**真實貓咪眼色遺傳模型**（`W/-`、`cs/cs`、`S/-` 與完全對稱之多基因虹膜光譜 `irisPigment: 0 | 1 | 2`）、**確定性鼻頭顏色（`noseColor`）與肉球顏色（`pawPadColor`）**，以及骨架真實遺傳校正（雙曼赤肯採真實孟德爾 `2:1` 即 `2/3` 短腿／`1/3` 正常、禁止非短腿／非扁臉父母憑空變異出短腿或扁臉；折耳／麒麟尾／星空維持遊戲稀有驚喜）。同時 100% 保留既有純品種遺傳模式（`TC-01`、`TC-02` 零破壞）。
+2. **一胎 3～5 隻小貓、子代性別與罕見公三花彩蛋（§8.A.5）：**
+   - 每次配對生出一胎 **3～5 隻**同胎小貓（3 隻 `30%`／4 隻 `40%`／5 隻 `30%`），每隻獨立採 **`50%` 公／`50%` 母**。
+   - 採 **E1 彩蛋規則**：三花／玳瑁母貓（`O/o`）生出之正常公貓自然拆色為 50% 橘系／50% 非橘系；具雙色基因條件之公貓以 **`2%`** 機率觸發罕見 XXY 招財公三花／公玳瑁彩蛋，觸發時於 UI 明確祝賀玩家抽到幸運彩蛋。
+3. **小怪癖領養神秘感（§3.2、§8.A.1、§8.A.5）：**
+   - 領養預覽階段僅提示「有／無隱藏小怪癖（`hasHiddenQuirks`）」，**不提示數量、不揭露名稱與效果**，新增 `discoveredQuirks` 供玩家於日後陪伴互動逐步發現。
+4. **R1 防短時間盲抽與帳號總免費擁有上限（§8.A.5、§8.D）：**
+   - 採 **R1 方案**：每個本地日曆日最多免費繁育 **3 胎**（受既有本地日期與防時鐘回撥規則保護）；放棄本胎換下一胎或領養剩餘兄弟姊妹前提示「**此胎貓咪將由其他玩家領養**」以喚醒珍視感；用完第 3 胎時保留第 3 胎供玩家完成領養不卡死新手。
+   - 領養名額改以**帳號總擁有免費貓咪數**控管（`AdoptionSlotPolicy.maxFreeOwnedPets`，MVP 預設 `1`，架構支援設定為 `n` 並預留 `purchasedExtraPetSlots` 供未來付費多領養）。
+5. **皮克敏式 2D 圖層即時換色選父母與公益／聯名來源預留（§8.A.5、§8.D）：**
+   - 父母挑選介面直接複用全專案唯一 7 層 2D 貓咪渲染器與 `colorParams` 動態著色（選品種＋點色球即時換裝），無須繪製獨立父母寫真立繪；暫緩商業貓舍合作，父母資料來源預留零爭議 `sourceType: "system" | "influencer_ip" | "rescue_shelter"`（網紅貓 IP 與動保中途待領養真貓免費公益合作）。
+6. **新增 `TC-10` 驗收劇本與 Phase A 增量規格 `SHINUAN-S1-04`（§8.E.2、§11.2）。**
 
-**【核心規則保留聲明】** 本次修訂未更動既有 TimeEngine 步進與精確交點公式、MoodHealthPenalty 公式、Recovery 速率與狀態機、Health 40 / 10 保護規則、商品定價級距上限表與 `TC-03`～`TC-09`、`TC-MH-01`～`TC-MH-12` 預期驗收結果。
+**【核心規則保留聲明】** 本次修訂**完全未更動**既有純品種遺傳規則、TimeEngine 步進與精確交點公式、MoodHealthPenalty 公式、Recovery 速率與狀態機、Health 40 / 10 保護規則、商品定價級距上限表與 `TC-01`～`TC-09`、`TC-MH-01`～`TC-MH-12` 預期驗收結果。
 
 ---
 
@@ -49,6 +53,11 @@
 - **GameCommand / GameEvent：** 外部輸入至 `GameEngine` 的操作指令與引擎輸出的不可變事實事件。
 - **Cooldown：** 行為或提醒觸發後的冷卻時間（ms），期間不重複觸發同類事件。
 - **Deterministic Test / Statistical Test：** 固定單一 `seed` 的確定性單元測試，以及使用獨立固定 `seed` 序列（1,000 組）驗證機率分布的統計測試。
+- **PresetParentCat（系統內定父母貓）：** 定義於外部設定檔 `content/genetics/preset-parents.v1.json` 之具體公／母貓候選個體（含品種、性別、外觀圖層與 7 基因座 `CoatGenotype`），採資料驅動隨時可調整，用於「皮克敏式 2D 換色選父母」繁育流程。
+- **CoatGenotype（毛色與毛長基因型）：** 依據真實貓咪遺傳學建立之毛色基因座（`O/o`、`B/b`、`D/d`、`A/a`、`C/cs`、`S/s`、`W/w`、`I/i`）、毛長基因座（`L/l`，`FGF5`）與底層虹膜黑色素等級（`irisPigment: 0 | 1 | 2`），於個體父母模式下以孟德爾遺傳計算子代毛色、毛長、眼色、鼻頭與肉球顏色。
+- **Litter（同胎小貓）：** 單次個體父母配對誕生之 3～5 隻獨立子代清單（3 隻 `30%`／4 隻 `40%`／5 隻 `30%`），每隻各自派生獨立 `seed`、性別與隱藏小怪癖。
+- **AdoptionSlotPolicy（帳號領養名額政策）：** 以玩家帳號總擁有貓咪數為單位控管免費領養上限（`maxFreeOwnedPets`，MVP 預設 `1`，架構支援設定為 `n`）與未來付費擴充名額（`purchasedExtraPetSlots`）。
+- **GeneticsEasterEgg（遺傳彩蛋）：** 個體父母繁育時觸發之極低機率真實生物學彩蛋（如 XXY 招財公三花 `rare_male_calico` 與公玳瑁 `rare_male_tortoiseshell`），觸發時於 UI 明確祝賀提示玩家。
 
 ---
 
@@ -125,6 +134,7 @@
    - 每隻寵物生成後，必須永久保存完整的最終 `appearance`（含 `colorParams`）、`geneticsVersion`、`prngAlgorithmVersion` 與 `rulesVersion`。
    - **任何後續 Genetics、PRNG、Trait Pool 或 Compatibility Rule 更新，均不得重新生成或覆寫既有寵物的外觀。**
 5. **GrowthStage MVP 規範：** MVP 初期不實作實際年齡成長與外觀變化。`ageInDays` 僅作為遊戲累計天數資料預留，不影響外觀、動畫、健康或人格數值；`growthStage` 初期固定為 `"adult"`，保留未來版本擴充。
+6. **個體父母選配與一胎 3～5 隻領養模式（v2.1.30 增量，與上述純品種模式雙軌並存）：** 正式領養動線支援玩家由 `preset-parents.v1.json` 挑選具體公貓（爸爸）與母貓（媽媽），採皮克敏式 2D 圖層即時換色預覽並一次誕生 **3～5 隻**同胎小貓；毛色與花紋採用真實貓咪 7 基因座孟德爾遺傳公式（詳見 §8.A.5），同時 100% 保留原有純品種模式以確保 `TC-01`、`TC-02` 零破壞。
 
 ## 3.2 三層行為決策模型 (Behavior Decision Model)
 
@@ -145,6 +155,7 @@
   - `multiplicativeWeightModifier`：乘法權重修正（如 `1.3` 代表原始權重乘以 1.3 倍）。
   - 多個 Quirk 同時作用於同一行為時，先套用加法修正再套用乘法修正，最終機率嚴格限制（Clamp）於 `[0.05, 0.95]` 區間。
   - **Phase A MVP 白名單（共 4 款）與誕生抽取順序：** 領養生成時，**排在七大外觀圖層與 `colorParams` 微調全部完成之後**，才使用同一 `RandomGenerator` 獨立抽出小怪癖（確保不影響 `TC-01` 外觀）；數量機率固定為 `50%` 無怪癖（0 個）、`35%` 抽 1 個、`15%` 抽 2 個（不重複，自白名單等權重抽選）。詳細清單見 §8.B.2。
+  - **領養預覽神秘感規範（v2.1.30）：** 為保留養貓驚喜感，領養預覽介面**僅提示「有／無隱藏小怪癖（`hasHiddenQuirks: boolean`）」，絕不顯示怪癖數量、名稱或效果**；實際 `quirks` 於領養確認後寫入存檔，並以 `discoveredQuirks`（初始為空陣列 `[]`）隨日後互動逐步揭露。
 - **第三層：即時狀態調節 (CurrentStateModifier)：** 飢餓、水分、心情、健康與作息時段作為即時條件輸入 `BehaviorEngine`，影響當下動作選擇，絕不反向永久修改 `BasePersonality`。
 
 ---
@@ -339,7 +350,12 @@
    - `geneticsVersion` (`string`)：遺傳邏輯版本號（如 `"1.0.0"`）。
    - `rulesVersion` (`string`)：品種與相容性設定檔版本號（如 `"v1"`）。
    - `fatherBreed` / `motherBreed` (`BreedId`)：父母品種識別碼。
-   - `fatherPetId` / `motherPetId` (`string | null`)：父母貓咪之系統識別編號（對應父母的 `PetState.id`，生成後永久鎖定供未來族譜追溯；初代由基礎品種池領養誕生時預設為 `null`）。
+   - `fatherPetId` / `motherPetId` (`string | null`)：父母貓咪之系統識別編號（對應父母的 `PetState.id` 或 `PresetParentCat.parentId`，生成後永久鎖定供未來族譜追溯；純品種池模式領養誕生時預設為 `null`）。
+   - `gender` (`"male" | "female"`，v2.1.30 選填增量，個體父母模式必填)：貓咪性別。
+   - `coatGenotype` (`CoatGenotype`，v2.1.30 選填增量，個體父母模式必填)：真實毛色、毛長（`L/l`）與底層虹膜色素（`irisPigment`）基因型。
+   - `coatLength` (`"short" | "long"`，v2.1.30 選填增量，個體父母模式必填)：由 `L/l` 推導之毛長表現型。
+   - `noseColor` / `pawPadColor` (`{ id: string; hex: string; secondaryHex?: string | null }`，v2.1.30 選填增量，個體父母模式必填)：由 `coatGenotype` 確定性推導之鼻頭與肉球顏色。
+   - `easterEggs` (`readonly GeneticsEasterEggId[]`，v2.1.30 選填增量)：誕生時觸發之遺傳彩蛋識別陣列（如 `rare_male_calico`、`rare_male_tortoiseshell`）。
    - `appearance` (`PetAppearance`)：最終確定的 7 大圖層 ID 與 `colorParams`（唯一渲染依據），其中 `colorParams` 結構固定為：
      ```ts
      interface ColorParams {
@@ -358,6 +374,7 @@
    - `genetics` (`PetGenetics`)：不可變遺傳與外觀資料。
    - `basePersonality` (`object`)：基礎人格數值（`0~100`）：`affection`（親人）、`laziness`（慵懶）、`tsundere`（傲嬌）、`curiosity`（好奇）。
    - `quirks` (`QuirkId[]`)：小怪癖 ID 陣列（最多 2 個）。
+   - `discoveredQuirks` (`QuirkId[]`，v2.1.30 選填增量，預設 `[]`)：玩家已於陪伴互動中發現並解鎖顯示的小怪癖子集（領養預覽與剛領養時為空，不提前暴雷）。
    - `memories` (`object`)：行為統計記憶（`totalPets`、`totalPlays`、`foodCategoryCounts`、`dailyBuckets: Record<string, { pets: number; plays: number; wetFoods: number; premiumFoods: number; totalInteractions: number }>`，保留最近 30 個本地日期 `YYYY-MM-DD` 鍵值，超過 30 日自動滾動清理）。計算時機：每次執行有效互動指令（`FeedPet`、`DrinkWater`、`PetCat`、`PlayWithPet`）後立即重算 `basePersonality`；每次開啟 App 跨日結算時亦重算一次。
    - `needs` (`object`)：即時需求數值（嚴格限制 `0~100`）：`hunger`（飽食）、`hydration`（水分）、`mood`（心情）。
    - `health` (`number`)：健康值（嚴格限制 `10~100`，設 `10` 為保護下限）。
@@ -423,6 +440,47 @@
    - 先決定採用的品種色盤：同品種採該品種色盤（100%）；米克斯 ＋ 純種品種貓為 **30%** 米克斯色盤 / **70%** 品種貓色盤；其他跨品種為 **50%** 父方色盤 / **50%** 母方色盤。
    - 從選定品種之合法毛色色盤清單等權重抽出一組色碼（若為區間色則於區間內線性插值取基準色），再於 HSL 空間對明度與飽和度各自進行確定性 `±8%` 微調，寫入 `colorParams`。
 5. **步驟 5（小怪癖獨立抽選）：** 於步驟 1～4 全部完成後，才以同一 `RandomGenerator` 依 §3.2 規則抽出 `quirks`（50% 0 個 / 35% 1 個 / 15% 2 個），確保不改變既有外觀結果。
+
+### 8.A.5 個體父母貓、真實遺傳學模型（毛色／毛長／眼色／鼻頭與肉球）與一胎 3～5 隻領養規範 (`preset-parents.v1.json`，v2.1.30 新增)
+
+本節定義正式領養體驗之「具體父母選配＋一胎 3～5 隻」增量規則，與 §8.A.4 純品種模式雙軌並存，**不修改既定純品種 API 與 `TC-01`/`TC-02` 驗收基準**：
+
+1. **資料驅動父母池（`content/genetics/preset-parents.v1.json`）：**
+   - 父母候選貓之名字、隻數、外觀圖層與 `CoatGenotype` 一律由外部設定檔驅動，**不寫死於本 PRD 或程式碼**，隨時可自由增刪調整並由 `config-loader` 執行通用不變量驗證：
+     - `parentId` 全表唯一且非空；`breedId` 為合法 6 品種之一；6 品種各自至少包含 1 隻公貓（`male`）與 1 隻母貓（`female`）。
+     - 內定公貓（`gender === "male"`）禁止配置 `coatPattern === "calico"` 或 `"tortoiseshell"`（對齊真實貓咪 X 染色體遺傳）。
+     - 每隻父母之 7 層外觀不含 4 項稀有突變，且不得違反 §8.A.3 相容規則 1～3。
+   - **呈現與來源契約：** 系統父母預設 `portraitAssetId: null`，由平台端複用 7 層 2D 貓咪渲染器＋`colorParams` 即時換色繪製（皮克敏式選色球，零額外父母立繪美術成本）；每筆資料預留 `sourceType: "system" | "influencer_ip" | "rescue_shelter"` 與選填 `sourceMeta`（Phase A 全為 `"system"`，暫緩商業繁殖貓舍合作，保留未來網紅貓 IP 與動保中途待領養真貓免費公益合作介面）。
+2. **一胎 3～5 隻數量分布與獨立 Seed 派生：**
+   - 輸入已驗證之爸爸（`male`）、媽媽（`female`）與 `litterSeed`：以 `litterRng` 抽 1 次決定每胎隻數 — **3 隻 `30%`（`< 0.30`）、4 隻 `40%`（`< 0.70`）、5 隻 `30%`（`>= 0.70`）**。
+   - 同胎第 `i` 隻小貓固定派生獨立種子 `kittenSeed = "${litterSeed}#kitten-${i}"`，各自獨立初始化 `mulberry32-v1` PRNG 執行遺傳生成，並永久寫入 `fatherPetId = fatherParent.parentId`、`motherPetId = motherParent.parentId`。
+3. **真實貓咪遺傳模型（毛色、毛長、眼色、鼻頭／肉球、骨架校正與 E1 彩蛋）：**
+   - **子代性別：** 每隻小貓獨立 `50%` 公（`male`）／`50%` 母（`female`）。
+   - **X 染色體橘色基因（`O / o`）與 E1 彩蛋：**
+     - 母貓（`XX`）固定以 `50/50` 隨機傳遞 1 條 X（`momO`）。
+     - **母寶（`female`）：** 自爸爸取其唯一 X 與 `momO` 組成 `[dad.O, momO]`（一 `O` 一 `o` 即表現三花／玳瑁）。
+     - **公寶（`male`）：** 當雙親具備雙色基因來源（母為 `O/o`，或爸媽 X 色系互補）時，以 **`2%`** 機率觸發罕見 **XXY 彩蛋**（`orange = ['O', 'o']`，依白斑表現為 `rare_male_calico` 或 `rare_male_tortoiseshell`，UI 須明確向玩家彈出幸運彩蛋祝賀）；其餘 **`98%`** 為正常 XY 公寶（`orange = [momO]`，因此三花／玳瑁母貓生出之公寶自然拆色為 **50% 橘系／50% 非橘系**）。
+   - **常染色體毛色與毛長基因座（標準孟德爾 50/50 遺傳）：**
+     - 毛色基因座：`B/b`（黑／巧克力）、`D/d`（濃色／稀釋）、`A/a`（虎斑／純色）、`C/cs`（全色／重點色）、`S/s`（白斑）、`W/w`（顯性純白）、`I/i`（銀金漸層抑制），依生物學上位效應（`W` 顯性純白遮罩 > `cs/cs` 重點色〔`S/-` 確定性對應 `bicolor_tuxedo` 雙色重點、`s/s` 對應 `colorpoint` 經典重點〕 > `O/o` 三花／玳瑁 > `O` 橘色上位虎斑 > `o` 黑巧藍丁香搭配 `I/i` 漸層）確定性映射為最終 `coatPattern` 與標準基準 HEX，再套用 §8.A.4 步驟 4 之 HSL `±8%` 微調（含無彩色保護）。
+     - **毛長基因座（`coatLength: AllelePair<'L' | 'l'>`，`FGF5`）：** `L`（短毛）顯性 > `l`（長毛）隱性；`l/l` 表現為 `'long'`（長毛）、`L/-` 表現為 `'short'`（短毛）。當子代尾巴不屬於短尾（`short_bobtail`）或麒麟尾（`kinked_kirin`）時，**一般長尾自動連動毛長表現型**：長毛（`'long'`）表現為蓬鬆羽毛尾 `fluffy_plume`，短毛（`'short'`）表現為直尾 `long_straight`。
+   - **確定性鼻頭顏色（`noseColor`）與肉球顏色（`pawPadColor`）：** 100% 由 `CoatGenotype` 確定性推導（0 次額外亂數）——純白（`W/-`）與橘／奶油系為粉紅鼻與粉紅肉球；黑／棕系為純黑或磚紅黑框鼻與黑豆豆肉球；藍灰系為藍灰鼻與灰紫肉球；巧克力／丁香系為巧棕／淡紫粉鼻與對應肉球；三花／玳瑁／帶白斑（`S/-`）呈現粉／花鼻與粉黑（或粉灰）相間花肉球；重點色（`cs/cs`）依重點色與雙色白斑對應。
+   - **真實貓咪眼色遺傳規則（`pupilColor`，主控基因優先序 ＋ 完全對稱多基因虹膜光譜）：**
+     1. **顯性純白 `W/-`：** **`35%` 雙眼藍眼（`sapphire`）、`15%` 藍金異色瞳（`heterochromia_blue_gold`）、`50%` 底層多基因虹膜色**。
+     2. **重點色 `cs/cs`（無 `W` 遮罩）：** **100% 表現藍眼（`sapphire`）**。
+     3. **帶白斑 `S/-`（非 `W/-` 且非 `cs/cs`）：** **`5%` 藍眼（`sapphire`）、`5%` 藍金異色瞳（`heterochromia_blue_gold`）、`90%` 底層多基因虹膜色**。
+     4. **一般無白貓（`w/w`、`C/-`、`s/s`）：** **100% 走底層多基因虹膜光譜**（不無端出現藍眼或異色瞳）。
+     5. **完全對稱之底層多基因虹膜光譜（`irisPigment: 0 | 1 | 2` 對應 `emerald=0` 淺綠、`amber=1` 琥珀黃、`copper=2` 深古銅）：** 令 `sum = dadIris + momIris`（`0..4`）：
+        - 若 `sum` 為偶數（`0, 2, 4`，整數中點 `mid = sum / 2`）：`25%`（`< 0.25`）往淺 `clamp(mid - 1, 0, 2)`、`50%`（`< 0.75`）維持 `mid`、`25%`（`>= 0.75`）往深 `clamp(mid + 1, 0, 2)`（例：綠×古銅或琥珀×琥珀精確為 `25%` 綠／`50%` 琥珀／`25%` 古銅；綠×綠與古銅×古銅完全鏡像對稱）。
+        - 若 `sum` 為奇數（`1, 3`）：`50%`（`< 0.50`）取 `Math.floor(sum / 2)`、`50%`（`>= 0.50`）取 `Math.ceil(sum / 2)`。
+   - **骨架真實遺傳校正與驚喜保留（僅作用於個體父母模式，不改動 `S1-03` 純品種模式）：**
+     - **雙親皆曼赤肯（`Mk/mk × Mk/mk`）：** 採真實孟德爾存活 `2:1` 比例 — **`2/3`（約 `66.7%`）`short_legs` / `1/3`（約 `33.3%`）`normal`**（單親曼赤肯維持真實 `50% short_legs / 25% 另一方體型 / 25% normal`）。
+     - **禁止無中生有顯性短腿與極端扁臉：** 步驟 2 之 `body` 通用變異白名單排除 `short_legs`（僅含 `normal`、`chubby`、`large_fluffy`、`giant_fluffy`）；`head` 通用變異白名單排除 `flat_face`（僅含 `standard_round`、`chubby_round`、`square_muzzle`）；非曼赤肯／非加菲雙親不會憑空變異出短腿或扁臉。
+     - **折耳／麒麟尾／星空維持遊戲稀有驚喜：** `ears`（`folded_tip`）、`tail`（`kinked_kirin`）與 `coatPattern`（`starry_rare`，覆寫花紋但保留真實遺傳底色）維持現行 `2.5%～5%` 稀有突變驚喜率；步驟 3 相容規則 1～4、步驟 5 小怪癖與 §3.2 初始 `breedBase` 公式全部沿用。
+4. **領養預覽怪癖遮罩契約：**
+   - 領養預覽物件（`AdoptionKittenPreview`）僅提供 `hasHiddenQuirks: boolean`（`quirks.length > 0`），嚴禁向預覽 UI 曝露 `quirks` 陣列內容與數量。
+5. **R1 每日免費繁育上限與帳號總免費擁有上限：**
+   - **R1 防短時間盲抽：** 每個本地日曆日最多免費繁育 **`3` 胎**（記錄於 `DailyLimits.littersGeneratedToday` 與 `lastLitterGeneratedAt`，受既有本地日期與防時鐘回撥保護）。當玩家放棄本胎換下一胎前，須明確提示 **「此胎貓咪將由其他玩家領養」** 以喚醒珍視感；用完第 3 胎時鎖定換下一胎，但保留當日最後一胎（3～5 隻）供玩家直接領養，不卡死新手。
+   - **帳號總免費擁有上限（`AdoptionSlotPolicy`）：** 改以玩家帳號**總擁有貓咪數**控管（`totalAllowedPets = maxFreeOwnedPets + purchasedExtraPetSlots`；MVP 預設 `maxFreeOwnedPets = 1`、`purchasedExtraPetSlots = 0`，架構支援設為 `n` 並於未來階段提供付費解鎖額外領養名額）；確認領養且本胎仍有未選中小貓時，提示 **「若此次放棄多領養，其餘兄弟姊妹將被其他玩家領養」**。
 
 ---
 
@@ -584,8 +642,8 @@ MVP 階段不設自動營養換算公式，所有上架商品（含一般商品�
 
 ## 8.D UI/UX 介面與操作動線 (UI/UX Flow)
 
-1. **開局領養流程（MVP 限制單貓制）：**
-   - 選擇父母品種（支援無限次重新隨機盲盒搭配，確定領養後鎖定外觀與 `seed`）➔ 基因融合誕生過場 ➔ 預覽外觀並命名（1～12 字元）➔ 雙平台權限引導（Android 引導懸浮窗授權；iOS 引導桌面 Widget 教學）。
+1. **開局領養流程（MVP 預設帳號總免費擁有 1 隻，架構預留多養槽位）：**
+   - 皮克敏式 2D 換色選父母（分別選擇爸爸／媽媽品種與毛色球，上方 2D 預覽貓即時換裝並顯示隱性基因線索）➔ 誕生一胎 **3～5 隻**同胎小貓（依 R1 每日免費上限 3 胎；放棄本胎重抽前提示「此胎貓咪將由其他玩家領養」；用完 3 胎保留最後一胎可領養）➔ 檢視同胎各貓外觀、性別、遺傳小知識、隱藏小怪癖提示（僅示有／無，不示數量與名稱）與罕見公三花彩蛋祝賀 ➔ 挑選有眼緣之小貓領養命名（1～12 字元；確認前提示其餘未領養兄弟姊妹將被其他玩家領養，確定領養後鎖定外觀、`seed` 與 `fatherPetId`/`motherPetId`）➔ 雙平台權限引導（Android 引導懸浮窗授權；iOS 引導桌面 Widget 教學）。
 2. **主房間與控制選項 (`HomeScreen`)：**
    - 頂部顯示四大狀態條與積分；底部為「背包餵食」、「商店」、「圖鑑」與「設定」。
    - **照顧保護與顯示設定：** 支援「暫時隱藏懸浮窗至通知列」、「貓咪顯示尺寸調整（小／中／大）」以及「照護暫停保護模式 (Care Pause)」。
@@ -601,13 +659,13 @@ MVP 階段不設自動營養換算公式，所有上架商品（含一般商品�
 1. **時間戳單一權威來源：** `PetState.lastSimulatedAt` 為遊戲模擬時間的唯一權威來源；資料庫外層之 `created_at` 與 `updated_at` 僅供維運追蹤，寫入時由 Adapter 注入之 `Clock` 同步填入，不得與 `PetState.lastSimulatedAt` 產生雙頭馬車。
 2. **Phase A (Windows 本機)：** 採用防損 JSON 寫檔流程（先寫入 `save.tmp` ➔ 驗證 JSON 結構 ➔ 備份舊檔為 `save.bak` ➔ 原子替換為 `save.json`）。
 3. **Phase C (手機端 SQLite)：**
-   - `game_saves` 表包含：`id`、`schema_version`（目前為 `2`；此 Schema 版本於 Master PRD v2.1.4 引入，v2.1.5 ～ v2.1.29 未變更）、`game_core_version`、`pet_state_json`（完整序列化保存整個 `PetState`，明確包含 `microchipId`、`genetics`、`appearance`、`basePersonality`、`quirks`、`memories`、`needs`、`health`、`recoveryState`、`recoveryBoostAccumulatedHours`、`lowMoodDuration`、`isCarePaused`、`coins`、`inventory`、`lastSimulatedAt`）、`daily_limits_json`、`created_at`、`updated_at`。
+   - `game_saves` 表包含：`id`、`schema_version`（目前為 `2`；此 Schema 版本於 Master PRD v2.1.4 引入，v2.1.5 ～ v2.1.30 維持向後相容，v2.1.30 新增欄位皆為可選或具預設值）、`game_core_version`、`pet_state_json`（完整序列化保存整個 `PetState`，明確包含 `microchipId`、`genetics`、`appearance`、`basePersonality`、`quirks`、`discoveredQuirks`、`memories`、`needs`、`health`、`recoveryState`、`recoveryBoostAccumulatedHours`、`lowMoodDuration`、`isCarePaused`、`coins`、`inventory`、`lastSimulatedAt`）、`daily_limits_json`、`created_at`、`updated_at`。
    - `game_events` 表僅作為行為追蹤與除錯日誌（非主存檔來源），定期清理超過 30 天之舊紀錄。
 4. **存檔升級遷移規則 (Migration)：** 每次 App 升級偵測到 `schema_version` 落後時，先自動備份原始存檔再執行漸進式遷移腳本（`v1 -> v2`），當載入 `schema_version = 1` 的舊存檔時，自動補齊 `microchipId: null`、`genetics.fatherPetId: null`、`genetics.motherPetId: null`、`recoveryBoostAccumulatedHours: 0`、`lowMoodDuration: { below40Hours: 0, below20Hours: 0 }` 與 `isCarePaused: false` 等預設值，**嚴禁因版本更新而重置或重新生成既有貓咪的外觀與個性**；若遷移失敗則安全回退至備份檔。
 
 ### 8.E.2 核心自動化驗收測試案例 (Vitest Acceptance Criteria)
 
-RD 完成 Phase A 時必須通過以下 9 項核心測試與照護負擔驗證：
+RD 完成 Phase A 時必須通過以下 10 項核心測試與照護負擔驗證：
 
 1. **TC-01（基因確定性與 Golden Test）：** 固定 `seed: "test-seed-001"`、`prngAlgorithmVersion: "mulberry32-v1"`（FNV-1a 32-bit 雜湊）、`geneticsVersion: "1.0.0"`，連續生成 10 次結果 100% 一致；對於不同 seed（`"test-seed-001"` vs `"test-seed-002"`），驗證 PRNG 抽取序列確實不同並比對正式鎖定之 Golden Fixture（`tests/fixtures/genetics-golden-v1.json`，於 `S1-3` 經 QA 與 Reviewer 逐步驟核對公式無誤後首次鎖定），不要求不同 Seed 必須產出不同外觀；另驗證新增或移除步驟 5 小怪癖抽取不影響步驟 1～4 外觀輸出。
 2. **TC-02（特殊骨架雙親與跨品種統計分布）：** 使用獨立固定種子序列 `seed_0001 ~ seed_1000`（每次獨立初始化 PRNG 確保狀態隔離）：
@@ -675,6 +733,11 @@ RD 完成 Phase A 時必須通過以下 9 項核心測試與照護負擔驗證�
        - **Day 3 `07:00 ~ 08:00`（`1.0h`，日間）：** 需求均 `>= 60`、Mood `40~69` (`+1.25/hr`) 回血 `+1.25` ➔ `Health ≈ 88.3333`（照護前 `Hunger 74.4`、`Hydration 74.4`、`Mood 66.0`）。
        - **Day 3 `08:00` 照護後：** `Hunger = 100`、`Hydration = 100`、`Mood = 80.0`、`Health ≈ 88.3333`。
        - **Day 3 `08:00 ~ 12:40`（`14/3 h`，日間）：** 需求均 `>= 60`、`Mood >= 70` (`+2.5/hr`) 回血 `+11.6667` ➔ 於 **Day 3 `12:40`** 精確達成 **`Health = 100.0`**（此時 `Hunger ≈ 81.33`、`Hydration ≈ 81.33`、`Mood ≈ 74.17`），立即 Clamp 為 `100` 並重置為 `RecoveryState = "NORMAL"`、`recoveryBoostAccumulatedHours = 0`。
+10. **TC-10（個體父母真實遺傳模型、一胎 3～5 隻、彩蛋與 R1 防盲抽，v2.1.30 新增）：**
+    - 驗證 `preset-parents.v1.json` 通用不變量（6 品種皆含公／母、公貓無三花／玳瑁、無相容規則衝突與無稀有突變），且不與特定父母名字或固定隻數寫死耦合。
+    - 使用獨立固定種子序列（1,000 組）驗證：每胎隻數吻合 3 隻 `30% ± 5%`、4 隻 `40% ± 5%`、5 隻 `30% ± 5%`；子代性別吻合 `50%` 公／`50%` 母（`± 5%`）。
+    - 驗證真實孟德爾毛色、毛長、眼色、鼻頭／肉球與骨架遺傳：三花母貓（`O/o`）生出之正常公貓拆色吻合 `50%` 橘系／`50%` 非橘系（`± 5%`）；雙純合稀釋（`dd × dd`）100% 表現稀釋色；重點色基因 `CC × cscs`（0%）、`Ccs × cscs`（50% ± 5%）、`cscs × cscs`（100%）；毛長基因 `ll × ll` 100% 長毛且一般長尾為 `fluffy_plume`、`Ll × Ll` 長毛 `25% ± 5%`；鼻頭與肉球顏色 100% 吻合基因型確定性對照；E1 具雙色基因條件之公貓 XXY 彩蛋觸發率吻合 `2%` 合理統計區間並輸出對應 `easterEggs` 標記；眼色符合真實生物學（`cs/cs` 非純白 100% `sapphire`、`W/-` 35% `sapphire` / 15% `heterochromia_blue_gold` ± 5%、`S/-` 非白非重點 5% `sapphire` / 5% `heterochromia_blue_gold` ± 3%、一般無白貓 `w/w + C/- + s/s` 0% 藍眼與 0% 異色瞳，且對稱多基因光譜 `(0,2)` 吻合 `25%` 綠 / `50%` 琥珀 / `25%` 古銅 `± 5%`）；雙曼赤肯個體模式吻合真實孟德爾 `66.7% ± 5%` 短腿 / `33.3% ± 5%` 正常，且非曼赤肯／非加菲雙親 0% 憑空產生 `short_legs` 或 `flat_face`。
+    - 驗證領養預覽契約 `AdoptionKittenPreview` 僅輸出 `hasHiddenQuirks: boolean`，不含 `quirks` 陣列或數量；驗證 R1 每日 3 胎上限、跨日重置、時鐘回撥不重置、用完第 3 胎仍可領養最後一胎，以及 `AdoptionSlotPolicy` 帳號總免費擁有上限計算正確；同時確認既定 `TC-01`、`TC-02` 100% 零破壞通過。
 
 ### 8.E.3 Mood-Health 混合模式專屬自動化驗收測試清單 (`TC-MH-01 ~ TC-MH-12`)
 
@@ -737,7 +800,7 @@ RD 完成 Phase A 時必須通過以下 9 項核心測試與照護負擔驗證�
 ## 11.2 Sprint 執行順序
 
 1. **Sprint 0（Phase A 前置 — 治理銜接與 Monorepo 底座）：** 導入拾戰公司制度（Branch/PR、R2/R3 授權、worktree QA、3 行回報）、補 `.gitignore`、安裝本機 `pre-push` hook、建立 pnpm Monorepo + TypeScript strict + Vitest + 自動純淨度檢核腳本與空白可視化看板骨架。
-2. **Sprint 1（Phase A - 契約、設定與基因引擎）：** 建立 `packages/contracts`、`packages/config-loader`（Local 模式＋三區塊商品 Schema）、`content/` 靜態設定檔、`PetState` 模型與 `GeneticsEngine`（通過 `TC-01`、`TC-02`），並於 `apps/local-sandbox` 提供「盲盒領養＋1,000 隻機率分布」可視化驗收。
+2. **Sprint 1（Phase A - 契約、設定與基因引擎）：** 建立 `packages/contracts`、`packages/config-loader`（Local 模式＋三區塊商品 Schema＋資料驅動內定父母池驗證）、`content/` 靜態設定檔、`PetState` 模型與 `GeneticsEngine`（涵蓋純品種遺傳 `TC-01`/`TC-02` 及個體父母 7 基因座真實毛色遺傳、一胎 3～5 隻、E1 彩蛋與 R1 防盲抽 `TC-10`），並於 `apps/local-sandbox` 提供「皮克敏式 2D 換色選父母領養一胎 3～5 隻 ＋ 1,000 隻機率分布」可視化驗收。
 3. **Sprint 2（Phase A - 時間、健康救援與經濟存檔）：** 實作 `TimeEngine`（0.25 小時區段步進、精確交點切割、時區注入與時間倒退保護）、健康救援狀態機、`MoodHealthPenalty`、`EconomyEngine`、背包系統與防損 JSON 存檔（通過 `TC-03`、`TC-04`、`TC-07`、`TC-MH-01 ~ TC-MH-12`），並於 `apps/local-sandbox` 提供「時間快轉＋Care Pause＋模擬商店與存檔」可視化驗收。
 4. **Sprint 3（Phase A - 行為決策、CLI 與長時模擬驗收）：** 實作 `BehaviorEngine` 三層決策與同級仲裁、`apps/local-cli` 互動操作介面、365 天長時模擬與每日照護負擔驗證（通過 `TC-05`、`TC-06`、`TC-08`、`TC-09`），並於 `apps/local-sandbox` 提供「連戳互動冷卻＋60/365 天趨勢曲線」驗收。
 5. **Sprint 4（Phase B - 雙平台渲染 PoC）：** 建立單隻測試貓，驗證 React Native、Android Kotlin 懸浮窗與 iOS SwiftUI Widget 消費同一份 `PetViewModel` 之一致性。

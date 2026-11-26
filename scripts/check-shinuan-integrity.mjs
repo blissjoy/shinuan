@@ -6,7 +6,7 @@
 //       本腳本只讀取 .gitignore 文字，絕不進入、列舉或掃描 docs/PO-step-by-step/。
 //   (b) packages/game-core 內零禁用 API：
 //       window、document、fs、path、process、Date.now、Math.random、getTimezoneOffset、react。
-//   (c) Master PRD 標題必為 `Master PRD v2.1.29`，且檔案為 UTF-8 無 BOM。
+//   (c) Master PRD 標題必為 `Master PRD v2.1.30`，且檔案為 UTF-8 無 BOM。
 //
 // 用法：node scripts/check-shinuan-integrity.mjs [repoRoot]
 // 全部通過退出碼 0；任一失敗退出碼 1。
@@ -19,7 +19,7 @@ export const REQUIRED_GITIGNORE_RULE = '/docs/PO-step-by-step/';
 export const PROTECTED_DIR_SEGMENTS = Object.freeze(['docs', 'PO-step-by-step']);
 export const GAME_CORE_DIR = join('packages', 'game-core');
 export const PRD_RELATIVE_PATH = join('docs', 'PRD', 'AI_虛擬桌寵專案規格與需求書 (Master PRD).md');
-export const REQUIRED_PRD_VERSION = 'v2.1.29';
+export const REQUIRED_PRD_VERSION = 'v2.1.30';
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
 const SKIPPED_DIR_NAMES = new Set(['node_modules', 'dist', 'coverage', '.turbo']);
@@ -208,7 +208,7 @@ export function checkPrdBytes(bytes) {
     .replace(/^﻿/, '')
     .split(/\r?\n/)
     .find((line) => line.trim() !== '');
-  const titlePattern = /^#\s.*Master PRD v2\.1\.29(?![0-9.])/;
+  const titlePattern = /^#\s.*Master PRD v2\.1\.30(?![0-9.])/;
   if (title === undefined || !titlePattern.test(title)) {
     errors.push(
       `Master PRD title must contain "Master PRD ${REQUIRED_PRD_VERSION}" (found: ${JSON.stringify(title ?? '')}).`,
