@@ -117,7 +117,7 @@ const resolvedTree = [];
 for (const grp of NAV_TREE) {
   const keptItems = [];
   for (const item of grp.items) {
-    if (item.id.includes('PO-step-by-step')) {
+    if (/po-step-by-step/i.test(item.id)) {
       throw new Error(`FORBIDDEN PATH BLOCKED: ${item.id}`);
     }
     const fullPath = path.join(repoRoot, item.id);
@@ -141,7 +141,7 @@ for (const grp of NAV_TREE) {
 }
 
 const payloadJson = JSON.stringify({ shortSha, navTree: resolvedTree, docs: docsMap })
-  .replace(/<\/script>/gi, '<\\/script>');
+  .replace(/</g, '\\u003c');
 
 const appScript = `(() => {
   const DATA = window.__SHINUAN_DOCS__;
@@ -154,7 +154,8 @@ const appScript = `(() => {
   function resolveRelativePath(fromPath, relHref) {
     const [rawPath, anchor] = relHref.split('#');
     if (!rawPath) return { docId: fromPath, anchor: anchor || '' };
-    const decoded = decodeURIComponent(rawPath);
+    let decoded = rawPath;
+    try { decoded = decodeURIComponent(rawPath); } catch { decoded = rawPath; }
     const parts = fromPath.split('/');
     parts.pop();
     for (const seg of decoded.split('/')) {
@@ -198,7 +199,7 @@ const appScript = `(() => {
 
     function flushParagraph(buf) {
       if (!buf.length) return;
-      html.push('<p>' + formatInline(buf.join('<br>'), docId) + '</p>');
+      html.push('<p>' + buf.map(l => formatInline(l, docId)).join('<br>') + '</p>');
       buf.length = 0;
     }
 
