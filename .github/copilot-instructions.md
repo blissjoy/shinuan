@@ -12,7 +12,7 @@
 ## 開始任何工作前
 
 1. 閱讀根目錄 `AGENTS.md`。
-2. 確認 Master PRD 標題為 **v2.1.29**；不符時停止並回報 PO。
+2. 確認 Master PRD 標題為 **v2.1.30**；不符時停止並回報 PO。
 3. 無法讀取 `AGENTS.md` 或無法確認 PRD 版本時，明確告知 PO，**不得假裝已確認**。
 
 ## Protected PO Notes
@@ -24,7 +24,7 @@
 
 ## 規格與工程紅線
 
-- 不得自行變更遊戲數值與公式、基因機率、Health 保護規則（40 安全地板、10 下限）、RecoveryState 狀態機、經濟平衡、驗收預期值（TC-01 ~ TC-09、TC-MH-01 ~ TC-MH-12）。
+- 不得自行變更遊戲數值與公式、基因機率、Health 保護規則（40 安全地板、10 下限）、RecoveryState 狀態機、經濟平衡、驗收預期值（TC-01 ~ TC-10、TC-MH-01 ~ TC-MH-12）。
 - `packages/game-core` 禁止：`window`、`document`、`fs`、`path`、`process`、`Date.now()`、`getTimezoneOffset()`、`Math.random()`、React / React Native、原生平台 API、直接網路請求。時間／時區透過 `Clock`，隨機數透過 `RandomGenerator` 注入。
 - TypeScript strict；測試使用 Vitest，置於 `tests/`，預期值須來自 PRD 原文並註明章節或 TC 編號。
 
