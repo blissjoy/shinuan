@@ -17,20 +17,22 @@
 | Sprint 1 | SPEC-01 契約、設定與基因引擎 | SHINUAN-S1-01（Issue #3 / PR #4） | `packages/contracts` 型別與介面契約 | typecheck ＋ 契約單元測試 | ✅ |
 | Sprint 1 | SPEC-01 | SHINUAN-S1-02（Issue #5 / PR #6）＋ S1-02B（Issue #7 / PR #8） | `content/` 靜態 JSON ＋ `config-loader` ＋ 批次匯入驗證與 Fail-Closed 邊界修補 | 級距白名單、損毀設定 Fallback 測試 | ✅ |
 | Sprint 1 | SPEC-01 | SHINUAN-S1-03（Issue #9） | `GeneticsEngine`（純品種模式）＋ 領養盲盒可視化頁 | TC-01、TC-02 | 🟡 |
-| Sprint 1 | SPEC-01 | SHINUAN-S1-04（規格定案於 Issue #10） | 真實毛色／毛長／眼色／鼻頭肉球遺傳、一胎 3～5 隻、E1 彩蛋、R1 防盲抽與皮克敏式 2D 換色看板 | TC-10（＋ TC-01/TC-02 零破壞回歸） | ⬜ |
-| Sprint 2 | SPEC-02 時間引擎與健康救援 | SHINUAN-S2-01 | `TimeEngine` 基礎推進與需求衰退 | TC-03 | ⬜ |
-| Sprint 2 | SPEC-02 | SHINUAN-S2-02 | 精確交點切割、`MoodHealthPenalty`、`RecoveryState` | TC-04、TC-MH-01～10、TC-MH-12 | ⬜ |
-| Sprint 2 | SPEC-03 經濟、背包與防損存檔 | SHINUAN-S3-01 | `EconomyEngine` 與商品探索／背包 | TC-07 | ⬜ |
-| Sprint 2 | SPEC-03 | SHINUAN-S3-02 | 防損 JSON 存檔與 `v1→v2` 遷移 | TC-MH-11 ＋ 損毀回退測試 | ⬜ |
-| Sprint 3 | SPEC-04 行為仲裁、CLI 與長時模擬 | SHINUAN-S4-01 | 30 日人格記憶、`QuirkModifiers`、`BehaviorEngine` | TC-05、TC-06 | ⬜ |
-| Sprint 3 | SPEC-04 | SHINUAN-S4-02 | `apps/local-cli` ＋ `GameEngine` 總組裝 | 端對端整合測試 | ⬜ |
-| Sprint 3 | SPEC-04 | SHINUAN-S4-03 | 365 天長時模擬與 Phase A 結案報告 | TC-08、TC-09 | ⬜ |
+| Sprint 1 | SPEC-01 | SHINUAN-S1-04（Issue #12，設計定案於 PR #11） | 真實毛色／毛長／眼色／鼻頭肉球遺傳、一胎 3～5 隻、E1 彩蛋、R1 防盲抽與皮克敏式 2D 換色看板 | TC-10（＋ TC-01/TC-02 零破壞回歸） | ⬜ |
+| Sprint 2 | SPEC-02 時間引擎與健康救援 | SHINUAN-S2-01（Issue #13，設計已定案） | `TimeEngine` 基礎推進與需求衰退 | TC-03 | ⬜ |
+| Sprint 2 | SPEC-02 | SHINUAN-S2-02（Issue #14，設計已定案） | 精確交點切割、`MoodHealthPenalty`、`RecoveryState` | TC-04、TC-MH-01～10、TC-MH-12 | ⬜ |
+| Sprint 2 | SPEC-03 經濟、背包與防損存檔 | SHINUAN-S3-01（Issue #15，設計已定案） | `EconomyEngine` 與商品探索／背包 | TC-07 | ⬜ |
+| Sprint 2 | SPEC-03 | SHINUAN-S3-02（Issue #16，設計已定案） | 防損 JSON 存檔與 `v1→v2` 遷移 | TC-MH-11 ＋ 損毀回退測試 | ⬜ |
+| Sprint 3 | SPEC-04 行為仲裁、CLI 與長時模擬 | SHINUAN-S4-01（Issue #17，設計已定案） | 30 日人格記憶、`QuirkModifiers`、`BehaviorEngine` | TC-05、TC-06 | ⬜ |
+| Sprint 3 | SPEC-04 | SHINUAN-S4-02（Issue #18，設計已定案） | `apps/local-cli` ＋ `GameEngine` 總組裝 | 端對端整合測試 | ⬜ |
+| Sprint 3 | SPEC-04 | SHINUAN-S4-03（Issue #19，設計已定案） | 365 天長時模擬與 Phase A 結案報告 | TC-08、TC-09 | ⬜ |
 
 **Phase A 結案條件：** 上表全部 ✅，且 TC-01～TC-10、TC-MH-01～TC-MH-12 經獨立 QA 實測通過。
 
 ---
 
 ## Phase B：Renderer Proof of Concept（Sprint 4）
+
+- **2D 美術與拆圖工程規範（已定案）：** [`docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md`](docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md)（12 零件紙娃娃拆圖 ＋ 3 層 PNG 動態著色 ＋ Rive/Spine 2D 共用骨骼 ＋ AI Prompt 指令包）
 
 | 項目 | 狀態 |
 | --- | --- |
