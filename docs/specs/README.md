@@ -39,14 +39,14 @@
 
 ### SPEC-00｜底座與拾戰治理導入（已完成 ✅）
 - **目的：** 搭好乾淨的 Monorepo 骨架、自動化純淨度守門腳本與拾戰治理規則，讓所有後續開發有安全護欄。
-- **導讀與總覽：** [SPEC-00 規格說明](SPEC-00-foundation/SPEC.md) ｜ [地圖錨點](PHASE-A-SPEC-MAP.md#spec-00)
+- **導讀與總覽：** [SPEC-00 規格說明](SPEC-00-foundation/SPEC.md) ｜ [前往 Phase A 拆解清單（此章）](PHASE-A-SPEC-MAP.md#spec-00)
 - **小單進度：** `SHINUAN-S0-01`（Issue #1 ✅）
 
 <a id="entry-spec-01"></a>
 
 ### SPEC-01｜資料契約、外部設定與貓咪基因遺傳引擎（進行中 🟡）
 - **目的：** 鎖死全系統資料結構與設定檔格式，並打造「純品種盲盒 ＋ 真實貓咪 9 基因座遺傳 ＋ 一胎 3～5 隻領養」引擎。
-- **導讀與總覽：** [SPEC-01 規格說明](SPEC-01-contracts-config-genetics/SPEC.md) ｜ [地圖錨點](PHASE-A-SPEC-MAP.md#spec-01)
+- **導讀與總覽：** [SPEC-01 規格說明](SPEC-01-contracts-config-genetics/SPEC.md) ｜ [前往 Phase A 拆解清單（此章）](PHASE-A-SPEC-MAP.md#spec-01)
 - **技術設計書：**
   - `SHINUAN-S1-01`（Issue #3 ✅）：[S1-01 跨模組型別與契約設計](SPEC-01-contracts-config-genetics/S1-01-contracts-design.md)
   - `SHINUAN-S1-02`（Issue #5 / #7 ✅）：[S1-02 靜態設定與批次匯入驗證設計](SPEC-01-contracts-config-genetics/S1-02-config-loader-design.md)
@@ -57,14 +57,14 @@
 
 ### SPEC-02｜離線時間推進與健康救援引擎（設計已定案 📋）
 - **目的：** 實現「免背景常駐省電」的精確時間差補算，並落實拾暖「無死亡、40 安全地板、10 下限、2 小時急速救援、Care Pause 暫停」的無壓力陪伴承諾。
-- **導讀與總覽：** [SPEC-02 規格說明](SPEC-02-time-engine-health/SPEC.md) ｜ [地圖錨點](PHASE-A-SPEC-MAP.md#spec-02)
+- **導讀與總覽：** [SPEC-02 規格說明](SPEC-02-time-engine-health/SPEC.md) ｜ [前往 Phase A 拆解清單（此章）](PHASE-A-SPEC-MAP.md#spec-02)
 - **技術設計書：** [SPEC-02 時間引擎與健康救援設計書](SPEC-02-time-engine-health/SPEC-02-time-engine-health-design.md)（涵蓋 `SHINUAN-S2-01` Issue #13、`SHINUAN-S2-02` Issue #14）
 
 <a id="entry-spec-03"></a>
 
 ### SPEC-03｜商店經濟、背包與防損存檔（設計已定案 📋）
 - **目的：** 落地「無反感內容型原生廣告商店」（停留 3 秒看營養成分領積分、免費糧水無限供應、軟下架商品背包仍可用）與防壞檔 JSON 原子存檔遷移。
-- **導讀與總覽：** [SPEC-03 規格說明](SPEC-03-economy-save/SPEC.md) ｜ [地圖錨點](PHASE-A-SPEC-MAP.md#spec-03)
+- **導讀與總覽：** [SPEC-03 規格說明](SPEC-03-economy-save/SPEC.md) ｜ [前往 Phase A 拆解清單（此章）](PHASE-A-SPEC-MAP.md#spec-03)
 - **技術設計書：** [SPEC-03 經濟商店與防損存檔設計書](SPEC-03-economy-save/SPEC-03-economy-save-design.md)（涵蓋 `SHINUAN-S3-01` Issue #15、`SHINUAN-S3-02` Issue #16）
 - **關聯架構決策：** [ADR-003 JSON → SQLite 無痛銜接](../decisions/ADR-003-save-storage-json-to-sqlite.md)
 
@@ -72,7 +72,7 @@
 
 ### SPEC-04｜30 日人格記憶、行為仲裁、CLI 與長時模擬（設計已定案 📋）
 - **目的：** 讓貓咪根據過去 30 天的相處養出獨特性格與小怪癖、依 6 級優先順序決定當下動作與冷卻，並以 60 天／365 天長時模擬驗證 Phase A 正式封版。
-- **導讀與總覽：** [SPEC-04 規格說明](SPEC-04-behavior-cli-simulation/SPEC.md) ｜ [地圖錨點](PHASE-A-SPEC-MAP.md#spec-04)
+- **導讀與總覽：** [SPEC-04 規格說明](SPEC-04-behavior-cli-simulation/SPEC.md) ｜ [前往 Phase A 拆解清單（此章）](PHASE-A-SPEC-MAP.md#spec-04)
 - **技術設計書：** [SPEC-04 行為仲裁、CLI 與長時模擬設計書](SPEC-04-behavior-cli-simulation/SPEC-04-behavior-cli-simulation-design.md)（涵蓋 `SHINUAN-S4-01` Issue #17、`SHINUAN-S4-02` Issue #18、`SHINUAN-S4-03` Issue #19）
 
 ---
