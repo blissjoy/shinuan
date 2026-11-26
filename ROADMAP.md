@@ -17,7 +17,7 @@
 | Sprint 1 | SPEC-01 契約、設定與基因引擎 | SHINUAN-S1-01（Issue #3 / PR #4） | `packages/contracts` 型別與介面契約 | typecheck ＋ 契約單元測試 | ✅ |
 | Sprint 1 | SPEC-01 | SHINUAN-S1-02（Issue #5 / PR #6）＋ S1-02B（Issue #7 / PR #8） | `content/` 靜態 JSON ＋ `config-loader` ＋ 批次匯入驗證與 Fail-Closed 邊界修補 | 級距白名單、損毀設定 Fallback 測試 | ✅ |
 | Sprint 1 | SPEC-01 | SHINUAN-S1-03（Issue #9） | `GeneticsEngine`（純品種模式）＋ 領養盲盒可視化頁 | TC-01、TC-02 | 🟡 |
-| Sprint 1 | SPEC-01 | SHINUAN-S1-04（規格定案於 Issue #10） | 真實 7 基因座毛色遺傳、一胎 3～5 隻、E1 彩蛋、R1 防盲抽與皮克敏式 2D 換色看板 | TC-10（＋ TC-01/TC-02 零破壞回歸） | ⬜ |
+| Sprint 1 | SPEC-01 | SHINUAN-S1-04（規格定案於 Issue #10） | 真實毛色／毛長／眼色／鼻頭肉球遺傳、一胎 3～5 隻、E1 彩蛋、R1 防盲抽與皮克敏式 2D 換色看板 | TC-10（＋ TC-01/TC-02 零破壞回歸） | ⬜ |
 | Sprint 2 | SPEC-02 時間引擎與健康救援 | SHINUAN-S2-01 | `TimeEngine` 基礎推進與需求衰退 | TC-03 | ⬜ |
 | Sprint 2 | SPEC-02 | SHINUAN-S2-02 | 精確交點切割、`MoodHealthPenalty`、`RecoveryState` | TC-04、TC-MH-01～10、TC-MH-12 | ⬜ |
 | Sprint 2 | SPEC-03 經濟、背包與防損存檔 | SHINUAN-S3-01 | `EconomyEngine` 與商品探索／背包 | TC-07 | ⬜ |
