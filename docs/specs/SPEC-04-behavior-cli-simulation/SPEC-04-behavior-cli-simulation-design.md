@@ -1,4 +1,8 @@
+<a id="top"></a>
+
 # SPEC-04 技術設計文件（Design Spec）：30 日人格記憶、`QuirkModifiers`、`BehaviorEngine`、`GameEngine` 總組裝、CLI 與長時模擬驗收
+
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-04) ｜ [所屬規格 SPEC-04](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-04) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #17](https://github.com/blissjoy/shinuan/issues/17) / [#18](https://github.com/blissjoy/shinuan/issues/18) / [#19](https://github.com/blissjoy/shinuan/issues/19)
 
 > **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並要求三張派工單全數置頂強制加入 Claude Design 自我審核與遇疑即停條款；已定稿 `SHINUAN-S4-01`、`SHINUAN-S4-02`、`SHINUAN-S4-03` 派工包）**
 > **對應唯一正式規格：** `Master PRD v2.1.30`（§0、§3.2、§4.3、§5.1、§5.2、§8.A.1、§8.B.1～§8.B.3、§8.E.2 `TC-05`／`TC-06`／`TC-08`／`TC-09`）

@@ -1,4 +1,8 @@
+<a id="top"></a>
+
 # SHINUAN-S1-02 技術設計文件（Design Spec）：靜態設定檔、`@shinuan/config-loader` 與商品批次匯入驗證器
+
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #5](https://github.com/blissjoy/shinuan/issues/5) / [#7](https://github.com/blissjoy/shinuan/issues/7)
 
 > **狀態：APPROVED（PO 已於 2026-11-25 審閱定案）**  
 > 本文件隨 `SHINUAN-S1-02`（Issue `#5`）納入 `docs/specs/SPEC-01-contracts-config-genetics/S1-02-config-loader-design.md`。

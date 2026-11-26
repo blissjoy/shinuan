@@ -1,4 +1,8 @@
+<a id="top"></a>
+
 # SHINUAN-S1-04 技術設計文件（Design Spec）：真實貓咪毛色遺傳學、皮克敏式 2D 換色選父母與一胎 3～5 隻領養系統
+
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #12](https://github.com/blissjoy/shinuan/issues/12)
 
 > **狀態：APPROVED（PO 已於 2026-11-26 定案，隨 `Master PRD v2.1.30` 規格升級 PR 納入基準；實作開工排程於 `SHINUAN-S1-03` 合併之後）**
 > 本文件對應 `Master PRD v2.1.30`（§3.1、§3.2、§8.A.1、§8.A.5、§8.D、§8.E.2 `TC-10`、§11.2），納入 `docs/specs/SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md`。

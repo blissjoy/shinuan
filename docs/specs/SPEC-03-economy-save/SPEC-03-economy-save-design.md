@@ -1,4 +1,8 @@
+<a id="top"></a>
+
 # SPEC-03 技術設計文件（Design Spec）：`EconomyEngine`、原生廣告商店、背包與防損 JSON 存檔遷移
+
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-03) ｜ [所屬規格 SPEC-03](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-03) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-003 存檔演進](../../decisions/ADR-003-save-storage-json-to-sqlite.md) ｜ [GitHub Issue #15](https://github.com/blissjoy/shinuan/issues/15) / [#16](https://github.com/blissjoy/shinuan/issues/16)
 
 > **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並要求於派工包強制加入 Claude Design 自我審核與遇疑即停條款；已定稿 `SHINUAN-S3-01` 與 `SHINUAN-S3-02` 派工包）**
 > **對應唯一正式規格：** `Master PRD v2.1.30`（§2.1、§4.4、§5.1、§8.A.1、§8.C.2、§8.C.3、§8.E.1、§8.E.2 `TC-07`、§8.E.3 `TC-MH-11`）
