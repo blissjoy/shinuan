@@ -32,16 +32,21 @@
 
 ## Phase B：Renderer Proof of Concept（Sprint 4）
 
-- **2D 美術與拆圖工程規範（已定案）：** [`docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md`](docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md)（12 零件紙娃娃拆圖 ＋ 3 層 PNG 動態著色 ＋ Rive/Spine 2D 共用骨骼 ＋ AI Prompt 指令包）
+- **2D 美術與拆圖工程規範（已定案）：** [`docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md`](docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md)（12 零件紙娃娃拆圖 ＋ 3 層 PNG 動態著色 ＋ Rive 共用骨骼 ＋ AI Prompt 指令包）
+- **架構決策紀錄（ADR，PO 已拍板）：**
+  - [`ADR-001`](docs/decisions/ADR-001-animation-engine-rive.md)：正式選定 **Rive** ＋ 一次性 3 層 PNG 預合成注入管線
+  - [`ADR-002`](docs/decisions/ADR-002-mobile-native-bridge-architecture.md)：React Native ＋ Android Kotlin `WindowManager` 懸浮窗 ＋ iOS `WidgetKit` + `App Groups` 橋接架構
 
 | 項目 | 狀態 |
 | --- | --- |
 | 單隻測試貓＋最少必要動畫（`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`），驗證 7 大圖層換裝相容性 | ⬜ |
-| React Native、Android Kotlin 懸浮窗、iOS SwiftUI Widget 讀取同一份 `PetViewModel` 的一致性驗證 | ⬜ |
-| 選定動畫引擎（Spine 2D / Rive / Sprite Sheet） | ⬜ |
+| React Native、Android Kotlin 懸浮窗、iOS SwiftUI Widget 讀取同一份 `PetViewModel` 的一致性驗證（依 `ADR-002`） | ⬜ |
+| 選定動畫引擎（已拍板 **Rive**，見 `ADR-001`） | ✅ |
 | 商店與商品成分頁靜態 UI Prototype（固定 Mock Data，不含購買與經濟結算） | ⬜ |
 
 ## Phase C：Pet MVP（雙平台單貓陪伴上線）
+
+- **存檔演進決策（PO 已拍板）：** [`ADR-003`](docs/decisions/ADR-003-save-storage-json-to-sqlite.md)（Phase A JSON → Phase C SQLite 共用 `GameRepository` 與 `TC-MH-11` Contract Test Suite）
 
 | 項目 | 狀態 |
 | --- | --- |
