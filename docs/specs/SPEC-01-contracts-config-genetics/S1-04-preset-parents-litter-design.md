@@ -46,6 +46,8 @@ export type SilverInhibitorAllele = 'I' | 'i';
 
 export type AllelePair<T extends string> = readonly [T, T];
 
+export type IrisPigmentLevel = 0 | 1 | 2; // 0 = emerald (淺綠), 1 = amber (琥珀黃), 2 = copper (深古銅)
+
 export interface CoatGenotype {
   /** 公貓正常為 [OrangeAllele]（XY）；母貓為 [OrangeAllele, OrangeAllele]（XX）；罕見 XXY 彩蛋公貓為 ['O', 'o']。 */
   readonly orange: readonly [OrangeAllele] | AllelePair<OrangeAllele>;
@@ -56,6 +58,8 @@ export interface CoatGenotype {
   readonly whiteSpotting: AllelePair<WhiteSpottingAllele>;
   readonly dominantWhite: AllelePair<DominantWhiteAllele>;
   readonly silverInhibitor: AllelePair<SilverInhibitorAllele>;
+  /** 底層虹膜黑色素等級（即使外表因 cs/cs 或 W/- 表現藍眼，仍攜帶可遺傳給非重點／非白子代的底層色素基因）。 */
+  readonly irisPigment: IrisPigmentLevel;
 }
 ```
 
@@ -83,7 +87,7 @@ export interface CoatGenotype {
 1. **顯性純白遮罩（`W` 存在）：**
    - `coatPattern = 'solid'`，基準色 `primary: #F8F8F8`、`secondaryHex: null`（仍保留基因型供 UI 顯示「遺傳自純白基因」）。
 2. **重點色表現（`cs/cs` 且無 `W`）：**
-   - `coatPattern`：若帶白斑 `S/-` 可表現為 `'bicolor_tuxedo'`（雙色布偶）或 `'colorpoint'`（標準重點色，視雙親花色傾向）；無白斑 `s/s` 一律 `'colorpoint'`。
+   - `coatPattern`（確定性映射）：帶白斑 `S/-` 一律表現為 `'bicolor_tuxedo'`（雙色重點布偶／喜馬拉雅）；無白斑 `s/s` 一律表現為 `'colorpoint'`（經典重點色）。
    - 底色皆為奶油白 `#FAF5EE`（或暖象牙 `#F2E4D5`），重點輔色 `secondaryHex` 依 `O/B/D` 決定：
      - 海豹重點（`o`, `B/-`, `D/-`）：`#4A3728`
      - 藍重點（`o`, `B/-`, `d/d`）：`#6B7A8F`
@@ -109,6 +113,26 @@ export interface CoatGenotype {
    - **步驟 3 確定性相容性修正（規則 1 -> 2 -> 3 -> 4）：** 完全沿用既定規則（確保 `colorpoint + amber -> sapphire`、`flat_face + giant_fluffy -> chubby` 等不變量 100% 成立）。
    - **步驟 4 HSL `±8%` 微調：** 對表現型基準主／輔 HEX 套用既有 `lightnessDelta`、`saturationDelta`（四位小數 `[-0.08, +0.08]` ＋無彩色保護），讓同胎就算同基因型也各具獨特毛色光澤！
 
+### 2.4 真實貓咪眼色遺傳規則（`resolvePupilColor`，取代個體模式之獨立瞳色抽選）
+
+在真實貓咪生物學中，眼色由「阻斷黑色素遷移之毛色主控基因（`W`、`cs`、`S`）」與「底層虹膜黑色素多基因光譜（`emerald` ↔ `amber` ↔ `copper`）」共同決定：
+
+1. **底層虹膜黑色素等級 `irisPigment`（多基因遺傳，消費 1 次 `rIris = nextRandom(rng)`）：**
+   - 令 `avg = (father.coatGenotype.irisPigment + mother.coatGenotype.irisPigment) / 2`。
+   - 依 `rIris` 套用多基因自然浮動：`rIris < 0.25` -> `delta = -0.5`；`rIris < 0.75` -> `delta = 0`；`else` -> `delta = +0.5`。
+   - `childIris = clamp(Math.round(avg + delta), 0, 2) as IrisPigmentLevel`（`0 -> 'emerald'`、`1 -> 'amber'`、`2 -> 'copper'`）。
+2. **表現型瞳色決定（依生物學上位優先順序）：**
+   - **情況 A — 顯性純白（`W` 存在）：** 消費 1 次 `rEye = nextRandom(rng)`：
+     - `rEye < 0.35` -> `'sapphire'`（35% 雙眼藍眼）
+     - `rEye < 0.50` -> `'heterochromia_blue_gold'`（15% 藍金異色瞳）
+     - `else` -> 底層多基因虹膜色（50%）
+   - **情況 B — 重點色純合（`cs/cs` 且無 `W`）：** **0 次亂數**，直接鎖定 **`'sapphire'`**（100% 藍眼，包含所有布偶與喜馬拉雅重點色子代）。
+   - **情況 C — 帶白斑（`S` 存在，且無 `W`、非 `cs/cs`）：** 消費 1 次 `rEye = nextRandom(rng)`：
+     - `rEye < 0.05` -> `'sapphire'`（5% 藍眼）
+     - `rEye < 0.10` -> `'heterochromia_blue_gold'`（5% 藍金異色瞳）
+     - `else` -> 底層多基因虹膜色（90%）
+   - **情況 D — 一般無白貓（`w/w`、`C/-`、`s/s`）：** **0 次亂數**，100% 表現底層多基因虹膜色（`'emerald'` / `'amber'` / `'copper'`，絕不無端冒出純藍眼或異色瞳）。
+
 ---
 
 ## 3. 完整 7 步驟個體一胎多貓流程與相容契約
@@ -116,8 +140,8 @@ export interface CoatGenotype {
 1. **一胎隻數（1A）：** `litterRng` 抽 1 次：3 隻 `30%` / 4 隻 `40%` / 5 隻 `30%`，派生 `kittenSeed = `${litterSeed}#kitten-${i}``。
 2. **每隻小貓固定步驟：**
    - **步驟 1（特殊顯性骨架）：** 沿用 `munchkin` `body`（90/10・50/25/25）與 `exotic` `head`（90/10・60/40）。
-   - **步驟 2（形狀圖層 `head`、`ears`、`eyes`、`pupilColor`、`tail`、`body` ＋ 星空稀有突變）：** 沿用既有三配對來源權重（90/10、30/50/20、40/40/20）與 75/25 稀有突變，直接繼承具體父母之 `appearanceLayers[layer]`。
-   - **步驟 3（真實 7 基因座毛色遺傳 ＋ 性別 50/50 ＋ E1 2% XXY 彩蛋）：** 依 §2 計算 `gender`、`coatGenotype`、`coatPattern`、基準毛色與 `easterEggs`。
+   - **步驟 2（形狀圖層 `head`、`ears`、`eyes`、`tail`、`body` ＋ 星空稀有突變）：** 沿用既有三配對來源權重（90/10、30/50/20、40/40/20）與 75/25 稀有突變，直接繼承具體父母之 `appearanceLayers[layer]`（`pupilColor` 改由步驟 3 真實眼色遺傳規則決定）。
+   - **步驟 3（真實 7 基因座毛色遺傳 ＋ 真實眼色遺傳 ＋ 性別 50/50 ＋ E1 2% XXY 彩蛋）：** 依 §2 計算 `gender`、`coatGenotype`、`coatPattern`、`pupilColor`、基準毛色與 `easterEggs`。
    - **步驟 4（相容性規則 1～4）：** 完全沿用既有 `applyCompatibilityRules`。
    - **步驟 5（HSL `±8%` 微調）：** 完全沿用既有 `color-params.ts`。
    - **步驟 6（小怪癖獨立抽選）：** 沿用 50% 0 / 35% 1 / 15% 2；對領養預覽物件**僅輸出 `hasHiddenQuirks: boolean`**（嚴格遮罩具體 ID 與數量）。
@@ -154,7 +178,7 @@ export interface CoatGenotype {
 1. **零破壞回歸：** 原 `S1-03` 全部測試（含 `TC-01`、`TC-02`、`genetics-golden-v1.json`）100% 通過無更動。
 2. **新增 `TC-10`（真實遺傳學＋一胎多貓＋彩蛋＋R1 防盲抽）：**
    - 驗證一胎 3/4/5 隻統計吻合 `30%/40%/30% ± 5%`、性別吻合 `50%/50% ± 5%`。
-   - 驗證孟德爾遺傳核心案例（如三花媽生公貓拆色 50% 橘 / 50% 非橘；雙純合 `dd × dd` 100% 稀釋；`CC × cscs` 0% 重點色 vs `Ccs × cscs` 50% 重點色 vs `cscs × cscs` 100% 重點色；E1 公三花 XXY 彩蛋觸發率吻合 `2%` 區間）。
+   - 驗證孟德爾毛色與眼色遺傳核心案例（如三花媽生公貓拆色 50% 橘 / 50% 非橘；雙純合 `dd × dd` 100% 稀釋；`CC × cscs` 0% 重點色 vs `Ccs × cscs` 50% 重點色 vs `cscs × cscs` 100% 重點色；E1 公三花 XXY 彩蛋觸發率吻合 `2%` 區間；眼色符合 `cs/cs` 非純白 100% `sapphire`、`W/-` 35% 藍眼 / 15% 異色瞳、`S/-` 5% 藍眼 / 5% 異色瞳、一般無白貓 `w/w + C/- + s/s` 0% 藍眼與 0% 異色瞳且符合多基因光譜）。
    - 驗證領養預覽物件不含 `quirks` 陣列與數量（僅 `hasHiddenQuirks`）。
    - 驗證 R1 每日 3 胎上限、跨日重置、時鐘回撥拒絕重置，以及帳號總免費貓咪數計算。
 3. **`preset-parents.v1.json` 通用驗證（與具體名單解耦）：** 驗證器僅檢查通用不變量（`parentId` 唯一、6 品種各至少 1 爸 1 媽、合法 `coatGenotype`、公貓不含三花／玳瑁、外觀不違反相容規則 1～3 與無稀有突變）；測試不寫死具體父母名字、隻數或固定花色清單，確保日後自由編輯 JSON 不破壞測試。
