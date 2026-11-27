@@ -98,10 +98,11 @@ export const ECONOMY_CONSTANTS = Object.freeze({
 ### 3.1 純邏輯層（`packages/game-core/src/save/`，零 `fs`/`path`）
 
 1. **`validateGameState(raw: unknown)`：**
-   - 深度檢查所有必填欄位與值域不變量：`schemaVersion === 2`、有限數檢核（拒 `NaN`/`Infinity`）、`needs ∈ [0, 100]`、`health ∈ [10, 100]`、`recoveryBoostAccumulatedHours ∈ [0, 2.0]`、`lowMoodDuration.below40Hours >= 0`、`lowMoodDuration.below20Hours >= 0`、`coins >= 0`、`inventory` 均為非負整數、`genetics` 七大圖層與版本號完整、`dailyLimits` 日期字串符合 `YYYY-MM-DD`、`dailyLimits.littersGeneratedToday` 為非負整數（`>= 0`）、`dailyLimits.lastLitterGeneratedAt` 為 `null` 或有限時間戳。
-   - 完全相容 `Master PRD v2.1.31` 增量欄位（如 `discoveredQuirks`、`coatGenotype`、`noseColor`、`pawPadColor`、`littersGeneratedToday`、`lastLitterGeneratedAt` 與帳戶層 `accountMeta` 等）。
+   - 深度檢查所有必填欄位與值域不變量：`schemaVersion === 2`、有限數檢核（拒 `NaN`/`Infinity`）、`needs ∈ [0, 100]`、`health ∈ [10, 100]`、`recoveryBoostAccumulatedHours ∈ [0, 2.0]`、`lowMoodDuration.below40Hours >= 0`、`lowMoodDuration.below20Hours >= 0`、`coins >= 0`、`inventory` 均為非負整數、`genetics` 七大圖層與版本號完整、`dailyLimits` 日期字串符合 `YYYY-MM-DD`、`dailyLimits.littersGeneratedToday` 為非負整數（`>= 0`）、`dailyLimits.lastLitterGeneratedAt` 為 `null` 或有限時間戳；帳戶層 `accountMeta` 必須存在且滿足 `accountId` 為非空字串、`maxFreeOwnedPets >= 1`（整數）、`purchasedExtraPetSlots >= 0`（整數）、`ownedPetIds` 為無重複非空字串陣列，且當存檔存在活躍 `pet` 時，`ownedPetIds` 必須包含 `pet.id`。
+   - 完全相容 `Master PRD v2.1.31` 增量欄位（如 `discoveredQuirks`、`coatGenotype`、`noseColor`、`pawPadColor`、`littersGeneratedToday`、`lastLitterGeneratedAt`、`accountMeta` 與 Phase C 選填去重陣列 `processedWidgetCommandIds` 等）。
 2. **`migrateGameState(raw: unknown)`（`v1 -> v2` 與 `v2` 舊子版向後補齊遷移）：**
-   - 若 `schemaVersion === 2`：補齊 v2.1.30+ 新增選填預設值（`pet.discoveredQuirks ??= []`、`dailyLimits.littersGeneratedToday ??= 0`、`dailyLimits.lastLitterGeneratedAt ??= null`）後執行 `validateGameState` 回傳。
+   - 統一帳戶層遷移輔助規則（`ensureAccountMeta(state)`）：若存檔缺失 `accountMeta`，一律確定性初始化為 `{ accountId: 'local-default-account', maxFreeOwnedPets: 1, purchasedExtraPetSlots: 0, ownedPetIds: state.pet?.id ? [state.pet.id] : [] }`（固定穩定本機 ID，重載不隨機變更，待 Phase E 雲端登入再綁定遠端 UID）；若已有 `accountMeta` 且存檔存在合法 `state.pet?.id` 但尚未列入 `ownedPetIds`，自動去重補入 `state.pet.id`，防止舊存檔玩家異常重獲免費領養名額。
+   - 若 `schemaVersion === 2`：補齊 v2.1.30+ 新增選填預設值（`pet.discoveredQuirks ??= []`、`dailyLimits.littersGeneratedToday ??= 0`、`dailyLimits.lastLitterGeneratedAt ??= null`、`processedWidgetCommandIds ??= []`），並執行 `ensureAccountMeta(state)` 後通過 `validateGameState` 回傳。
    - 若 `schemaVersion === 1`：補齊所有 v2 缺失欄位預設值：
      - `pet.microchipId ??= null`
      - `pet.genetics.fatherPetId ??= null`、`pet.genetics.motherPetId ??= null`
@@ -110,6 +111,8 @@ export const ECONOMY_CONSTANTS = Object.freeze({
      - `pet.isCarePaused ??= false`
      - `pet.discoveredQuirks ??= []`
      - `dailyLimits.littersGeneratedToday ??= 0`、`dailyLimits.lastLitterGeneratedAt ??= null`
+     - `processedWidgetCommandIds ??= []`
+     - 執行 `ensureAccountMeta(state)`（初始化 `accountMeta` 並回填既有 `pet.id` 至 `ownedPetIds`）
      - 升級 `schemaVersion = 2`，最後必須通過 `validateGameState`；**嚴禁更動既有 `seed`、`appearance`、`basePersonality`、`quirks`、`coins`、`inventory` 或 `lastSimulatedAt`**。
    - 若 `schemaVersion` 未知或高於支援版本（`> 2`）：Fail-Closed 拒絕載入，不得靜默降級覆寫存檔。
 

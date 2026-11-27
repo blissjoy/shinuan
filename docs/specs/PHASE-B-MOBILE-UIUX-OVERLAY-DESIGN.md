@@ -23,7 +23,7 @@
 | **2D 粉彩貓渲染與動畫** | 單隻測試貓 ＋ 6 支 P0-B 動畫 ＋ Rive 3 層著色 ＋ Android 懸浮窗／iOS Widget 消費同一 `PetViewModel` | 擴充全 6 品種外觀與 Phase C 動畫（`cat_loaf`、`play`、P1 互動） | 沿用 |
 | **Android 桌面 App 跳台** | 完成 Virtual Perch Grid 基礎校正與本地拋物線物理 PoC | 正式上線並持久化使用者校正格線 | 沿用 |
 | **領養育種頁（`AdoptionScreen`）** | **僅靜態 UI Prototype 展示排版**（使用固定 Mock 預覽，**不接正式領養鎖定、不寫入帳號名額**） | **正式接線 `generateLitter()`、`calculatePairingPreviewProbability()`、R1 每日 3 胎上限與領養命名鎖定** | 沿用 |
-| **小窩與設定頁（`HomeScreen` / `SettingsScreen`）** | 測試貓互動舞台、HUD 消費唯讀 `PetViewModel`、顯示尺寸與雙平台教學 | 接通完整 SQLite 存檔、時間推進、健康救援、Care Pause 與 iOS Widget 指令佇列 | 沿用 |
+| **小窩與設定頁（`HomeScreen` / `SettingsScreen`）** | 測試貓渲染舞台、HUD 消費唯讀 `PetViewModel`（固定 Mock Data，不執行真實經濟指令）、顯示尺寸與雙平台教學 | 接通完整 SQLite 存檔、時間推進、免費糧水／摸頭／逗貓棒基本照護、健康救援、Care Pause 與 iOS Widget 指令佇列 | 啟用每日簽到（`ClaimDailyCheckIn +40`）、真實積分顯示與背包已購商品消耗 |
 | **商店與詳情抽屜（`ShopScreen` / `ProductDetailModal`）** | **僅固定 Mock Data 靜態 UI Prototype**（驗證版面、標籤與 3 秒倒數視覺骨架；**嚴禁實作 `BuyItem`、背包交易與真實積分入帳**） | 維持靜態骨架或隱藏入口，不提前開啟商業交易 | **正式接通 `EconomyEngine`（`OpenShop`、`InspectProduct` 3 秒入帳、`BuyItem`、背包消耗與 Remote Config 目錄）** |
 
 3. **非文字陪伴（PRD §4.3）：** 貓咪不彈出長篇文字對話框，需求與情緒一律透過動作、表情與頭頂圖示氣泡（🐟／💧／❤️／💢／💤／🏥）呈現。
@@ -48,17 +48,20 @@
 3. **命名與領養鎖定（Phase C 正式上線）：**
    - 挑選 1 隻小貓輸入名稱（1～12 字元），確認前提示其餘未領養兄弟姊妹將被其他玩家領養；確認後鎖定 `seed`、`appearance`、`fatherPetId`、`motherPetId` 並檢查 `AdoptionSlotPolicy`，引導進入雙平台權限教學（Android 懸浮窗授權／iOS Widget 教學）。
 
-### 2.2 拾暖小窩主畫面（`HomeScreen`，對齊 PRD §8.D #2）
+### 2.2 拾暖小窩主畫面（`HomeScreen`｜Phase B 靜態展示與本地互動 PoC ／ Phase C 照護上線 ／ Phase D 經濟與簽到接線，對齊 PRD §8.D #2）
 
 1. **頂部精簡 HUD：**
-   - 顯示寵物名稱、毛色標籤與積分徽章（開局預設 `200` 積分）。
+   - 顯示寵物名稱、毛色標籤與積分徽章（**Phase B** 僅呈現固定 Mock Data，不執行真實指令與積分變動；**Phase C** 接通真實 `PetViewModel` 狀態條與 Care Pause；**Phase D** 接通真實積分餘額，開局預設 `200` 積分）。
    - 四大狀態條橫向 2×2 排列：`🐟 飽食 (Hunger)`、`💧 水分 (Hydration)`、`❤️ 心情 (Mood)`、`💚 健康 (Health)`。
-   - 開啟 Care Pause 時於 HUD 下方顯示安心提示條「🛡️ 照護暫停保護中」。
+   - 開啟 Care Pause 時於 HUD 下方顯示安心提示條「🛡️ 照護暫停保護中」（**Phase C** 正式接通 `ToggleCarePause`）。
 2. **互動主舞台（內嵌 Rive 2D 粉彩貓 ＋ 房間牆面跳台）：**
-   - 支援點擊地板走動／遠處小跑、點擊牆面貓跳台起跳、按住貓頭左右嚕毛摸頭（彈性傾頭＋壓耳瞇笑＋飄 ❤️）、拎起懸空踢腳與重力落地、以及召喚逗貓棒追跳。
+   - **Phase B（渲染與物理 PoC）：** 驗證單隻測試貓 6 支 P0-B 動作、點擊地板走動／遠處小跑、點擊牆面跳台起跳、按頭摸頭與拎起重力落地之本地動畫物理，**不寫入真實遊戲存檔或積分**。
+   - **Phase C（正式接通照護指令）：** 串接 `PetCat`、`PlayWithPet`（含逗貓棒 `play` 動畫）、`PokePet`、`TriggerLanding` 等正式 `GameCommand`。
    - 頭頂狀態氣泡一律**嚴格唯讀消費 `PetViewModel.behavior.iconIds`**（嚴禁 UI 層自行計算需求數值門檻或繞過冷卻仲裁，對齊 `Master PRD v2.1.31` §5.2 與 §8.B.1：例如 Priority 100 緊急求救 `health < 30 || hunger < 15 || hydration < 15` 下發 🏥／🐟／💧；Priority 80 睡眠下發 💤；Priority 60 一般需求 `hunger < 40 || hydration < 40 || mood < 45` 下發 🐟／💧／🎾，持續 `5,000 ms`、共用冷卻 `60,000 ms`）。
-3. **底部導覽與快捷操作：**
-   - 固定 4 顆主分頁或快捷入口：**🎒 背包餵食（開底部抽屜直接餵免費無限糧／水或已購商品）**、**🛒 商店**、**📖 圖鑑／領養**、**⚙️ 設定**；另於小窩內附快捷鈕切換「🪶 逗貓棒」、「🎁 每日簽到（+40）」與「📱 懸浮模式」。
+3. **底部導覽與快捷操作（嚴格分階段啟用，與 §1、§5 一致）：**
+   - **Phase B（固定 Mock Data 靜態 UI 展示，嚴禁觸發真實 `GameCommand` 經濟結算）：** 固定 4 顆分頁入口（`🎒 背包`、`🛒 商店`、`📖 圖鑑／領養`、`⚙️ 設定`）與小窩快捷鈕（`🪶 逗貓棒`、`🎁 每日簽到`、`📱 懸浮模式`）僅供畫面切換、本地動畫展示與懸浮窗 PoC，背包與每日簽到按鈕設為 Mock 展示態，不執行真實餵食數值結算、扣庫存或發放積分。
+   - **Phase C（單貓陪伴 MVP — 免費糧水與基本照護）：** 正式啟用 `🎒 背包餵食` 內之**免費無限基礎乾糧（`free_basic_kibble`，`FeedPet`）與免費潔淨飲水（`free_fresh_water`，`DrinkWater`）**、`🪶 逗貓棒`（`PlayWithPet`）、`📖 圖鑑／領養`（接通真實領養與繁育）、`⚙️ 設定`（`ToggleCarePause` 與顯示尺寸）及 `📱 懸浮模式`。
+   - **Phase D（商店與經濟結算上線）：** 正式啟用 **`🎁 每日簽到（ClaimDailyCheckIn +40 積分）`**、`🎒 背包餵食` 內之**已購付費商品消耗**、`🛒 商店`（`OpenShop` / `InspectProduct` / `BuyItem`）與全部積分入帳／扣款結算。
 
 ### 2.3 商店與營養成分詳情抽屜（`ShopScreen` & `ProductDetailModal`｜Phase B 靜態 Mock Prototype ／ Phase D 正式接線，對齊 PRD §8.C.2、§8.C.3、§8.D #3）
 
@@ -144,11 +147,12 @@ export interface DesktopPerchPlatform {
 - [ ] 單隻測試貓於 Rive 完成 6 支 P0-B 動作與 3 層 PNG 預合成換色，100% 遵守 [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md) §4.3 兩大渲染鐵律（眼皮 Clipping Path 零色塊 ＋ 2.5D 視差轉身零紙片翻面＋異色瞳左右眼不對調）。
 - [ ] React Native、Android Kotlin 懸浮窗與 iOS SwiftUI Widget 皆唯讀消費同一份 `PetViewModel`（含 `behavior.iconIds`），無 UI 層自行計算需求門檻。
 - [ ] Android 懸浮窗嚴格不申請 `AccessibilityService`，可於 `4×5`／`4×6`／`5×6` 虛擬跳台格線與頂部 Widget／底部 Dock 間精準拋物線跳躍、停靠與拎起掉落，且全時維持 `FLAG_NOT_FOCUSABLE`。
-- [ ] `ShopScreen` / `ProductDetailModal` 與 `AdoptionScreen` 具備固定 Mock Data 靜態 UI Prototype，且明確**不執行**真實購買、積分結算與領養寫入。
+- [ ] `HomeScreen` 快捷操作（背包、簽到）、`ShopScreen` / `ProductDetailModal` 與 `AdoptionScreen` 具備固定 Mock Data 靜態 UI Prototype，且明確**不執行**真實購買、簽到、積分結算與領養寫入。
 
 ### 5.2 Phase C 驗收清單（單貓陪伴 MVP 接線）
 - [ ] `AdoptionScreen` 正式接通 `generateLitter()`、`calculatePairingPreviewProbability()`、R1 每日 3 胎上限、隱藏小怪癖只示「有／無」、2% 公三花彩蛋、領養命名鎖定與 `AdoptionSlotPolicy` 檢查。
-- [ ] iOS 透過 `App Groups` ＋ `WidgetKit` ＋ `App Intents` 呈現靜態快照與具 `commandId` 冪等防重播之速餵／摸頭指令佇列，開 App 依時間戳補算。
+- [ ] `HomeScreen` 正式接通免費基礎糧水（`FeedPet` / `DrinkWater`）、撫摸／逗貓棒（`PetCat` / `PlayWithPet`）、`PokePet`、`TriggerLanding` 與 `ToggleCarePause`，尚未啟用每日簽到與付費商品經濟結算。
+- [ ] iOS 透過 `App Groups` ＋ `WidgetKit` ＋ `App Intents` 呈現靜態快照與具 `commandId` 單一交易原子冪等防重播之速餵／摸頭指令佇列，開 App 依時間戳補算。
 
 ### 5.3 Phase D 驗收清單（商店與原生廣告驗證）
-- [ ] `ShopScreen` / `ProductDetailModal` 正式接通 `EconomyEngine`：`OpenShop`、`InspectProduct`（停留 `>= 3 秒` 給 `+10`、日上限 `30`）、`BuyItem`、背包消耗與 Remote Config 目錄。
+- [ ] `HomeScreen` 每日簽到（`ClaimDailyCheckIn +40`）、背包已購商品消耗與 `ShopScreen` / `ProductDetailModal` 正式接通 `EconomyEngine`：`OpenShop`、`InspectProduct`（停留 `>= 3 秒` 給 `+10`、日上限 `30`）、`BuyItem` 與 Remote Config 目錄。

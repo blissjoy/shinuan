@@ -30,7 +30,7 @@
 
 ---
 
-## 3. 建議決策（Proposed Decision）
+## 3. 正式決策（Accepted Decision）
 
 **正式採用 `Rive` 作為 Phase B ～ C 唯一 2D 骨骼動畫引擎，並搭配「一次性 3 層預合成 ＋ Image Data Binding 注入」著色管線：**
 

@@ -191,11 +191,19 @@ export interface PigmentedFeatureColor {
    - **步驟 7（初始基礎性格 `breedBase`）：** 沿用既有品種公式（同種直接沿用；米克斯＋純種 30/70 整數縮放；跨純種 50/50）；永久鎖定 `fatherPetId = fatherParent.parentId`、`motherPetId = motherParent.parentId`。
 3. **遺傳小知識文案（`geneticsSummaryTags`）：** 引擎同時輸出純資料標籤（如 `['inherited_colorpoint', 'dilute_cream_expression', 'rare_male_calico_easter_egg']`），由 UI 層渲染成溫暖的中文遺傳小知識與彩蛋祝賀！
 4. **選父母精簡機率預覽純函式（`calculatePairingPreviewProbability`，`P1-03` 數學鎖定）：**
-   - 簽章：`calculatePairingPreviewProbability(father: PresetParentCat, mother: PresetParentCat): PairingPreviewProbability`（純確定性枚舉計算，零亂數）。
-   - **色系歸類函數 `resolveCoatColorFamily(genotype)`：** 先對雙親與所有孟德爾等位基因組合（`2^9` 級精確機率樹，含性聯 `O/o` 50/50 性別分支與 2% XXY 彩蛋，不含 `2.5%~5%` 稀有星空突變與 7 層骨架形狀）以 `resolveCoatPhenotype` 映射到表現型色系 ID（例如 `'white'`、`'colorpoint_seal'`、`'colorpoint_cream'`、`'calico'`、`'tortoiseshell'`、`'ginger'`、`'cream'`、`'black'`、`'blue'`、`'chocolate'`、`'lilac'`、`'silver_tabby'` 等）。
-   - **三分類聚合口徑：**
-     - 若 `dadFamily === momFamily`（雙親同表現型色系）：合併輸出 `{ sameFamily: true, likeBothPct, surprisePct }`（`likeBothPct + surprisePct === 100`）；
-     - 若 `dadFamily !== momFamily`：輸出 `{ sameFamily: false, likeFatherPct, likeMotherPct, surprisePct }`（其中「像爸爸色」為子代色系 `=== dadFamily` 之精確機率總和、「像媽媽色」為 `=== momFamily` 之總和、「驚喜新色」為其餘所有新表現型色系〔含隱性稀釋／重點色浮現與 XXY 三花彩蛋〕之總和，三者採最大餘數法四捨五入至整數百分比並恆滿足 `likeFatherPct + likeMotherPct + surprisePct === 100`）。
+   - 簽章：`calculatePairingPreviewProbability(father: PresetParentCat, mother: PresetParentCat): PairingPreviewProbability`（純確定性精確枚舉計算，零亂數）。
+   - **計算範圍與精確機率空間：** 僅涵蓋決定表現型毛色的 **8 個毛色孟德爾基因座**（性聯 `O/o` ＋ 7 個常染色體毛色基因座 `B/b`、`D/d`、`A/a`、`C/cs`、`S/s`、`W/w`、`I/i`；`L/l` 僅影響毛長與尾巴而不影響毛色，且不含 `2.5%~5%` 稀有 `starry_rare` 突變與 7 層骨架形狀）：
+     1. **性別與性聯 `O/o` 精確分支：**
+        - **母貓分支（`p = 0.50`）：** 承接爸爸唯一 X（`father.coatGenotype.orange[0]`）與媽媽兩條 X（各 `0.5`）組成無序等位基因對，合併等價基因型（`['O','o'] == ['o','O']`）。
+        - **公貓分支（`p = 0.50`）：** 若雙親符合 E1 雙色基因條件（媽媽為 `['O','o']`，或 `{father.coatGenotype.orange[0]} ∪ set(mother.coatGenotype.orange)` 同時含 `'O'` 與 `'o'`），精確拆分為 **`2%` XXY 彩蛋分支**（`orange = ['O','o']`，分支機率 `0.50 × 0.02 = 0.01`）與 **`98%` 正常 XY 分支**（總分支機率 `0.50 × 0.98 = 0.49`，各以 `0.5` 承接媽媽兩條 X 之一）；若不符合雙色條件，則 `100%` 走正常 XY 分支（`0.50`）。
+     2. **7 個獨立常染色體毛色基因座之精確乘積：** 對 `B/b`、`D/d`、`A/a`、`C/cs`、`S/s`、`W/w`、`I/i` 各自計算父母 `2×2` 配子配對機率（父兩等位基因各 `0.5` × 母兩等位基因各 `0.5`，合併無序等價基因型後每座為 `1～3` 種狀態）；7 座獨立直積最多 `3^7 = 2,187` 種常染色體組合，與上述 `≤ 4` 組性聯分支相乘，完整精確狀態空間上限為 **`4 × 3^7 = 8,748`** 種（零蒙地卡羅抽樣誤差，單次運算 `< 1 ms`）。
+     3. **表現型映射與三分類聚合（`resolveCoatColorFamily(genotype)`）：** 將每個精確狀態以 `resolveCoatPhenotype` 確定性映射至色系 ID（如 `'white'`、`'colorpoint_seal'`、`'colorpoint_cream'`、`'calico'`、`'tortoiseshell'`、`'ginger'`、`'cream'`、`'black'`、`'blue'`、`'chocolate'`、`'lilac'`、`'silver_tabby'` 等）：
+        - 若 `dadFamily === momFamily`（雙親同表現型色系）：合併輸出 `{ sameFamily: true, likeBothPct, surprisePct }`（`likeBothPct + surprisePct === 100`）；
+        - 若 `dadFamily !== momFamily`：輸出 `{ sameFamily: false, likeFatherPct, likeMotherPct, surprisePct }`（依序為子代色系 `=== dadFamily`、`=== momFamily`、與其餘新表現型色系〔含隱性稀釋／重點色浮現與 XXY 三花彩蛋〕之精確機率總和）。
+     4. **整數百分比捨入與固定平手優先序（Largest Remainder + Tie-break）：** 各項先取 `Math.floor(p * 100)`，再依小數餘數 `(p * 100) - Math.floor(p * 100)` 由大到小將差額 `100 - sum` 逐一 `+1`；若多項餘數差值 `<= 1e-12` 視為平手，**固定 tie-break 優先序為 `likeFatherPct > likeMotherPct > surprisePct`**（同色系為 `likeBothPct > surprisePct`），確保相同輸入在所有執行環境下恆得完全一致結果。
+     5. **固定驗算範例（`S1-04` 單元測試鎖定）：**
+        - 範例 A（純黑公 `o, BB, DD, aa, CC, ss, ww, ii` × 純藍母 `oo, BB, Dd, aa, CC, ss, ww, ii`，異色系、無雙色 XXY 條件）：子代精確 `50%` `Dd`（純黑＝像父）＋ `50%` `dd`（純藍＝像母）＋ `0%` 驚喜 → `{ sameFamily: false, likeFatherPct: 50, likeMotherPct: 50, surprisePct: 0 }`。
+        - 範例 B（海豹重點公 `o, BB, DD, aa, cscs, ss, ww, ii` × 奶油純色母 `OO, BB, dd, aa, Ccs, ss, ww, ii`，具雙色 XXY 條件）：母寶 `50%` 全為 `O/o` 玳瑁（`25%` 濃玳瑁、`25%` 玳瑁重點）、公寶 `1%` 為 XXY 玳瑁、`49%` 為 `O/Y + Dd` 橘系（`24.5%` 濃橘、`24.5%` 火焰重點），皆異於父海豹重點與母奶油色 → `{ sameFamily: false, likeFatherPct: 0, likeMotherPct: 0, surprisePct: 100 }`。
 
 ---
 
@@ -213,7 +221,7 @@ export interface PigmentedFeatureColor {
      - 當 `littersGeneratedToday >= 3` 時禁止放棄重抽，保留第 3 胎 3～5 隻供玩家當日完成領養不卡死新手。
 - **帳號總免費擁有上限（`AdoptionSlotPolicy`）與持久化位置（`P1-04`）：**
   - 公式：`totalAllowedPets = maxFreeOwnedPets + purchasedExtraPetSlots`（MVP 預設 `1 + 0 = 1`，架構支援設定為 `n` 並於 Phase E 接付費擴充名額）。
-  - **持久化契約（同步見 [ADR-003](../../decisions/ADR-003-save-storage-json-to-sqlite.md)）：** 嚴禁將帳號名額混入單一 `PetState`；MVP 本機以獨立帳戶封裝欄位 `accountMeta: { accountId: string; maxFreeOwnedPets: number; purchasedExtraPetSlots: number; ownedPetIds: string[] }` 隨存檔（JSON 頂層 `accountMeta`／SQLite `game_saves.account_meta_json`）持久化，並於 Phase E 接入雲端帳號同步時改以伺服器帳戶紀錄為唯一權威（防跨裝置重複免費領養）。
+  - **持久化與舊存檔遷移契約（同步見 `SPEC-03` §3.1 與 [ADR-003](../../decisions/ADR-003-save-storage-json-to-sqlite.md)）：** 嚴禁將帳號名額混入單一 `PetState`；MVP 本機以獨立帳戶封裝欄位 `accountMeta: { accountId: string; maxFreeOwnedPets: number; purchasedExtraPetSlots: number; ownedPetIds: string[] }` 隨存檔（JSON 頂層 `accountMeta`／SQLite `game_saves.account_meta_json NOT NULL`）持久化，並於 Phase E 接入雲端帳號同步時改以伺服器帳戶紀錄為唯一權威（防跨裝置重複免費領養）。當 `v1 -> v2` 或舊版 `v2` 存檔缺失 `accountMeta` 時，遷移層必須確定性初始化為 `{ accountId: 'local-default-account', maxFreeOwnedPets: 1, purchasedExtraPetSlots: 0, ownedPetIds: pet?.id ? [pet.id] : [] }`（既有活躍 `pet.id` 強制去重回填至 `ownedPetIds`，嚴禁讓舊存檔憑空重獲額外免費領養名額）。
 
 ---
 
@@ -233,7 +241,7 @@ export interface PigmentedFeatureColor {
 1. **零破壞回歸：** 原 `S1-03` 全部測試（含 `TC-01`、`TC-02`、`genetics-golden-v1.json`）100% 通過無更動。
 2. **新增 `TC-10`（真實遺傳學＋一胎多貓＋彩蛋＋R1 防盲抽）：**
    - 驗證一胎 3/4/5 隻統計吻合 `30%/40%/30% ± 5%`、性別吻合 `50%/50% ± 5%`。
-   - 驗證孟德爾毛色、毛長、眼色、鼻頭／肉球與骨架遺傳核心案例（如三花媽生公貓拆色 50% 橘 / 50% 非橘；雙純合 `dd × dd` 100% 稀釋；`CC × cscs` 0% 重點色 vs `Ccs × cscs` 50% 重點色 vs `cscs × cscs` 100% 重點色；`ll × ll` 100% 長毛且一般長尾自動表現 `fluffy_plume`、`Ll × Ll` 長毛 25%；鼻頭與肉球顏色確定性一致；**E1 公三花 XXY 彩蛋統計檢定（`P1-05` 鎖定）：以固定種子集合對具雙色基因條件之父母配對抽出 `N = 5,000` 隻符合彩蛋條件之公貓樣本〔排除純 `O×O` 與純 `o×o` 組合〕，期望值 `2.0%`（100 隻），斷言實測觸發率落於 `1.3% ~ 2.7%`〔約 ±3.5σ，99.95% 信賴區間，零偶發抖動〕**；眼色符合 `cs/cs` 非純白 100% `sapphire`、`W/-` 35% 藍眼 / 15% 異色瞳、`S/-` 5% 藍眼 / 5% 異色瞳、一般無白貓 `w/w + C/- + s/s` 0% 藍眼與 0% 異色瞳且對稱多基因光譜 `(0,2)` 吻合 25%/50%/25%；雙曼赤肯吻合 `2:1` 即 66.7%/33.3%，且非曼赤肯／非加菲雙親 0% 憑空變異出 `short_legs` 或 `flat_face`）。
+   - 驗證孟德爾毛色、毛長、眼色、鼻頭／肉球與骨架遺傳核心案例（如三花媽生公貓拆色 50% 橘 / 50% 非橘；雙純合 `dd × dd` 100% 稀釋；`CC × cscs` 0% 重點色 vs `Ccs × cscs` 50% 重點色 vs `cscs × cscs` 100% 重點色；`ll × ll` 100% 長毛且一般長尾自動表現 `fluffy_plume`、`Ll × Ll` 長毛 25%；鼻頭與肉球顏色確定性一致；**E1 公三花 XXY 彩蛋統計檢定（`P1-05` 鎖定）：以固定確定性種子序列 `"tc10-xxy-sample-${i}"`（`i = 0..4999`）對固定具雙色基因條件之父母配對（如非橘父 × 橘母或三花母）抽出 `N = 5,000` 隻符合彩蛋條件之公貓樣本〔排除純 `O×O` 與純 `o×o` 組合〕，期望值 `2.0%`（100 隻），斷言實測觸發率落於 `1.3% ~ 2.7%`〔約 ±3.5σ，99.95% 信賴區間，零偶發抖動〕**；眼色符合 `cs/cs` 非純白 100% `sapphire`、`W/-` 35% 藍眼 / 15% 異色瞳、`S/-` 5% 藍眼 / 5% 異色瞳、一般無白貓 `w/w + C/- + s/s` 0% 藍眼與 0% 異色瞳且對稱多基因光譜 `(0,2)` 吻合 25%/50%/25%；雙曼赤肯吻合 `2:1` 即 66.7%/33.3%，且非曼赤肯／非加菲雙親 0% 憑空變異出 `short_legs` 或 `flat_face`）。
    - 驗證 `calculatePairingPreviewProbability()` 固定配對案例（含同色系合併與異色系三分類加總恆為 `100%`）。
    - 驗證領養預覽物件不含 `quirks` 陣列與數量（僅 `hasHiddenQuirks`）。
    - 驗證 R1 每日 3 胎上限、跨日重置、時鐘回撥拒絕重置、重啟保留計數不重算，以及 `accountMeta` 帳號總免費貓咪數計算。
