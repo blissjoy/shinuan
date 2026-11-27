@@ -82,7 +82,9 @@
 ## Phase B：2D 美術管線與跨平台渲染規格
 
 - **2D 粉彩貓咪拆圖與 AI 生成規範：** [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md)
-  - **目的：** 規範「12 個靜態 2D 零件 ＋ 3 層 PNG 動態換色 ＋ 共用 Rive 骨架 ＋ 5 組 AI 出圖 Prompt」，確保 6 品種與上萬毛色低成本量產且 100% 保留手繪粉彩畫風。
+  - **目的：** 規範「12 個靜態 2D 零件 ＋ 3 層 PNG 動態換色 ＋ 共用 Rive 骨架 ＋ 眼皮 Clipping Path / 2.5D 視差轉身雙鐵律 ＋ 2026-11 雙錨點逐件 AI 指令包」，確保 6 品種與上萬毛色低成本量產且 100% 保留手繪粉彩畫風。
+- **手機 9:19.5 全流程 UI/UX 與 Android 桌面 App 方塊跳台設計：** [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md)
+  - **目的：** 定義領養育種室（簡潔孟德爾 `%`）、拾暖小窩、商店 3 秒營養探索與雙平台設定頁面契約，以及零無障礙權限合規之 Android 桌面「App 方塊跳台系統（Virtual Perch Grid）」物理與校正設計。
 - **關聯架構決策（已拍板）：**
   - [ADR-001 動畫引擎選定 Rive](../decisions/ADR-001-animation-engine-rive.md)
   - [ADR-002 雙平台原生橋接（React Native / Android 懸浮窗 / iOS Widget）](../decisions/ADR-002-mobile-native-bridge-architecture.md)

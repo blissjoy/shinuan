@@ -53,6 +53,9 @@
    - 螢幕關閉（`ACTION_SCREEN_OFF`）立即暫停 `riveView.onPause()`，亮屏（`ACTION_USER_PRESENT`）才恢復；
    - 隱藏至通知列或停止服務時完整執行 `onPause()` / `onDestroy()` / `removeView()`，零記憶體洩漏；
    - 手機重開機後 MVP **不自動背景啟動**（對齊 PRD §4.1）。
+4. **桌面「App 方塊跳台系統（Virtual Perch Grid）」（2026-11-27 PO 拍板增補）：**
+   - **嚴格合規（零無障礙權限）：** 絕不申請敏感 `AccessibilityService` 竊讀第三方桌面 App 真實座標，避免違反 Google Play 政策。
+   - **虛擬跳台網格校正：** 內建 `4×5`／`4×6`／`5×6` 常見桌面格線＋頂部 Widget 區＋底部 Dock 預設，並提供「5 秒半透明格線拖拉校正（可疊個人桌面截圖貼齊）」，讓貓咪於 Kotlin 本地層依精準拋物線物理在玩家自己的 App 方塊與時鐘卡片間跳躍、蹲坐與趴睡，且維持透明區觸控穿透與 `FLAG_NOT_FOCUSABLE`。完整資料契約與物理防呆規則詳見 [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](../specs/PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md)。
 
 ---
 
@@ -68,7 +71,8 @@
 
 ---
 
-## 5. PO 拍板確認紀錄（2026-11-26）
+## 5. PO 拍板確認紀錄（2026-11-26 ～ 2026-11-27）
 
 - [x] 核准 Android 懸浮窗採 **「Kotlin 原生 `RiveAnimationView`（`TextureView`）負責本地物理＋按需 Headless JS 回流 `GameCore`」** 省電架構。
 - [x] 核准 iOS Widget 採 **「`App Groups` 共享 `WidgetSnapshot` ＋ `App Intents` 寫入 `pending-widget-commands.json` 待主 App 依時間戳補算」**，嚴格不在 Swift 重寫遊戲規則。
+- [x] （2026-11-27 增補）核准 Android 桌面導入 **「App 方塊跳台系統（Virtual Perch Grid）」**，採預設桌面格線＋5 秒半透明校正之零無障礙權限合規方案。
