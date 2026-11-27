@@ -6,9 +6,9 @@
 
 - **文件性質：** Phase B 手機端介面與桌面懸浮窗物理互動技術設計書（2026-11-27 經 Warfront 2 互動原型實測與 PO 拍板定案，供後續交付 Claude 開發與獨立 QA 驗收）
 - **對應規格基準：** `Master PRD v2.1.30`（§4.1、§4.3、§5.2 `PetViewModel`、§8.B.3、§8.C.2～§8.C.3、§8.D、§10.1～§10.2）、`ADR-001`、`ADR-002`
-- **參考實測原型（Dropbox 離線驗證）：**
-  - 手機全流程可點擊原型：`D:\temp\.gemini\scratch\shinuan-art-poc\mobile-app-prototype.html`
-  - 桌面 App 方塊跳台物理原型：`D:\temp\.gemini\scratch\shinuan-art-poc\mobile-cat-motion-demo.html`
+- **參考實測原型（已封存於 Dropbox 離線驗證）：**
+  - 手機全流程可點擊原型：`D:\Dropbox\ai-bridge\shinuan\art-assets\phase-b-exotic-flat-face\prototypes\mobile-app-prototype.html`
+  - 桌面 App 方塊跳台物理原型：`D:\Dropbox\ai-bridge\shinuan\art-assets\phase-b-exotic-flat-face\prototypes\mobile-cat-motion-demo.html`
   - Phase B 測試貓 21 件素材庫：`D:\Dropbox\ai-bridge\shinuan\art-assets\phase-b-exotic-flat-face\`
 
 ---
@@ -49,7 +49,7 @@
    - 開啟 Care Pause 時於 HUD 下方顯示安心提示條「🛡️ 照護暫停保護中」。
 2. **互動主舞台（內嵌 Rive 2D 粉彩貓 ＋ 房間牆面跳台）：**
    - 支援點擊地板走動／遠處小跑、點擊牆面貓跳台起跳、按住貓頭左右嚕毛摸頭（彈性傾頭＋壓耳瞇笑＋飄 ❤️）、拎起懸空踢腳與重力落地、以及召喚逗貓棒追跳。
-   - 當 `Hunger < 50` 或 `Hydration < 50`（且非 Care Pause）時，貓咪頭頂自動浮出 🐟 或 💧 輕微上下浮動氣泡。
+   - 頭頂狀態氣泡一律**嚴格唯讀消費 `PetViewModel.behavior.iconIds`**（嚴禁 UI 層自行計算需求數值門檻或繞過冷卻仲裁，對齊 `Master PRD v2.1.30` §5.2 與 §8.B.1：例如 Priority 100 緊急求救 `health < 30 || hunger < 15 || hydration < 15` 下發 🏥／🐟／💧；Priority 80 睡眠下發 💤；Priority 60 一般需求 `hunger < 40 || hydration < 40 || mood < 45` 下發 🐟／💧／🎾，持續 `5,000 ms`、共用冷卻 `60,000 ms`）。
 3. **底部導覽與快捷操作：**
    - 固定 4 顆主分頁或快捷入口：**🎒 背包餵食（開底部抽屜直接餵免費無限糧／水或已購商品）**、**🛒 商店**、**📖 圖鑑／領養**、**⚙️ 設定**；另於小窩內附快捷鈕切換「🪶 逗貓棒」、「🎁 每日簽到（+40）」與「📱 懸浮模式」。
 
@@ -125,8 +125,8 @@ export interface DesktopPerchPlatform {
 
 | 層級 | 識別項目 | 負責層 | 說明 |
 | --- | --- | --- | --- |
-| **Game Core 正式契約 (`PetViewModel.behavior.animationId`)** | `idle`、`walk`、`sit`、`sleep`、`eat`、`pet`、`drag`（對齊 Master PRD §8.B.3） | `packages/game-core`（唯讀下發） | 由 `BehaviorEngine` 依 6 級優先順序仲裁產生，跨平台唯一真相。 |
-| **渲染層本地移動過渡片段（非 `AnimationId` 枚舉）** | `run_chase`（逗貓棒／遠距快跑）、`jump_prep`（起跳蹲低蓄力）、`jump_air`（拋物線滯空）、`land_squash`（落地回彈）、`turn_25d_parallax`（2.5D 球面視差轉身） | React Native / Android Kotlin 渲染層本地驅動 | 僅依本地座標位移與物理速度觸發 Rive State Machine 過渡節點，**不回寫也不新增 `GameCore` 枚舉**。 |
+| **Game Core 正式契約 (`PetViewModel.behavior.animationId`)** | Phase B 實作子集：`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`（P0-B 6 支）＋ `drag`（P1）；完整 15 支正式枚舉（另含 Phase C `cat_loaf`/`play` 與 P1 `drop`/`landing` 等）詳見 `Master PRD v2.1.30` §8.B.3 | `packages/game-core`（唯讀下發） | 由 `BehaviorEngine` 依 6 級優先順序仲裁產生，跨平台唯一真相。 |
+| **渲染層本地移動過渡片段（非 `AnimationId` 枚舉）** | `run_chase`（逗貓棒／遠距快跑）、`jump_prep`（起跳蹲低蓄力）、`jump_air`（拋物線滯空）、`land_squash`（一般低高度落地彈性回彈，區別於 P1 正式高空掉落抗議 `landing`）、`turn_25d_parallax`（2.5D 球面視差轉身） | React Native / Android Kotlin 渲染層本地驅動 | 僅依本地座標位移與物理速度觸發 Rive State Machine 過渡節點，**不回寫也不新增 `GameCore` 枚舉**。 |
 
 ---
 
