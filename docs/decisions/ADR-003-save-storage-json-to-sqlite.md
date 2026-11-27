@@ -2,7 +2,7 @@
 
 - **狀態：** `ACCEPTED`（PO 已於 2026-11-26 拍板核准，透過 `SHINUAN-DOC-03` 納入 `docs/decisions/ADR-003-save-storage-json-to-sqlite.md`）
 - **決策日期：** 2026-11-26
-- **關聯規格：** `Master PRD v2.1.30`（§5.1、§5.2、§8.E.1、§8.E.3 `TC-MH-11`）、`docs/specs/SPEC-03-economy-save/SPEC-03-economy-save-design.md`
+- **關聯規格：** `Master PRD v2.1.31`（§5.1、§5.2、§8.A.5、§8.E.1、§8.E.3 `TC-MH-11`）、`docs/specs/SPEC-03-economy-save/SPEC-03-economy-save-design.md`、`docs/specs/SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md`
 
 ---
 
@@ -29,10 +29,11 @@
 -- 主存檔表（單一活躍存檔列，採 WAL 模式與 BEGIN IMMEDIATE 交易）
 CREATE TABLE IF NOT EXISTS game_saves (
   id                TEXT PRIMARY KEY,
-  schema_version    INTEGER NOT NULL,        -- 目前為 2（向後相容 v2.1.30 選填欄位）
+  schema_version    INTEGER NOT NULL,        -- 目前為 2（向後相容 v2.1.30 / v2.1.31 選填欄位）
   game_core_version TEXT NOT NULL,
   pet_state_json    TEXT NOT NULL,           -- 完整序列化 PetState（含 lastSimulatedAt / lowMoodDuration / discoveredQuirks）
-  daily_limits_json TEXT NOT NULL,           -- 完整序列化 DailyLimits（含 littersGeneratedToday）
+  daily_limits_json TEXT NOT NULL,           -- 完整序列化 DailyLimits（含 littersGeneratedToday / lastLitterGeneratedAt）
+  account_meta_json TEXT NOT NULL,           -- 獨立帳戶層元資料（AdoptionSlotPolicy: maxFreeOwnedPets / purchasedExtraPetSlots / ownedPetIds，不混入單一 PetState，預留 Phase E 雲端同步權威）
   created_at        INTEGER NOT NULL,        -- 由注入 Clock.now() 寫入，僅維運追蹤
   updated_at        INTEGER NOT NULL         -- 由注入 Clock.now() 寫入，不得取代 pet.lastSimulatedAt
 );

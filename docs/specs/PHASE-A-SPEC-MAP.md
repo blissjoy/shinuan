@@ -2,10 +2,10 @@
 
 # 拾暖伴伴（SHINUAN）Phase A 規格拆解地圖（SPEC-00 ～ SPEC-04）
 
-> **導覽：** [← 回到規格入口](README.md) ｜ [Master PRD v2.1.30](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../ROADMAP.md) ｜ [Phase B 2D 美術規範](PHASE-B-2D-ART-PIPELINE-SPEC.md)
+> **導覽：** [← 回到規格入口](README.md) ｜ [Master PRD v2.1.31](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../ROADMAP.md) ｜ [Phase B 2D 美術規範](PHASE-B-2D-ART-PIPELINE-SPEC.md)
 
 - **文件性質：** Phase A 大／中／小規格拆解與漸進可視化驗收藍圖（2026-11-26 重構為大綱條列＋上下錨點版本）
-- **對應基準：** [Master PRD v2.1.30](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md)
+- **對應基準：** [Master PRD v2.1.31](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md)
 - **治理模式：** 拾戰 AI Studio 已生效制度（`P-08 v0.3`、`GOV-003 v0.1`、`MOS v0.3`）
 - **追蹤原則：** 全 Phase A 共 **5 大規格 × 12 張精簡小單**，每張小單對應 1 個 GitHub Issue ＋ 1 條任務分支 ＋ 1 個 PR；PO 核准之技術設計書均納入 `docs/specs/`。
 
@@ -69,7 +69,7 @@
     - **PO 看得到的成果：** 開瀏覽器親手選爸媽品種「抽盲盒生貓」＋ 看色塊與 1,000 隻分布圖。
   - **`SHINUAN-S1-04`（Issue #12 📋）— 真實遺傳引擎、爸爸%/媽媽%預覽、一胎 3～5 隻與皮克敏式 2D 換色選父母**
     - **技術設計書：** [S1-04-preset-parents-litter-design.md](SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md)
-    - **核心交付：** 資料驅動 `preset-parents.v1.json`、9 基因座孟德爾毛色與毛長（`L/l`）遺傳＋E1 2% 公三花 XXY 彩蛋、對稱眼色光譜、鼻頭／肉球、雙曼赤肯 2:1 校正、精確配對毛色%預覽、一胎 3～5 隻（30/40/30）、預覽怪癖遮罩、R1 每日 3 胎上限與帳號總免費上限。
+    - **核心交付：** 增量擴充 `@shinuan/contracts`（`CoatGenotype`、`PresetParentCat`、`AdoptionLitter`、`AccountMeta`、`DailyLimits` 繁育欄位等）與 `@shinuan/config-loader`（載入與 Fail-Closed 驗證 `content/genetics/preset-parents.v1.json`）、9 基因座孟德爾毛色與毛長（`L/l`）遺傳＋E1 2% 公三花 XXY 彩蛋、對稱眼色光譜、鼻頭／肉球、雙曼赤肯 2:1 校正、精確配對毛色%預覽（`calculatePairingPreviewProbability()`）、一胎 3～5 隻（30/40/30）、預覽怪癖遮罩、R1 每日 3 胎上限與帳號總免費上限。
     - **驗收門檻：** **`TC-10`** ＋ `TC-01`/`TC-02` 零破壞回歸。
     - **PO 看得到的成果：** 開瀏覽器以皮克敏式 2D 貓咪點色球挑爸媽、看爸爸色%/媽媽色%提示 → 一胎生 3～5 隻小貓挑寶貝領養。
 

@@ -2,10 +2,10 @@
 
 # SHINUAN-S1-02 技術設計文件（Design Spec）：靜態設定檔、`@shinuan/config-loader` 與商品批次匯入驗證器
 
-> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #5](https://github.com/blissjoy/shinuan/issues/5) / [#7](https://github.com/blissjoy/shinuan/issues/7)
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #5](https://github.com/blissjoy/shinuan/issues/5) / [#7](https://github.com/blissjoy/shinuan/issues/7)
 
-> **狀態：APPROVED（PO 已於 2026-11-25 審閱定案）**  
-> 本文件隨 `SHINUAN-S1-02`（Issue `#5`）納入 `docs/specs/SPEC-01-contracts-config-genetics/S1-02-config-loader-design.md`。
+> **狀態：APPROVED（PO 已於 2026-11-25 審閱定案，PR `#6` / `#8` 已合併結案）**  
+> **版本與第 5 份設定檔追溯備註（`P0-03` / `P1-02`）：** 本文件紀錄已完成結案之 `S1-02` 4 份基礎設定檔（對應 `v2.1.29`）；`Master PRD v2.1.30 / v2.1.31` 新增之第 5 份設定檔 `content/genetics/preset-parents.v1.json` 及其 `@shinuan/config-loader` 通用驗證器與 `ValidatedGameConfig.presetParents` 增量擴充，統一指派由 [`S1-04-preset-parents-litter-design.md`](S1-04-preset-parents-litter-design.md)（`SHINUAN-S1-04` / Issue `#12`）實作與測試。
 
 - **Task ID / GitHub Issue：** `SHINUAN-S1-02` / `#5`（`https://github.com/blissjoy/shinuan/issues/5`）
 - **所屬 Epic 與規格來源：** `docs/specs/PHASE-A-SPEC-MAP.md`（`SPEC-01`、`§四`）

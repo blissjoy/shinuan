@@ -2,13 +2,16 @@
 
 # SHINUAN-S1-04 技術設計文件（Design Spec）：真實貓咪毛色遺傳學、皮克敏式 2D 換色選父母與一胎 3～5 隻領養系統
 
-> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #12](https://github.com/blissjoy/shinuan/issues/12)
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #12](https://github.com/blissjoy/shinuan/issues/12)
 
-> **狀態：APPROVED（PO 已於 2026-11-26 定案，隨 `Master PRD v2.1.30` 規格升級 PR 納入基準；實作開工排程於 `SHINUAN-S1-03` 合併之後）**
-> 本文件對應 `Master PRD v2.1.30`（§3.1、§3.2、§8.A.1、§8.A.5、§8.D、§8.E.2 `TC-10`、§11.2），納入 `docs/specs/SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md`。
+> **狀態：APPROVED（PO 已於 2026-11-26 定案，並於 2026-11-27 `SHINUAN-DOC-08` 依外部獨立審計補齊 `config-loader` 施工責任、R1 跨日與回撥契約、`calculatePairingPreviewProbability()`、`AdoptionSlotPolicy` 持久化及 `TC-10` 2% XXY 統計容許區間；實作開工排程於 `SHINUAN-S1-03` 合併之後）**
+> 本文件對應 `Master PRD v2.1.31`（§3.1、§3.2、§8.A.1、§8.A.5、§8.D、§8.E.2 `TC-10`、§11.2），納入 `docs/specs/SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md`。
 
-- **預計 Task ID：** `SHINUAN-S1-04`（排程於 `SHINUAN-S1-03` PR 合併後開立 Issue）
-- **資料驅動原則（PO 2026-11-26 定案）：** 本設計與未來 PRD **僅定義 Schema、通用驗證不變量與 7 基因座遺傳演算法**；所有系統內定父母之名字、隻數、花色與基因型一律由外部設定檔 `content/genetics/preset-parents.v1.json` 驅動，**隨時可自由增刪調整而無須修改 PRD、設計文件或程式碼**。（`preset-parents-proposal.md` 僅為初期範例參考稿，非規格鎖定項。）
+- **預計 Task ID：** `SHINUAN-S1-04`（GitHub Issue `#12`，排程於 `SHINUAN-S1-03` PR 合併後開工）
+- **資料驅動原則（PO 2026-11-26 定案）：** 本設計與 PRD **僅定義 Schema、通用驗證不變量與 9 個孟德爾基因座遺傳演算法（8 毛色〔1 性聯 `O/o` ＋ 7 常染色體〕＋ 1 毛長 `L/l`；`irisPigment` 另屬多基因連續虹膜模型）**；所有系統內定父母之名字、隻數、花色與基因型一律由外部設定檔 `content/genetics/preset-parents.v1.json` 驅動，**隨時可自由增刪調整而無須修改 PRD、設計文件或程式碼**。
+- **跨模組增量施工責任（`P0-03` 明文歸屬，不回改已結案之 `S1-01`/`S1-02`）：** `SHINUAN-S1-04` 須於同一任務分支增量擴充：
+  1. `@shinuan/contracts`（`packages/contracts/src/**`）：補齊 `v2.1.30`/`v2.1.31` 新增型別（`CoatGenotype`、`PresetParentCat`、`PresetParentsConfig`、`PigmentedFeatureColor`、`GeneticsEasterEggId`、`AdoptionSlotPolicy`、`AccountMeta`、`DailyLimits.littersGeneratedToday`、`DailyLimits.lastLitterGeneratedAt`、`ValidatedGameConfig.presetParents`）。
+  2. `@shinuan/config-loader`（`packages/config-loader/src/**`）：新增 `preset-parents-validator.ts`（`validatePresetParentsConfig()`）與 `loadPresetParentsConfig()` 並整合進 `loadGameConfig()`，定義明確錯誤碼（`ERR_PRESET_PARENTS_DUPLICATE_ID`、`ERR_PRESET_PARENTS_BREED_COVERAGE`、`ERR_PRESET_PARENTS_INVALID_GENOTYPE`、`ERR_PRESET_PARENTS_MALE_CALICO_FORBIDDEN`、`ERR_PRESET_PARENTS_COMPAT_CONFLICT`、`ERR_PRESET_PARENTS_RARE_MUTATION_FORBIDDEN`）與對應單元測試。
 - **零破壞承諾：** 完全保留既有 `S1-03` 純品種 API、`TC-01`、`TC-02` 與 `tests/fixtures/genetics-golden-v1.json`，以及所有既有時間／健康／經濟數值。
 
 ---
@@ -181,24 +184,36 @@ export interface PigmentedFeatureColor {
    - **步驟 2（形狀圖層 `head`、`ears`、`eyes`、`tail`、`body` ＋ 折耳／麒麟尾／星空稀有驚喜）：**
      - 沿用既有三配對來源權重（90/10、30/50/20、40/40/20；直接繼承具體父母之 `appearanceLayers[layer]`）與折耳／麒麟尾／星空 `2.5%～5%` 稀有突變驚喜。
      - **禁止無中生有短腿／扁臉：** 個體模式 `body` 通用變異白名單排除 `short_legs`（僅 `normal`/`chubby`/`large_fluffy`/`giant_fluffy`）；`head` 通用變異白名單排除 `flat_face`（僅 `standard_round`/`chubby_round`/`square_muzzle`）。
-   - **步驟 3（真實 8 基因座毛色與毛長遺傳 ＋ 尾巴連動毛長 ＋ 真實眼色 ＋ 鼻頭與肉球 ＋ 性別 50/50 ＋ E1 2% XXY 彩蛋）：** 依 §2 計算 `gender`、`coatGenotype`、`coatLength`、`coatPattern`、`pupilColor`、連動非短／非麒麟尾之 `tail`、`noseColor`、`pawPadColor`、基準毛色與 `easterEggs`。
+   - **步驟 3（真實 9 基因座孟德爾遺傳〔8 毛色＋1 毛長〕＋ 尾巴連動毛長 ＋ 真實眼色 ＋ 鼻頭與肉球 ＋ 性別 50/50 ＋ E1 2% XXY 彩蛋）：** 依 §2 計算 `gender`、`coatGenotype`、`coatLength`、`coatPattern`、`pupilColor`、連動非短／非麒麟尾之 `tail`、`noseColor`、`pawPadColor`、基準毛色與 `easterEggs`。
    - **步驟 4（相容性規則 1～4）：** 完全沿用既有 `applyCompatibilityRules`。
    - **步驟 5（HSL `±8%` 微調）：** 完全沿用既有 `color-params.ts`。
    - **步驟 6（小怪癖獨立抽選）：** 沿用 50% 0 / 35% 1 / 15% 2；對領養預覽物件**僅輸出 `hasHiddenQuirks: boolean`**（嚴格遮罩具體 ID 與數量）。
    - **步驟 7（初始基礎性格 `breedBase`）：** 沿用既有品種公式（同種直接沿用；米克斯＋純種 30/70 整數縮放；跨純種 50/50）；永久鎖定 `fatherPetId = fatherParent.parentId`、`motherPetId = motherParent.parentId`。
 3. **遺傳小知識文案（`geneticsSummaryTags`）：** 引擎同時輸出純資料標籤（如 `['inherited_colorpoint', 'dilute_cream_expression', 'rare_male_calico_easter_egg']`），由 UI 層渲染成溫暖的中文遺傳小知識與彩蛋祝賀！
+4. **選父母精簡機率預覽純函式（`calculatePairingPreviewProbability`，`P1-03` 數學鎖定）：**
+   - 簽章：`calculatePairingPreviewProbability(father: PresetParentCat, mother: PresetParentCat): PairingPreviewProbability`（純確定性枚舉計算，零亂數）。
+   - **色系歸類函數 `resolveCoatColorFamily(genotype)`：** 先對雙親與所有孟德爾等位基因組合（`2^9` 級精確機率樹，含性聯 `O/o` 50/50 性別分支與 2% XXY 彩蛋，不含 `2.5%~5%` 稀有星空突變與 7 層骨架形狀）以 `resolveCoatPhenotype` 映射到表現型色系 ID（例如 `'white'`、`'colorpoint_seal'`、`'colorpoint_cream'`、`'calico'`、`'tortoiseshell'`、`'ginger'`、`'cream'`、`'black'`、`'blue'`、`'chocolate'`、`'lilac'`、`'silver_tabby'` 等）。
+   - **三分類聚合口徑：**
+     - 若 `dadFamily === momFamily`（雙親同表現型色系）：合併輸出 `{ sameFamily: true, likeBothPct, surprisePct }`（`likeBothPct + surprisePct === 100`）；
+     - 若 `dadFamily !== momFamily`：輸出 `{ sameFamily: false, likeFatherPct, likeMotherPct, surprisePct }`（其中「像爸爸色」為子代色系 `=== dadFamily` 之精確機率總和、「像媽媽色」為 `=== momFamily` 之總和、「驚喜新色」為其餘所有新表現型色系〔含隱性稀釋／重點色浮現與 XXY 三花彩蛋〕之總和，三者採最大餘數法四捨五入至整數百分比並恆滿足 `likeFatherPct + likeMotherPct + surprisePct === 100`）。
 
 ---
 
-## 4. 防盲抽（R1）與帳號總免費貓咪數契約
+## 4. 防盲抽（R1）與帳號總免費貓咪數契約（`P0-02` / `P1-04` 完整閉環）
 
-- **每日免費繁育上限（`DAILY_FREE_LITTER_LIMIT = 3`）：** 記錄於 `DailyLimits`（`littersGeneratedToday`、`lastLitterGeneratedAt`），受既有本地日期與防時鐘回撥保護。
-- **放棄本胎／未領養兄弟姊妹提示：**
-  - 放棄整胎換下一胎前提示：「**此胎貓咪將由其他玩家領養，確定要放棄這一胎嗎？**」
-  - 領養確認且本胎仍有未領養小貓時提示：「**若此次放棄多領養，其餘兄弟姊妹將被其他玩家領養**」
-  - 用完第 3 胎時保留第 3 胎 3～5 隻供玩家當日領養，不卡死新手。
-- **帳號總免費擁有上限（`AdoptionSlotPolicy`）：**
-  - `totalAllowedPets = maxFreeOwnedPets + purchasedExtraPetSlots`（MVP 預設 `1 + 0 = 1`，架構支援設定為 `n` 並於 Phase E 接付費擴充名額）。
+- **每日免費繁育上限（`DAILY_FREE_LITTER_LIMIT = 3`）執行契約（同步落地於 `SPEC-03` §2.2 / §3.1）：**
+  1. **初始值與遷移預設：** 全新開局與 `v1 -> v2`（或舊版 `v2`）存檔遷移一律初始化 `dailyLimits.littersGeneratedToday = 0`、`dailyLimits.lastLitterGeneratedAt = null`。
+  2. **跨日重置與防時鐘回撥：** 呼叫繁育前先執行共用 `syncDailyLimitsForDate(dailyLimits, nowTimestamp, timezoneOffsetMinutes)`：
+     - 正常本地跨日（`currentLocalDate > dailyLimits.localDate`）：自動將 `littersGeneratedToday` 重置為 `0`，**保留 `lastLitterGeneratedAt`**；
+     - 時鐘或日期倒退（`currentLocalDate < dailyLimits.localDate` 或 `currentLocalDate < dailyLimits.lastActiveLocalDate` 或 `lastLitterGeneratedAt !== null && nowTimestamp < lastLitterGeneratedAt`）：**嚴格拒絕重置並回傳 `CLOCK_OR_DATE_ROLLBACK` 錯誤**，防止調錶繞過每日 3 胎限制。
+  3. **原子遞增與防重入：** 單次成功產生一胎後，連同當胎 `activePendingLitter` 一併原子寫入存檔，同步遞增 `littersGeneratedToday += 1` 並更新 `lastLitterGeneratedAt = nowTimestamp`；對同一 `litterSeed` 重複點擊或 App 重啟還原未領養之當胎時，直接回傳既有當胎且**不得重複扣減胎數**。
+  4. **放棄與保底規則：**
+     - 放棄整胎換下一胎前提示：「**此胎貓咪將由其他玩家領養，確定要放棄這一胎嗎？**」
+     - 領養確認且本胎仍有未領養小貓時提示：「**若此次放棄多領養，其餘兄弟姊妹將被其他玩家領養**」
+     - 當 `littersGeneratedToday >= 3` 時禁止放棄重抽，保留第 3 胎 3～5 隻供玩家當日完成領養不卡死新手。
+- **帳號總免費擁有上限（`AdoptionSlotPolicy`）與持久化位置（`P1-04`）：**
+  - 公式：`totalAllowedPets = maxFreeOwnedPets + purchasedExtraPetSlots`（MVP 預設 `1 + 0 = 1`，架構支援設定為 `n` 並於 Phase E 接付費擴充名額）。
+  - **持久化契約（同步見 [ADR-003](../../decisions/ADR-003-save-storage-json-to-sqlite.md)）：** 嚴禁將帳號名額混入單一 `PetState`；MVP 本機以獨立帳戶封裝欄位 `accountMeta: { accountId: string; maxFreeOwnedPets: number; purchasedExtraPetSlots: number; ownedPetIds: string[] }` 隨存檔（JSON 頂層 `accountMeta`／SQLite `game_saves.account_meta_json`）持久化，並於 Phase E 接入雲端帳號同步時改以伺服器帳戶紀錄為唯一權威（防跨裝置重複免費領養）。
 
 ---
 
@@ -218,7 +233,8 @@ export interface PigmentedFeatureColor {
 1. **零破壞回歸：** 原 `S1-03` 全部測試（含 `TC-01`、`TC-02`、`genetics-golden-v1.json`）100% 通過無更動。
 2. **新增 `TC-10`（真實遺傳學＋一胎多貓＋彩蛋＋R1 防盲抽）：**
    - 驗證一胎 3/4/5 隻統計吻合 `30%/40%/30% ± 5%`、性別吻合 `50%/50% ± 5%`。
-   - 驗證孟德爾毛色、毛長、眼色、鼻頭／肉球與骨架遺傳核心案例（如三花媽生公貓拆色 50% 橘 / 50% 非橘；雙純合 `dd × dd` 100% 稀釋；`CC × cscs` 0% 重點色 vs `Ccs × cscs` 50% 重點色 vs `cscs × cscs` 100% 重點色；`ll × ll` 100% 長毛且一般長尾自動表現 `fluffy_plume`、`Ll × Ll` 長毛 25%；鼻頭與肉球顏色確定性一致；E1 公三花 XXY 彩蛋觸發率吻合 `2%` 區間；眼色符合 `cs/cs` 非純白 100% `sapphire`、`W/-` 35% 藍眼 / 15% 異色瞳、`S/-` 5% 藍眼 / 5% 異色瞳、一般無白貓 `w/w + C/- + s/s` 0% 藍眼與 0% 異色瞳且對稱多基因光譜 `(0,2)` 吻合 25%/50%/25%；雙曼赤肯吻合 `2:1` 即 66.7%/33.3%，且非曼赤肯／非加菲雙親 0% 憑空變異出 `short_legs` 或 `flat_face`）。
+   - 驗證孟德爾毛色、毛長、眼色、鼻頭／肉球與骨架遺傳核心案例（如三花媽生公貓拆色 50% 橘 / 50% 非橘；雙純合 `dd × dd` 100% 稀釋；`CC × cscs` 0% 重點色 vs `Ccs × cscs` 50% 重點色 vs `cscs × cscs` 100% 重點色；`ll × ll` 100% 長毛且一般長尾自動表現 `fluffy_plume`、`Ll × Ll` 長毛 25%；鼻頭與肉球顏色確定性一致；**E1 公三花 XXY 彩蛋統計檢定（`P1-05` 鎖定）：以固定種子集合對具雙色基因條件之父母配對抽出 `N = 5,000` 隻符合彩蛋條件之公貓樣本〔排除純 `O×O` 與純 `o×o` 組合〕，期望值 `2.0%`（100 隻），斷言實測觸發率落於 `1.3% ~ 2.7%`〔約 ±3.5σ，99.95% 信賴區間，零偶發抖動〕**；眼色符合 `cs/cs` 非純白 100% `sapphire`、`W/-` 35% 藍眼 / 15% 異色瞳、`S/-` 5% 藍眼 / 5% 異色瞳、一般無白貓 `w/w + C/- + s/s` 0% 藍眼與 0% 異色瞳且對稱多基因光譜 `(0,2)` 吻合 25%/50%/25%；雙曼赤肯吻合 `2:1` 即 66.7%/33.3%，且非曼赤肯／非加菲雙親 0% 憑空變異出 `short_legs` 或 `flat_face`）。
+   - 驗證 `calculatePairingPreviewProbability()` 固定配對案例（含同色系合併與異色系三分類加總恆為 `100%`）。
    - 驗證領養預覽物件不含 `quirks` 陣列與數量（僅 `hasHiddenQuirks`）。
-   - 驗證 R1 每日 3 胎上限、跨日重置、時鐘回撥拒絕重置，以及帳號總免費貓咪數計算。
-3. **`preset-parents.v1.json` 通用驗證（與具體名單解耦）：** 驗證器僅檢查通用不變量（`parentId` 唯一、6 品種各至少 1 爸 1 媽、合法 `coatGenotype`、公貓不含三花／玳瑁、外觀不違反相容規則 1～3 與無稀有突變）；測試不寫死具體父母名字、隻數或固定花色清單，確保日後自由編輯 JSON 不破壞測試。
+   - 驗證 R1 每日 3 胎上限、跨日重置、時鐘回撥拒絕重置、重啟保留計數不重算，以及 `accountMeta` 帳號總免費貓咪數計算。
+3. **`preset-parents.v1.json` 通用驗證（由 `SHINUAN-S1-04` 增量實作於 `@shinuan/config-loader`，與具體名單解耦）：** 驗證器僅檢查通用不變量（`parentId` 唯一、6 品種各至少 1 爸 1 媽、合法 `coatGenotype`、公貓不含三花／玳瑁、外觀不違反相容規則 1～3 與無稀有突變）；測試不寫死具體父母名字、隻數或固定花色清單，確保日後自由編輯 JSON 不破壞測試。

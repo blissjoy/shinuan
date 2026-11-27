@@ -2,7 +2,9 @@
 
 # SHINUAN-S1-01 技術設計文件（Design Spec）：`@shinuan/contracts` 跨模組型別與資料契約
 
-> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #3](https://github.com/blissjoy/shinuan/issues/3)
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-01) ｜ [所屬規格 SPEC-01](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-01) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #3](https://github.com/blissjoy/shinuan/issues/3)
+
+> **版本追溯備註（`P1-02`）：** 本文件紀錄已合併結案之 `SHINUAN-S1-01`（PR `#4`）所建立的 `v2.1.29` 基礎契約；`Master PRD v2.1.30 / v2.1.31` 新增之個體父母遺傳、一胎 3～5 隻、`discoveredQuirks`、`littersGeneratedToday`、`lastLitterGeneratedAt` 與 `accountMeta` 等 `@shinuan/contracts` 增量型別，統一歸由 [`S1-04-preset-parents-litter-design.md`](S1-04-preset-parents-litter-design.md)（`SHINUAN-S1-04` / Issue `#12`）向後相容擴充。
 
 - **Task ID / GitHub Issue：** `SHINUAN-S1-01` / `#3`
 - **所屬 Epic 與規格來源：** `docs/specs/PHASE-A-SPEC-MAP.md`（`SPEC-01` 契約、設定與基因引擎）

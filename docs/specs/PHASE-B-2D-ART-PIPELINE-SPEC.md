@@ -2,11 +2,11 @@
 
 # Phase B 美術工程規範｜2D 手繪粉彩貓咪「12 零件紙娃娃拆圖 ＋ 3 層動態著色 ＋ AI 雙錨點逐件指令包」
 
-> **導覽與追溯：** [← 回到規格入口](README.md#phase-b) ｜ [手機 UI/UX 與桌面 App 跳台設計](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md) ｜ [Phase A 規格地圖](PHASE-A-SPEC-MAP.md) ｜ [Master PRD v2.1.30](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md)
+> **導覽與追溯：** [← 回到規格入口](README.md#phase-b) ｜ [手機 UI/UX 與桌面 App 跳台設計](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md) ｜ [Phase A 規格地圖](PHASE-A-SPEC-MAP.md) ｜ [Master PRD v2.1.31](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md)
 
 - **文件性質：** Phase B 2D 美術與前端渲染對接規格書（2026-11-26 PO 定調採用 2D 粉彩紙娃娃骨骼動畫路線；2026-11-27 經 Warfront 1 實測驗證升級為 v2 實戰定版）
 - **風格基準（Style North Star）：** PO 手繪粉彩繪本風格原型圖（已封存於 `D:\Dropbox\ai-bridge\shinuan\tasks\SHINUAN-S1-04\prototype\assets\{dad_exotic_seal.jpg, mom_exotic_cream.jpg}`）
-- **對應規格基準：** `Master PRD v2.1.30`（§3.1、§5.2 `PetViewModel`、§8.A.1～§8.A.5、§8.B.3 動畫矩陣）、`ADR-001`（Rive 動畫引擎）
+- **對應規格基準：** `Master PRD v2.1.31`（§3.1、§5.2 `PetViewModel`、§8.A.1～§8.A.5、§8.B.3 動畫矩陣）、`ADR-001`（Rive 動畫引擎）
 - **核心原則：** **「1 套靜態 2D 零件底圖 ＋ 1 套共用 2D 骨骼動畫（Rive）＋ 100% 程式即時換色與互動」**——零逐格手繪成本，6 大品種與上萬種真實基因毛色共用同一套動畫檔，且 100% 保留手繪粉彩繪本溫度。
 
 ---

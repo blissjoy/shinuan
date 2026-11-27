@@ -12,7 +12,7 @@
 ## 開始任何工作前
 
 1. 閱讀根目錄 `AGENTS.md`。
-2. 確認 Master PRD 標題為 **v2.1.30**；不符時停止並回報 PO。
+2. 確認 Master PRD 標題為 **v2.1.31**；不符時停止並回報 PO。
 3. 無法讀取 `AGENTS.md` 或無法確認 PRD 版本時，明確告知 PO，**不得假裝已確認**。
 
 ## Protected PO Notes

@@ -2,10 +2,10 @@
 
 # SPEC-03 技術設計文件（Design Spec）：`EconomyEngine`、原生廣告商店、背包與防損 JSON 存檔遷移
 
-> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-03) ｜ [所屬規格 SPEC-03](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-03) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-003 存檔演進](../../decisions/ADR-003-save-storage-json-to-sqlite.md) ｜ [GitHub Issue #15](https://github.com/blissjoy/shinuan/issues/15) / [#16](https://github.com/blissjoy/shinuan/issues/16)
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-03) ｜ [所屬規格 SPEC-03](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-03) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-003 存檔演進](../../decisions/ADR-003-save-storage-json-to-sqlite.md) ｜ [GitHub Issue #15](https://github.com/blissjoy/shinuan/issues/15) / [#16](https://github.com/blissjoy/shinuan/issues/16)
 
-> **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並要求於派工包強制加入 Claude Design 自我審核與遇疑即停條款；已定稿 `SHINUAN-S3-01` 與 `SHINUAN-S3-02` 派工包）**
-> **對應唯一正式規格：** `Master PRD v2.1.30`（§2.1、§4.4、§5.1、§8.A.1、§8.C.2、§8.C.3、§8.E.1、§8.E.2 `TC-07`、§8.E.3 `TC-MH-11`）
+> **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並於 2026-11-27 `SHINUAN-DOC-08` 補齊 R1 每日 3 胎跨日重置與存檔遷移契約；派工包強制加入 Claude Design 自我審核與遇疑即停條款）**
+> **對應唯一正式規格：** `Master PRD v2.1.31`（§2.1、§4.4、§5.1、§8.A.1、§8.A.5、§8.C.2、§8.C.3、§8.E.1、§8.E.2 `TC-07`/`TC-10`、§8.E.3 `TC-MH-11`）
 > **設計產出路徑（Dropbox）：** `D:\Dropbox\ai-bridge\shinuan\tasks\SHINUAN-S3-01\SPEC-03-economy-save-design.md`
 > **未來納入 Repo 路徑：** `docs/specs/SPEC-03-economy-save/SPEC-03-economy-save-design.md`
 
@@ -50,10 +50,10 @@ export const ECONOMY_CONSTANTS = Object.freeze({
 所有經濟指令執行前，一律以注入之 `timezoneOffsetMinutes` 透過 `TimeEngine` 共用的 `toLocalDateString(timestamp, timezoneOffsetMinutes)` 取得 `currentLocalDate`：
 
 1. **時鐘／日期倒退防護：**
-   - 若 `currentLocalDate < dailyLimits.localDate` 或 `currentLocalDate < dailyLimits.lastActiveLocalDate`：判定為日期倒退（跨西時區或手動調錶），**不重置當日上限**，並於領獎類指令回傳 `CommandRejectedEvent`（`reason: 'CLOCK_OR_DATE_ROLLBACK'`）。
+   - 若 `currentLocalDate < dailyLimits.localDate` 或 `currentLocalDate < dailyLimits.lastActiveLocalDate` 或（當 `dailyLimits.lastLitterGeneratedAt !== null` 且 `timestamp < dailyLimits.lastLitterGeneratedAt`）：判定為時鐘／日期倒退（跨西時區或手動調錶），**絕不重置任何當日上限（含 `littersGeneratedToday`）**，並於領獎類指令或繁育類指令回傳 `CommandRejectedEvent`（`reason: 'CLOCK_OR_DATE_ROLLBACK'`）。
 2. **正常跨本地午夜（`currentLocalDate > dailyLimits.localDate`）：**
-   - 重置當日計數欄位：`localDate = currentLocalDate`、`lastActiveLocalDate = currentLocalDate`、`claimedRewardIds = []`、`exploredProductIds = []`、`shopOpenedToday = false`、`explorationCoinsEarned = 0`、`interactionCoinsEarned = 0`、`dailyHighHealthRewardClaimed = false`。
-   - **完整保留** `lastClaimedLocalDate` 與 `lastClaimedTimestamp`（供每日簽到 20h 冷卻判定！）。
+   - 重置當日計數欄位：`localDate = currentLocalDate`、`lastActiveLocalDate = currentLocalDate`、`claimedRewardIds = []`、`exploredProductIds = []`、`shopOpenedToday = false`、`explorationCoinsEarned = 0`、`interactionCoinsEarned = 0`、`dailyHighHealthRewardClaimed = false`、**`littersGeneratedToday = 0`**（對齊 PRD §8.A.5 R1 每日 3 胎上限跨日重置）。
+   - **完整保留** `lastClaimedLocalDate`、`lastClaimedTimestamp`（供每日簽到 20h 冷卻判定）與 **`lastLitterGeneratedAt`**（供繁育防時鐘回撥判定！）。
 
 ### 2.3 六大經濟與照護指令語義（純函式不可變，輸入 `(state, catalog, command, timezoneOffsetMinutes, context?)`）
 
@@ -98,10 +98,10 @@ export const ECONOMY_CONSTANTS = Object.freeze({
 ### 3.1 純邏輯層（`packages/game-core/src/save/`，零 `fs`/`path`）
 
 1. **`validateGameState(raw: unknown)`：**
-   - 深度檢查所有必填欄位與值域不變量：`schemaVersion === 2`、有限數檢核（拒 `NaN`/`Infinity`）、`needs ∈ [0, 100]`、`health ∈ [10, 100]`、`recoveryBoostAccumulatedHours ∈ [0, 2.0]`、`lowMoodDuration.below40Hours >= 0`、`lowMoodDuration.below20Hours >= 0`、`coins >= 0`、`inventory` 均為非負整數、`genetics` 七大圖層與版本號完整、`dailyLimits` 日期字串符合 `YYYY-MM-DD`。
-   - 完全相容 `Master PRD v2.1.30` 選填增量欄位（如 `discoveredQuirks`、`coatGenotype`、`noseColor`、`pawPadColor`、`littersGeneratedToday` 等）。
-2. **`migrateGameState(raw: unknown)`（`v1 -> v2` 漸進遷移）：**
-   - 若 `schemaVersion === 2`：直接執行 `validateGameState` 回傳。
+   - 深度檢查所有必填欄位與值域不變量：`schemaVersion === 2`、有限數檢核（拒 `NaN`/`Infinity`）、`needs ∈ [0, 100]`、`health ∈ [10, 100]`、`recoveryBoostAccumulatedHours ∈ [0, 2.0]`、`lowMoodDuration.below40Hours >= 0`、`lowMoodDuration.below20Hours >= 0`、`coins >= 0`、`inventory` 均為非負整數、`genetics` 七大圖層與版本號完整、`dailyLimits` 日期字串符合 `YYYY-MM-DD`、`dailyLimits.littersGeneratedToday` 為非負整數（`>= 0`）、`dailyLimits.lastLitterGeneratedAt` 為 `null` 或有限時間戳。
+   - 完全相容 `Master PRD v2.1.31` 增量欄位（如 `discoveredQuirks`、`coatGenotype`、`noseColor`、`pawPadColor`、`littersGeneratedToday`、`lastLitterGeneratedAt` 與帳戶層 `accountMeta` 等）。
+2. **`migrateGameState(raw: unknown)`（`v1 -> v2` 與 `v2` 舊子版向後補齊遷移）：**
+   - 若 `schemaVersion === 2`：補齊 v2.1.30+ 新增選填預設值（`pet.discoveredQuirks ??= []`、`dailyLimits.littersGeneratedToday ??= 0`、`dailyLimits.lastLitterGeneratedAt ??= null`）後執行 `validateGameState` 回傳。
    - 若 `schemaVersion === 1`：補齊所有 v2 缺失欄位預設值：
      - `pet.microchipId ??= null`
      - `pet.genetics.fatherPetId ??= null`、`pet.genetics.motherPetId ??= null`
@@ -109,6 +109,7 @@ export const ECONOMY_CONSTANTS = Object.freeze({
      - `pet.lowMoodDuration ??= { below40Hours: 0, below20Hours: 0 }`
      - `pet.isCarePaused ??= false`
      - `pet.discoveredQuirks ??= []`
+     - `dailyLimits.littersGeneratedToday ??= 0`、`dailyLimits.lastLitterGeneratedAt ??= null`
      - 升級 `schemaVersion = 2`，最後必須通過 `validateGameState`；**嚴禁更動既有 `seed`、`appearance`、`basePersonality`、`quirks`、`coins`、`inventory` 或 `lastSimulatedAt`**。
    - 若 `schemaVersion` 未知或高於支援版本（`> 2`）：Fail-Closed 拒絕載入，不得靜默降級覆寫存檔。
 
@@ -134,7 +135,7 @@ export const ECONOMY_CONSTANTS = Object.freeze({
 ## 4. 強制前置紀律：Design 自我審核與遇疑即停條款
 
 比照 `SPEC-02` PO 指示，未來 `SHINUAN-S3-01` 與 `SHINUAN-S3-02` 派工包均須置頂要求：
-- Claude 實作前必須先對本設計與 `Master PRD v2.1.30`、`@shinuan/contracts` 執行自我審核；遇任何邏輯、邊界或契約矛盾立即 `BLOCKED` 提出質疑提交 PO，嚴禁硬做。
+- Claude 實作前必須先對本設計與 `Master PRD v2.1.31`、`@shinuan/contracts` 執行自我審核；遇任何邏輯、邊界或契約矛盾立即 `BLOCKED` 提出質疑提交 PO，嚴禁硬做。
 
 ---
 

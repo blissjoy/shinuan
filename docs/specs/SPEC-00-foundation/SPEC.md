@@ -2,7 +2,7 @@
 
 # SPEC-00｜底座與拾戰治理導入
 
-> **導覽：** [← 回到規格入口](../README.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-00) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../../ROADMAP.md)
+> **導覽：** [← 回到規格入口](../README.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-00) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../../ROADMAP.md)
 
 ---
 
@@ -32,7 +32,7 @@
 
 ## 3. 對應 Master PRD 哪幾點？
 
-- **[Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) §5.1 嚴格平台解耦與開發階段規範：** 規範 Phase A 必須在 Windows Node.js 獨立執行，Game Core 嚴禁平台 API。
+- **[Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) §5.1 嚴格平台解耦與開發階段規範：** 規範 Phase A 必須在 Windows Node.js 獨立執行，Game Core 嚴禁平台 API。
 - **§5.3 Monorepo 專案目錄結構：** 定義 `packages/`、`apps/`、`content/`、`tests/`、`scripts/`、`docs/` 完整職責切分。
 - **§5.4 AI 協作與工程管理規範（§5.4.1～§5.4.3）：** 導入拾戰三模型閉環、Protected PO Notes 絕對禁區、PRD 數值保護與測試獨立性。
 

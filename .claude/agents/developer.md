@@ -35,7 +35,7 @@ tools: Read, Grep, Glob, Write, Edit, Bash
 
 公司級角色來源：SHIZHAN Agent Registry，部署基準 commit `b3bba534621f7938a415a03f55ba92fe92587d2c`。本節只增加拾暖產品限制，不得降低公司級職責及權限原則。
 
-- 唯一產品規格為根目錄 `AGENTS.md` 指定的 Master PRD v2.1.30；開工前確認版本。
+- 唯一產品規格為根目錄 `AGENTS.md` 指定的 Master PRD v2.1.31；開工前確認版本。
 - 不得修改 Master PRD、`docs/PRD/`、任務狀態或 PO 驗收紀錄。
 - Game Core（`packages/game-core`）必須平台無關；禁止 `window`、`document`、`fs`、`path`、`process`、`Date.now()`、`Math.random()`、React／React Native、原生平台 API 及直接網路請求。
 - 時間及隨機數分別使用注入的 Clock 與 RandomGenerator；不得改動 PRD 數值、公式、基因機率、Health 保護、經濟平衡或驗收預期值。

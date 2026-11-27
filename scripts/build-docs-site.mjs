@@ -38,7 +38,7 @@ const NAV_TREE = [
       { id: 'docs/specs/README.md', label: '規格入口首頁', badge: '入口' },
       { id: 'docs/specs/PHASE-A-SPEC-MAP.md', label: 'Phase A 規格拆解地圖', badge: '地圖' },
       { id: 'ROADMAP.md', label: 'Phase A～E 進度看板', badge: '進度' },
-      { id: 'docs/PRD/AI_虛擬桌寵專案規格與需求書 (Master PRD).md', label: 'Master PRD v2.1.30', badge: '唯一正式' },
+      { id: 'docs/PRD/AI_虛擬桌寵專案規格與需求書 (Master PRD).md', label: 'Master PRD v2.1.31', badge: '唯一正式' },
     ],
   },
   {

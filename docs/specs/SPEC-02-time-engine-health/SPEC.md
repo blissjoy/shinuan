@@ -2,7 +2,7 @@
 
 # SPEC-02｜離線時間推進與健康救援引擎
 
-> **導覽：** [← 回到規格入口](../README.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-02) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../../ROADMAP.md)
+> **導覽：** [← 回到規格入口](../README.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-02) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../../ROADMAP.md)
 
 ---
 
@@ -31,7 +31,7 @@
 
 ## 3. 對應 Master PRD 哪幾點？
 
-- **[Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) §1 核心產品承諾：** 無死亡、健康下限 `10`、無懲罰 `CarePause`。
+- **[Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) §1 核心產品承諾：** 無死亡、健康下限 `10`、無懲罰 `CarePause`。
 - **§4.2 時間差模擬與照護暫停保護：** 0.25h 基礎步長、日夜切割、開啟與解除暫停規則。
 - **§8.C.1 時間步進計算順序與日夜區段公式：** 全部衰退速率、Signed Rate 交點公式、`VALUE_EPSILON` / `TIME_EPSILON_MS`、`MoodHealthPenalty` 40 安全地板、4 態 `RecoveryState` 與 P1-4 指令後即時重評。
 - **§10.2 #2 系統時間倒退異常：** 時鐘回撥時 `Δt = 0`、不覆寫 `lastSimulatedAt` 並記錄異常事件。

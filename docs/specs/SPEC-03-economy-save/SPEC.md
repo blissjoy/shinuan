@@ -2,7 +2,7 @@
 
 # SPEC-03｜商店經濟、背包與防損存檔
 
-> **導覽：** [← 回到規格入口](../README.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-03) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../../ROADMAP.md)
+> **導覽：** [← 回到規格入口](../README.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-03) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ROADMAP](../../../ROADMAP.md)
 
 ---
 
@@ -35,7 +35,7 @@
 
 ## 3. 對應 Master PRD 哪幾點？
 
-- **[Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) §2.1 無反感原生廣告五大原則：** 免費照護保障、品牌合作清楚標示、商品公平不賣數值。
+- **[Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) §2.1 無反感原生廣告五大原則：** 免費照護保障、品牌合作清楚標示、商品公平不賣數值。
 - **§4.4 照護與商店探索系統：** 免費乾糧／飲水無限使用與背包自主選擇使用時機。
 - **§8.C.2 商品目錄與軟下架狀態：** `active` / `pending_review` / `discontinued` 規則與 8 款預設商品效果。
 - **§8.C.3 日常積分與商品探索任務平衡表：** 全部積分上限、20h＋本地日期防重與高健康日結規則。

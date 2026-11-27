@@ -2,10 +2,10 @@
 
 # Phase B 設計規格書｜手機 9:19.5 全流程 UI/UX 與 Android 桌面 App 方塊跳台系統
 
-> **導覽與追溯：** [← 回到規格入口](README.md#phase-b) ｜ [Phase B 2D 美術與渲染規範](PHASE-B-2D-ART-PIPELINE-SPEC.md) ｜ [Master PRD v2.1.30](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台原生橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md)
+> **導覽與追溯：** [← 回到規格入口](README.md#phase-b) ｜ [Phase B 2D 美術與渲染規範](PHASE-B-2D-ART-PIPELINE-SPEC.md) ｜ [Master PRD v2.1.31](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台原生橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md)
 
-- **文件性質：** Phase B 手機端介面與桌面懸浮窗物理互動技術設計書（2026-11-27 經 Warfront 2 互動原型實測與 PO 拍板定案，供後續交付 Claude 開發與獨立 QA 驗收）
-- **對應規格基準：** `Master PRD v2.1.30`（§4.1、§4.3、§5.2 `PetViewModel`、§8.B.3、§8.C.2～§8.C.3、§8.D、§10.1～§10.2）、`ADR-001`、`ADR-002`
+- **文件性質：** 手機 9:19.5 全流程 UI/UX（跨 Phase B／C／D 分階段落地）與 Android 桌面懸浮窗物理互動設計書（2026-11-27 經 Warfront 2 互動原型實測、PO 拍板與外部獨立審計校準，供後續交付 Claude 分階段施工與獨立 QA 驗收）
+- **對應規格基準：** `Master PRD v2.1.31`（§4.1、§4.3、§5.2 `PetViewModel`、§7、§8.B.1、§8.B.3、§8.C.2～§8.C.3、§8.D、§10.1～§10.2）、`ADR-001`、`ADR-002`
 - **參考實測原型（已封存於 Dropbox 離線驗證）：**
   - 手機全流程可點擊原型：`D:\Dropbox\ai-bridge\shinuan\art-assets\phase-b-exotic-flat-face\prototypes\mobile-app-prototype.html`
   - 桌面 App 方塊跳台物理原型：`D:\Dropbox\ai-bridge\shinuan\art-assets\phase-b-exotic-flat-face\prototypes\mobile-cat-motion-demo.html`
@@ -13,12 +13,19 @@
 
 ---
 
-## 一、階段邊界與核心設計原則（避免超前實作）
+## 一、階段邊界矩陣與核心設計原則（嚴禁 Phase B 超前實作）
 
 1. **Game Core 單一真相原則：** 手機 UI 與 Android Kotlin 懸浮窗僅為**呈現與觸控收集層**，唯讀消費 `PetViewModel`，所有數值衰退、回血、經濟與行為仲裁 100% 委由 `packages/game-core`。
-2. **Phase B vs Phase D 功能邊界（對齊 PRD §8.D #3）：**
-   - **Phase B：** 完成 `AdoptionScreen`、`HomeScreen`、`SettingsScreen`、Android 懸浮窗（含桌面 App 方塊跳台）與 iOS Widget 預覽骨架；`ShopScreen` & `ProductDetailModal` 先以固定 Mock Data 建立靜態 UI Prototype（驗證排版與 3 秒閱讀動線，不含正式導購與遠端目錄）。
-   - **Phase D：** 正式接通 `EconomyEngine` 積分結算、背包扣減、商品探索獎勵入帳與遠端商品目錄。
+2. **Phase B / Phase C / Phase D 嚴格切分矩陣（對齊 `Master PRD v2.1.31` §7、§8.D #3）：**
+
+| 功能項目 | **Phase B（渲染與跨平台 PoC）** | **Phase C（單貓陪伴 MVP 上線）** | **Phase D（商店與原生廣告驗證）** |
+| --- | --- | --- | --- |
+| **2D 粉彩貓渲染與動畫** | 單隻測試貓 ＋ 6 支 P0-B 動畫 ＋ Rive 3 層著色 ＋ Android 懸浮窗／iOS Widget 消費同一 `PetViewModel` | 擴充全 6 品種外觀與 Phase C 動畫（`cat_loaf`、`play`、P1 互動） | 沿用 |
+| **Android 桌面 App 跳台** | 完成 Virtual Perch Grid 基礎校正與本地拋物線物理 PoC | 正式上線並持久化使用者校正格線 | 沿用 |
+| **領養育種頁（`AdoptionScreen`）** | **僅靜態 UI Prototype 展示排版**（使用固定 Mock 預覽，**不接正式領養鎖定、不寫入帳號名額**） | **正式接線 `generateLitter()`、`calculatePairingPreviewProbability()`、R1 每日 3 胎上限與領養命名鎖定** | 沿用 |
+| **小窩與設定頁（`HomeScreen` / `SettingsScreen`）** | 測試貓互動舞台、HUD 消費唯讀 `PetViewModel`、顯示尺寸與雙平台教學 | 接通完整 SQLite 存檔、時間推進、健康救援、Care Pause 與 iOS Widget 指令佇列 | 沿用 |
+| **商店與詳情抽屜（`ShopScreen` / `ProductDetailModal`）** | **僅固定 Mock Data 靜態 UI Prototype**（驗證版面、標籤與 3 秒倒數視覺骨架；**嚴禁實作 `BuyItem`、背包交易與真實積分入帳**） | 維持靜態骨架或隱藏入口，不提前開啟商業交易 | **正式接通 `EconomyEngine`（`OpenShop`、`InspectProduct` 3 秒入帳、`BuyItem`、背包消耗與 Remote Config 目錄）** |
+
 3. **非文字陪伴（PRD §4.3）：** 貓咪不彈出長篇文字對話框，需求與情緒一律透過動作、表情與頭頂圖示氣泡（🐟／💧／❤️／💢／💤／🏥）呈現。
 
 ---
@@ -27,19 +34,19 @@
 
 基準設計視口採 **`390 × 844 pt`（9:19.5）**，相容各尺寸劉海屏與安全區域（Safe Area）。
 
-### 2.1 開局領養育種室（`AdoptionScreen`，對齊 PRD §8.D #1、`S1-04`）
+### 2.1 開局領養育種室（`AdoptionScreen`｜Phase B 靜態 UI 展示 ／ Phase C 正式接線，對齊 PRD §8.D #1、`S1-04`）
 
 1. **雙親挑選與即時預覽：**
    - 上半部左右並排「♂ 爸爸貓」與「♀ 媽媽貓」選擇卡，切換父母時卡片內 2D 粉彩貓即時套用 3 層著色換裝。
-   - **PO 拍板精簡版孟德爾機率預覽（絕不堆砌艱澀遺傳學文字牆）：**
+   - **PO 拍板精簡版孟德爾機率預覽（絕不堆砌艱澀遺傳學文字牆；正式數值由 `S1-04` 純函式 `calculatePairingPreviewProbability()` 計算提供）：**
      - 父母不同色系：`像爸爸色 XX% ｜ 像媽媽色 YY% ｜ 驚喜新色 ZZ%`（配三段比例色條）。
      - 父母同色系自動合併：`像爸媽色 XX% ｜ 驚喜新色 ZZ%`。
-2. **一胎 3～5 隻與 R1 每日 3 胎上限：**
-   - 頂部顯示「今日免費 `X/3` 胎」徽章；點擊「誕生這一胎」呼叫 `generateLitter()` 產出 3～5 隻真實 2D 粉彩渲染小貓卡片。
+2. **一胎 3～5 隻與 R1 每日 3 胎上限（Phase C 接線 `generateLitter()` 與 `DailyLimits`；Phase B 僅以靜態範例呈現卡片排版）：**
+   - 頂部顯示「今日免費 `X/3` 胎」徽章；Phase C 點擊「誕生這一胎」呼叫 `generateLitter()` 產出 3～5 隻真實 2D 粉彩渲染小貓卡片。
    - 卡片僅呈現：外觀預覽、性別（`♂ 男寶`／`♀ 女寶`）、隱藏小怪癖提示（**嚴格僅示「有／無」，例如「✨ 有神秘小習慣」，絕不透露怪癖數量與名稱**）、以及 2% 公三花 XXY 罕見彩蛋祝賀標章。
    - 放棄重抽前必須彈出溫馨提示：「此胎小貓將由其他玩家領養」；3 胎用完後鎖定放棄按鈕，保留最後一胎供挑選。
-3. **命名與領養鎖定：**
-   - 挑選 1 隻小貓輸入名稱（1～12 字元），確認前提示其餘未領養兄弟姊妹將被其他玩家領養；確認後鎖定 `seed`、`appearance`、`fatherPetId`、`motherPetId`，引導進入雙平台權限教學（Android 懸浮窗授權／iOS Widget 教學）。
+3. **命名與領養鎖定（Phase C 正式上線）：**
+   - 挑選 1 隻小貓輸入名稱（1～12 字元），確認前提示其餘未領養兄弟姊妹將被其他玩家領養；確認後鎖定 `seed`、`appearance`、`fatherPetId`、`motherPetId` 並檢查 `AdoptionSlotPolicy`，引導進入雙平台權限教學（Android 懸浮窗授權／iOS Widget 教學）。
 
 ### 2.2 拾暖小窩主畫面（`HomeScreen`，對齊 PRD §8.D #2）
 
@@ -49,18 +56,19 @@
    - 開啟 Care Pause 時於 HUD 下方顯示安心提示條「🛡️ 照護暫停保護中」。
 2. **互動主舞台（內嵌 Rive 2D 粉彩貓 ＋ 房間牆面跳台）：**
    - 支援點擊地板走動／遠處小跑、點擊牆面貓跳台起跳、按住貓頭左右嚕毛摸頭（彈性傾頭＋壓耳瞇笑＋飄 ❤️）、拎起懸空踢腳與重力落地、以及召喚逗貓棒追跳。
-   - 頭頂狀態氣泡一律**嚴格唯讀消費 `PetViewModel.behavior.iconIds`**（嚴禁 UI 層自行計算需求數值門檻或繞過冷卻仲裁，對齊 `Master PRD v2.1.30` §5.2 與 §8.B.1：例如 Priority 100 緊急求救 `health < 30 || hunger < 15 || hydration < 15` 下發 🏥／🐟／💧；Priority 80 睡眠下發 💤；Priority 60 一般需求 `hunger < 40 || hydration < 40 || mood < 45` 下發 🐟／💧／🎾，持續 `5,000 ms`、共用冷卻 `60,000 ms`）。
+   - 頭頂狀態氣泡一律**嚴格唯讀消費 `PetViewModel.behavior.iconIds`**（嚴禁 UI 層自行計算需求數值門檻或繞過冷卻仲裁，對齊 `Master PRD v2.1.31` §5.2 與 §8.B.1：例如 Priority 100 緊急求救 `health < 30 || hunger < 15 || hydration < 15` 下發 🏥／🐟／💧；Priority 80 睡眠下發 💤；Priority 60 一般需求 `hunger < 40 || hydration < 40 || mood < 45` 下發 🐟／💧／🎾，持續 `5,000 ms`、共用冷卻 `60,000 ms`）。
 3. **底部導覽與快捷操作：**
    - 固定 4 顆主分頁或快捷入口：**🎒 背包餵食（開底部抽屜直接餵免費無限糧／水或已購商品）**、**🛒 商店**、**📖 圖鑑／領養**、**⚙️ 設定**；另於小窩內附快捷鈕切換「🪶 逗貓棒」、「🎁 每日簽到（+40）」與「📱 懸浮模式」。
 
-### 2.3 商店與營養成分詳情抽屜（`ShopScreen` & `ProductDetailModal`，對齊 PRD §8.C.2、§8.C.3、§8.D #3）
+### 2.3 商店與營養成分詳情抽屜（`ShopScreen` & `ProductDetailModal`｜Phase B 靜態 Mock Prototype ／ Phase D 正式接線，對齊 PRD §8.C.2、§8.C.3、§8.D #3）
 
 1. **商品列表：** 支援分類篩選（全部／主食罐／乾糧／零食），每張商品卡清晰標示 `一般商品` 或 `品牌合作`、`模擬測試資料`（當 `dataType === "mock"` 時強制顯示）與積分價格。
 2. **詳情抽屜（兩區塊嚴格分離）：**
    - **真實商品資訊區塊：** 品牌名稱、粗蛋白／粗脂肪／水分分析、主要原料、資料來源、更新日期與免責聲明（「實際成分以原廠包裝標示為準」）。
-   - **遊戲效果與購買區塊：** 飽食／水分／心情回復值（鎖定於 7 級價位白名單內）與「購買放入背包」按鈕。
-3. **無廣告式 3 秒探索任務（`InspectProduct`）：**
-   - 開啟詳情抽屜後於本機靜默計時；停留達 **`>= 3 秒`** 且該商品當日未領過，安靜將徽章更新為「✓ 探索完成 ＋10 積分（今日 `X/30`）」（每日上限 30 積分，無全螢幕廣告彈窗）。
+   - **遊戲效果與購買區塊：** 飽食／水分／心情回復值（鎖定於 7 級價位白名單內）與「購買放入背包」按鈕（**Phase B 靜態 Prototype 設為展示態／不可結算，Phase D 始接通 `BuyItem` 扣分與背包入帳**）。
+3. **無廣告式 3 秒探索任務（`InspectProduct` — Phase D 正式結算）：**
+   - **Phase B：** 僅呈現視覺提示徽章與靜態版面，不執行真實積分入帳。
+   - **Phase D：** 開啟詳情抽屜後計時，停留達 **`>= 3 秒`** 時派發 `InspectProduct` 指令由 `EconomyEngine` 驗證與入帳（每款不重複商品 `+10` 積分、每日上限 `30` 積分，無全螢幕廣告彈窗）。
 
 ### 2.4 雙平台與照護設定頁（`SettingsScreen`，對齊 PRD §4.1、§8.D #2、`ADR-002`）
 
@@ -125,15 +133,22 @@ export interface DesktopPerchPlatform {
 
 | 層級 | 識別項目 | 負責層 | 說明 |
 | --- | --- | --- | --- |
-| **Game Core 正式契約 (`PetViewModel.behavior.animationId`)** | Phase B 實作子集：`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`（P0-B 6 支）＋ `drag`（P1）；完整 15 支正式枚舉（另含 Phase C `cat_loaf`/`play` 與 P1 `drop`/`landing` 等）詳見 `Master PRD v2.1.30` §8.B.3 | `packages/game-core`（唯讀下發） | 由 `BehaviorEngine` 依 6 級優先順序仲裁產生，跨平台唯一真相。 |
+| **Game Core 正式契約 (`PetViewModel.behavior.animationId`)** | Phase B 實作子集：`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`（P0-B 6 支）＋ `drag`（P1）；完整 15 支正式枚舉（另含 Phase C `cat_loaf`/`play` 與 P1 `drop`/`landing` 等）詳見 `Master PRD v2.1.31` §8.B.3 | `packages/game-core`（唯讀下發） | 由 `BehaviorEngine` 依 6 級優先順序仲裁產生，跨平台唯一真相。 |
 | **渲染層本地移動過渡片段（非 `AnimationId` 枚舉）** | `run_chase`（逗貓棒／遠距快跑）、`jump_prep`（起跳蹲低蓄力）、`jump_air`（拋物線滯空）、`land_squash`（一般低高度落地彈性回彈，區別於 P1 正式高空掉落抗議 `landing`）、`turn_25d_parallax`（2.5D 球面視差轉身） | React Native / Android Kotlin 渲染層本地驅動 | 僅依本地座標位移與物理速度觸發 Rive State Machine 過渡節點，**不回寫也不新增 `GameCore` 枚舉**。 |
 
 ---
 
-## 五、Phase B 實作與獨立 QA 驗收清單
+## 五、分階段實作與獨立 QA 驗收清單
 
-- [ ] 領養流程完整呈現簡潔版孟德爾機率（`像爸爸 % / 像媽媽 % / 驚喜新色 %`）、一胎 3～5 隻、R1 每日 3 胎上限、隱藏小怪癖只示「有／無」與 2% 公三花彩蛋。
-- [ ] 小窩與桌面懸浮貓 100% 遵守 [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md) §4.3 兩大渲染鐵律（眼皮 Clipping Path 零色塊 ＋ 2.5D 視差轉身零紙片翻面＋異色瞳左右眼不對調）。
+### 5.1 Phase B 驗收清單（渲染與跨平台 PoC 必過）
+- [ ] 單隻測試貓於 Rive 完成 6 支 P0-B 動作與 3 層 PNG 預合成換色，100% 遵守 [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md) §4.3 兩大渲染鐵律（眼皮 Clipping Path 零色塊 ＋ 2.5D 視差轉身零紙片翻面＋異色瞳左右眼不對調）。
+- [ ] React Native、Android Kotlin 懸浮窗與 iOS SwiftUI Widget 皆唯讀消費同一份 `PetViewModel`（含 `behavior.iconIds`），無 UI 層自行計算需求門檻。
 - [ ] Android 懸浮窗嚴格不申請 `AccessibilityService`，可於 `4×5`／`4×6`／`5×6` 虛擬跳台格線與頂部 Widget／底部 Dock 間精準拋物線跳躍、停靠與拎起掉落，且全時維持 `FLAG_NOT_FOCUSABLE`。
-- [ ] iOS 透過 `App Groups` ＋ `WidgetKit` ＋ `App Intents` 呈現靜態貓咪快照與速餵／摸頭指令佇列，開 App 依時間戳補算。
-- [ ] 商店詳情頁清楚區分「真實商品資訊」與「遊戲效果」，並具備停留 `>= 3 秒` 探索計時與 `mock` 標示。
+- [ ] `ShopScreen` / `ProductDetailModal` 與 `AdoptionScreen` 具備固定 Mock Data 靜態 UI Prototype，且明確**不執行**真實購買、積分結算與領養寫入。
+
+### 5.2 Phase C 驗收清單（單貓陪伴 MVP 接線）
+- [ ] `AdoptionScreen` 正式接通 `generateLitter()`、`calculatePairingPreviewProbability()`、R1 每日 3 胎上限、隱藏小怪癖只示「有／無」、2% 公三花彩蛋、領養命名鎖定與 `AdoptionSlotPolicy` 檢查。
+- [ ] iOS 透過 `App Groups` ＋ `WidgetKit` ＋ `App Intents` 呈現靜態快照與具 `commandId` 冪等防重播之速餵／摸頭指令佇列，開 App 依時間戳補算。
+
+### 5.3 Phase D 驗收清單（商店與原生廣告驗證）
+- [ ] `ShopScreen` / `ProductDetailModal` 正式接通 `EconomyEngine`：`OpenShop`、`InspectProduct`（停留 `>= 3 秒` 給 `+10`、日上限 `30`）、`BuyItem`、背包消耗與 Remote Config 目錄。
