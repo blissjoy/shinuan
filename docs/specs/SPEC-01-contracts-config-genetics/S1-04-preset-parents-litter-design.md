@@ -196,14 +196,14 @@ export interface PigmentedFeatureColor {
      1. **性別與性聯 `O/o` 精確分支：**
         - **母貓分支（`p = 0.50`）：** 承接爸爸唯一 X（`father.coatGenotype.orange[0]`）與媽媽兩條 X（各 `0.5`）組成無序等位基因對，合併等價基因型（`['O','o'] == ['o','O']`）。
         - **公貓分支（`p = 0.50`）：** 若雙親符合 E1 雙色基因條件（媽媽為 `['O','o']`，或 `{father.coatGenotype.orange[0]} ∪ set(mother.coatGenotype.orange)` 同時含 `'O'` 與 `'o'`），精確拆分為 **`2%` XXY 彩蛋分支**（`orange = ['O','o']`，分支機率 `0.50 × 0.02 = 0.01`）與 **`98%` 正常 XY 分支**（總分支機率 `0.50 × 0.98 = 0.49`，各以 `0.5` 承接媽媽兩條 X 之一）；若不符合雙色條件，則 `100%` 走正常 XY 分支（`0.50`）。
-     2. **7 個獨立常染色體毛色基因座之精確乘積：** 對 `B/b`、`D/d`、`A/a`、`C/cs`、`S/s`、`W/w`、`I/i` 各自計算父母 `2×2` 配子配對機率（父兩等位基因各 `0.5` × 母兩等位基因各 `0.5`，合併無序等價基因型後每座為 `1～3` 種狀態）；7 座獨立直積最多 `3^7 = 2,187` 種常染色體組合，與上述 `≤ 4` 組性聯分支相乘，完整精確狀態空間上限為 **`4 × 3^7 = 8,748`** 種（零蒙地卡羅抽樣誤差，單次運算 `< 1 ms`）。
+     2. **7 個獨立常染色體毛色基因座之精確乘積：** 對 `B/b`、`D/d`、`A/a`、`C/cs`、`S/s`、`W/w`、`I/i` 各自計算父母 `2×2` 配子配對機率（父兩等位基因各 `0.5` × 母兩等位基因各 `0.5`，合併無序等價基因型後每座為 `1～3` 種狀態）；7 座獨立直積最多 `3^7 = 2,187` 種常染色體組合，與上述性聯分支（跨性別合併等價 `orange` 基因型後 `≤ 4` 組，上限 **`4 × 3^7 = 8,748`** 種；若保留性別區分則 `≤ 5` 組、上限 `5 × 3^7 = 10,935` 種，兩者最終機率 100% 等價）相乘（零蒙地卡羅抽樣誤差，單次運算 `< 1 ms`）。
      3. **表現型映射與三分類聚合（`resolveCoatColorFamily(genotype)`）：** 將每個精確狀態以 `resolveCoatPhenotype` 確定性映射至色系 ID（如 `'white'`、`'colorpoint_seal'`、`'colorpoint_cream'`、`'calico'`、`'tortoiseshell'`、`'ginger'`、`'cream'`、`'black'`、`'blue'`、`'chocolate'`、`'lilac'`、`'silver_tabby'` 等）：
         - 若 `dadFamily === momFamily`（雙親同表現型色系）：合併輸出 `{ sameFamily: true, likeBothPct, surprisePct }`（`likeBothPct + surprisePct === 100`）；
         - 若 `dadFamily !== momFamily`：輸出 `{ sameFamily: false, likeFatherPct, likeMotherPct, surprisePct }`（依序為子代色系 `=== dadFamily`、`=== momFamily`、與其餘新表現型色系〔含隱性稀釋／重點色浮現與 XXY 三花彩蛋〕之精確機率總和）。
      4. **整數百分比捨入與固定平手優先序（Largest Remainder + Tie-break）：** 各項先取 `Math.floor(p * 100)`，再依小數餘數 `(p * 100) - Math.floor(p * 100)` 由大到小將差額 `100 - sum` 逐一 `+1`；若多項餘數差值 `<= 1e-12` 視為平手，**固定 tie-break 優先序為 `likeFatherPct > likeMotherPct > surprisePct`**（同色系為 `likeBothPct > surprisePct`），確保相同輸入在所有執行環境下恆得完全一致結果。
      5. **固定驗算範例（`S1-04` 單元測試鎖定）：**
-        - 範例 A（純黑公 `o, BB, DD, aa, CC, ss, ww, ii` × 純藍母 `oo, BB, Dd, aa, CC, ss, ww, ii`，異色系、無雙色 XXY 條件）：子代精確 `50%` `Dd`（純黑＝像父）＋ `50%` `dd`（純藍＝像母）＋ `0%` 驚喜 → `{ sameFamily: false, likeFatherPct: 50, likeMotherPct: 50, surprisePct: 0 }`。
-        - 範例 B（海豹重點公 `o, BB, DD, aa, cscs, ss, ww, ii` × 奶油純色母 `OO, BB, dd, aa, Ccs, ss, ww, ii`，具雙色 XXY 條件）：母寶 `50%` 全為 `O/o` 玳瑁（`25%` 濃玳瑁、`25%` 玳瑁重點）、公寶 `1%` 為 XXY 玳瑁、`49%` 為 `O/Y + Dd` 橘系（`24.5%` 濃橘、`24.5%` 火焰重點），皆異於父海豹重點與母奶油色 → `{ sameFamily: false, likeFatherPct: 0, likeMotherPct: 0, surprisePct: 100 }`。
+        - 範例 A（純黑〔攜帶稀釋基因〕公 `o, BB, Dd, aa, CC, ss, ww, ii` × 純藍母 `oo, BB, dd, aa, CC, ss, ww, ii`，異色系、無雙色 XXY 條件）：`Dd × dd` 精確產出 `50%` `Dd`（純黑＝像父）＋ `50%` `dd`（純藍＝像母）＋ `0%` 驚喜 → `{ sameFamily: false, likeFatherPct: 50, likeMotherPct: 50, surprisePct: 0 }`。
+        - 範例 B（海豹重點公 `o, BB, DD, aa, cscs, ss, ww, ii` × 奶油虎斑母〔奶油色系，受橘色上位效應恆帶虎斑紋〕`OO, BB, dd, aa, Ccs, ss, ww, ii`，具雙色 XXY 條件）：母寶 `50%` 全為 `O/o` 玳瑁（`25%` 濃玳瑁、`25%` 玳瑁重點）、公寶 `1%` 為 XXY 玳瑁（`0.5%` 濃玳瑁、`0.5%` 玳瑁重點）、`49%` 為 `O/Y + Dd` 橘系（`24.5%` 濃橘、`24.5%` 火焰重點），皆異於父海豹重點與母奶油色 → `{ sameFamily: false, likeFatherPct: 0, likeMotherPct: 0, surprisePct: 100 }`。
 
 ---
 
