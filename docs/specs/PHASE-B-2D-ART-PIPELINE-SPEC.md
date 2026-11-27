@@ -2,7 +2,7 @@
 
 # Phase B 美術工程規範｜2D 手繪粉彩貓咪「12 零件紙娃娃拆圖 ＋ 3 層動態著色 ＋ AI 雙錨點逐件指令包」
 
-> **導覽與追溯：** [← 回到規格入口](README.md#phase-b) ｜ [Phase A 規格地圖](PHASE-A-SPEC-MAP.md) ｜ [Master PRD v2.1.30](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md)
+> **導覽與追溯：** [← 回到規格入口](README.md#phase-b) ｜ [手機 UI/UX 與桌面 App 跳台設計](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md) ｜ [Phase A 規格地圖](PHASE-A-SPEC-MAP.md) ｜ [Master PRD v2.1.30](../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md)
 
 - **文件性質：** Phase B 2D 美術與前端渲染對接規格書（2026-11-26 PO 定調採用 2D 粉彩紙娃娃骨骼動畫路線；2026-11-27 經 Warfront 1 實測驗證升級為 v2 實戰定版）
 - **風格基準（Style North Star）：** PO 手繪粉彩繪本風格原型圖（已封存於 `D:\Dropbox\ai-bridge\shinuan\tasks\SHINUAN-S1-04\prototype\assets\{dad_exotic_seal.jpg, mom_exotic_cream.jpg}`）
@@ -92,7 +92,7 @@ root (地面影與整體縮放：小／中／大)
 
 ### 4.2 動畫軌與程式分工表
 
-- **Rive 骨骼動畫檔負責（Phase B P0-B 先做 6 支基礎動作）：** `idle`（呼吸微晃＋偶爾眨眼）、`walk`（四肢輪擺＋骨盆微彈）、`sit`（坐姿微搖）、`sleep`（身體壓扁閉眼慢呼吸＋💤）、`eat`（低頭點頭＋張嘴咀嚼）、`pet`（閉眼瞇笑＋頭微仰＋耳微壓）；另含 `run`、`jump`（蓄力蹲低→起跳拉伸→落地回彈）與 `drag`（拎起微拉長踢腳）。
+- **Rive 骨骼動畫檔負責（Phase B P0-B 先做 6 支正式動作）：** `idle`（呼吸微晃＋偶爾眨眼）、`walk`（四肢輪擺＋骨盆微彈）、`sit`（坐姿微搖）、`sleep`（身體壓扁閉眼慢呼吸＋💤）、`eat`（低頭點頭＋張嘴咀嚼）、`pet`（閉眼瞇笑＋頭微仰＋耳微壓），以及 P1 `drag`（拎起微拉長踢腳）；另於 Rive State Machine 提供渲染層本地移動過渡片段（`run_chase`、`jump_prep`、`jump_air`、`land_squash`，**僅屬渲染層物理過渡，非 `Master PRD` §8.B.3 `PetViewModel.behavior.animationId` 正式枚舉**，邊界切分詳見 [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md) §4）。
 - **程式（React Native / Kotlin / Swift 渲染層）即時負責：**
   1. 唯讀接收 `PetViewModel` 切換主動畫軌（Track 1：`animationId`）與獨立尾巴軌（Track 2：`tailState`）；
   2. 讀取 `PetAppearance` 與 `colorParams`，依 [ADR-001](../decisions/ADR-001-animation-engine-rive.md) 一次性預合成 3 層著色點陣圖並注入 Rive Image Data Binding；
@@ -275,5 +275,5 @@ Generate a 1024x1024 square 2D game modular character part: ONLY the isolated pl
 2. **步驟 2（灰階校準與遮罩轉 Alpha）：**
    - 所有 `*_fur_base.png` 強制去飽和度（`Saturation = 0`），並將內部像素亮度線性映射校準至規格安全區間 **`L = 0.58 ~ 0.94`**（確保顯性純白與奶油貓絕不發灰變髒）。
    - 所有黑底白紋 `mask_*.png` 直接以亮度轉為「純白 `#FFFFFF` ＋ Alpha 通道」透明 PNG。
-3. **步驟 3（匯入 Rive 並依 §4.3 鐵律綁骨驗證）：**
-   - 將 12 組透明零件對齊 §1 統一錨點座標匯入 **Rive**，依 §4.3 鐵律 A（眼眶 Clipping Path）與鐵律 B（2.5D 球面視差轉身）完成 6+ 支基礎動作後輸出單一 `.riv`，交由 Phase B 渲染層對接 `PetViewModel` 與 3 層動態預合成器。
+3. **步驟 3（雙件拆切並匯入 Rive 依 §4.3 鐵律綁骨驗證）：**
+   - 凡採同畫布對稱產圖之雙件檔（`ear_pair__*`、`arm_pair__*`、`leg_pair__*`）於後製階段依中線切分為獨立左右透明 PNG（`ear_L`/`ear_R`、`arm_L`/`arm_R`、`leg_L`/`leg_R`，嚴格對齊 §1 命名規則）；再將全部 12 組透明零件對齊 §1 統一錨點座標匯入 **Rive**，依 §4.3 鐵律 A（眼眶 Clipping Path）與鐵律 B（2.5D 球面視差轉身）完成動作綁定後輸出單一 `.riv`，交由 Phase B 渲染層對接 `PetViewModel` 與 3 層動態預合成器。

@@ -84,10 +84,11 @@ const NAV_TREE = [
     ],
   },
   {
-    group: '🎨 Phase B｜美術與渲染規範',
+    group: '🎨 Phase B｜美術、UI/UX 與桌面跳台設計',
     open: true,
     items: [
       { id: 'docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md', label: '2D 粉彩 12 零件拆圖與 AI Prompt', badge: 'Art' },
+      { id: 'docs/specs/PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md', label: '手機 UI/UX 與桌面 App 跳台設計', badge: 'Design' },
     ],
   },
   {
