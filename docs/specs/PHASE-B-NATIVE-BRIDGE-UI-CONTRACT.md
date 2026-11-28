@@ -66,7 +66,7 @@ export interface VirtualPerchGridConfig {
 }
 ```
 
-- **Fail-Closed 驗證與預設回退：** 載入 `VirtualPerchGridConfig` 若發生 JSON 損毀、`x1Norm >= x2Norm`、超界（非有限數或超出 `[0, 1]`）或無任何 `enabled === true` 之 `dock` 平台，Kotlin 層必須自動回退至內建 `'4x6'` 預設格線（不崩潰）。
+- **Fail-Closed 驗證與預設回退：** 載入 `VirtualPerchGridConfig` 若發生 JSON 損毀、`schemaVersion !== 1`、`id` 空白或重複、`x1Norm >= x2Norm`、`yNorm <= 0`、超界（非有限數或超出 `[0, 1]`）或無任何 `enabled === true` 之 `dock` 平台，Kotlin 層必須自動回退至內建 `'4x6'` 預設格線（不崩潰）。
 - **物理與防呆數值鎖定（對齊 `PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md` §3.3）：**
   - 起跳蓄力 `jump_prep`：`130 ms`、`scaleX = 1.18`、`scaleY = 0.80`；落地回彈 `land_squash`：`scaleX = 1.20`、`scaleY = 0.80` → 彈回 `1.0`。
   - 單向穿過碰撞：僅於下墜期（`vy > 0`）檢查碰撞；指定向下跨跳至 `targetPlatformId` 時忽略非目標之中間排平台。
@@ -77,16 +77,25 @@ export interface VirtualPerchGridConfig {
 為驗證「高空掉落超過螢幕高度 `25%` 時 Kotlin 按需喚醒短生命週期 Headless JS」之跨層通訊鏈路，同時嚴格遵守 Phase B 禁寫紅線，定義 Phase B 專屬 Mock 事件封裝如下：
 
 ```ts
-export interface PhaseBOverlayMockEvent {
+export interface PhaseBOverlayMockEventBase {
   readonly contractVersion: 'phase-b-mock-v1';
   readonly eventId: string; // UUID
-  readonly eventType: 'MOCK_HIGH_DROP_LANDING' | 'MOCK_PET_GESTURE';
   readonly timestamp: number; // Unix ms
-  /** 本次連續下墜距離占螢幕總高度比率，高空掉落觸發條件嚴格為 > 0.25 */
-  readonly dropHeightRatio: number;
   /** Phase B 強制固定為 true，接收端據此拒絕任何正式存檔或經濟寫入 */
   readonly dryRunMockOnly: true;
 }
+
+export type PhaseBOverlayMockEvent =
+  | (PhaseBOverlayMockEventBase & {
+      readonly eventType: 'MOCK_HIGH_DROP_LANDING';
+      /** 本次連續下墜距離占螢幕總高度比率，觸發條件嚴格為 > 0.25（且 <= 1） */
+      readonly dropHeightRatio: number;
+    })
+  | (PhaseBOverlayMockEventBase & {
+      readonly eventType: 'MOCK_PET_GESTURE';
+      /** 非掉落事件固定為 0 */
+      readonly dropHeightRatio: 0;
+    });
 
 export interface PhaseBOverlayMockAck {
   readonly eventId: string;
@@ -97,9 +106,10 @@ export interface PhaseBOverlayMockAck {
 }
 ```
 
-- **硬性階段護欄：**
+- **硬性階段護欄與超時降級：**
   1. Phase B Headless JS Task 收到 `PhaseBOverlayMockEvent` 後，**僅允許寫入記憶體內診斷紀錄並回傳 `PhaseBOverlayMockAck`（`persistedToStorage: false`）**，執行完畢立即釋放 JS 任務。
-  2. **嚴禁於 Phase B 呼叫正式 `GameEngine.dispatch(TriggerLanding)`、修改任何遊戲數值或寫入檔案／SQLite**；正式指令接線與持久化留待 **Phase C**。
+  2. Kotlin 層喚醒 Headless JS 必須套用 **2,000 ms 硬性超時與異常降級保護**：若逾時、JS 任務未就緒或回傳格式無效，懸浮窗不得阻塞主執行緒或閃退，須記錄診斷日誌並安全維持本機平滑動作狀態。
+  3. **嚴禁於 Phase B 呼叫正式 `GameEngine.dispatch(TriggerLanding)`、修改任何遊戲數值或寫入檔案／SQLite**；正式指令接線與持久化留待 **Phase C**。
 
 [↑ 回到頂部](#top)
 
@@ -109,7 +119,7 @@ export interface PhaseBOverlayMockAck {
 
 ## 二、`SHINUAN-B3-02`｜iOS `App Groups` `widget-snapshot.json` 與三端一致性契約
 
-### 2.1 共享容器與快照檔案 Schema（`widget-snapshot.v1.json`）
+### 2.1 共享容器與快照檔案 Schema（`widget-snapshot.json`，Schema v1）
 
 - **唯一共享容器識別碼（對齊 `ADR-002` §4）：** `group.com.shizhan.shinuan`
 - **相對檔案路徑：**
@@ -151,6 +161,8 @@ export interface IosWidgetSnapshotV1 {
 | `fixture_sleep_night` | `'sleep'` | `'curled_sleep'` | `['sleep_zzz']` | `isSleeping: true` | 均顯示睡眠態與 `💤` |
 | `fixture_care_paused_low` | `'sit'` | `'tucked_drooped'` | `['hospital']` | `isHealthCritical: true, isCarePaused: true` | 均顯示 `🏥`、委屈態與 Care Pause 保護提示，且未自行計算額外門檻 |
 
+> **夾具完整度要求：** 上述 4 組實作 JSON 夾具皆須符合完整 `PetViewModel` 型別定義（含 `needs` 四數值、`appearance`、`behavior` 與 `display.recoveryState` 等全部必填欄位，不得省略）。
+
 [↑ 回到頂部](#top)
 
 ---
@@ -173,7 +185,7 @@ export interface IosWidgetSnapshotV1 {
 `SHINUAN-B4-01` 交付結案報告時，必須逐項附上：
 1. 三端（React Native、Android 懸浮窗含 Virtual Perch Grid、iOS WidgetKit）實機／模擬器截圖與同一 `PetViewModel` 夾具對帳表；
 2. `TC-B1-01` ～ `TC-B4-02` 全數實測結果與原始輸出摘要；
-3. `AndroidManifest.xml` 權限清單稽核證據（確認零無障礙權限）；
+3. `AndroidManifest.xml` 權限清單稽核證據（確認零 `BIND_ACCESSIBILITY_SERVICE`／`AccessibilityService` 與零 `RECEIVE_BOOT_COMPLETED`）；
 4. Phase A 全自動化測試套件（`TC-01`～`TC-10`、`TC-MH-01`～`TC-MH-12`）與 `node scripts/check-shinuan-integrity.mjs` 維持全綠無回歸證據。
 
 [↑ 回到頂部](#top)
@@ -184,7 +196,7 @@ export interface IosWidgetSnapshotV1 {
 
 ## 四、Phase B 權限、隱私與降級防呆紅線
 
-1. **Android 零無障礙權限紅線：** `AndroidManifest.xml` 嚴禁宣告 `android.permission.BIND_ACCESSIBILITY_SERVICE` 或任何 `AccessibilityService` 元件。
+1. **Android 零無障礙與零背景開機常駐紅線（對齊 PRD §4.1、`ADR-002` §3.3）：** `AndroidManifest.xml` 嚴禁宣告 `android.permission.BIND_ACCESSIBILITY_SERVICE`、任何 `AccessibilityService` 元件或 `android.permission.RECEIVE_BOOT_COMPLETED`。
 2. **不搶焦點與不擋操作紅線：** Android 懸浮窗全時維持 `FLAG_NOT_FOCUSABLE`，系統軟鍵盤與底層第三方 App 點擊操作必須 100% 暢通。
 3. **跨平台單一真相紅線：** React Native、Kotlin 與 Swift 皆不得引入任何數值衰退、健康救援或經濟平衡公式；`packages/game-core` 與 `packages/contracts` 在 Phase B 維持零修改。
 4. **隱私最小化紅線：** Virtual Perch Grid 僅保存 `[0, 1]` 螢幕座標比率，不得讀取或寫出使用者已安裝 App 清單或桌面截圖原圖至遠端。
@@ -199,10 +211,10 @@ export interface IosWidgetSnapshotV1 {
 
 | 測項 ID | 所屬小單 | 驗證目標與斷言條件 |
 | --- | :---: | --- |
-| **`TC-B3-01`** | `SHINUAN-B3-01` | **Android 權限與焦點安全稽核：** 靜態掃描 `AndroidManifest.xml` 確認 **0 筆** `BIND_ACCESSIBILITY_SERVICE`／`AccessibilityService` 宣告；實測懸浮窗開啟期間點擊底層 App 正常穿透開啟，於輸入框打字時輸入法不收合（全時 `FLAG_NOT_FOCUSABLE`）；撤銷 `SYSTEM_ALERT_WINDOW` 權限時安全降級回 App 內模式零閃退。 |
-| **`TC-B3-02`** | `SHINUAN-B3-01` | **Virtual Perch Grid 物理、防走空與損毀回退：** 驗證 `4×5`/`4×6`/`5×6` 格線切換與單向穿過拋物線落點精準；於寬度 `< 1.35×` 貓寬之窄 `app_tile` 上確認禁止長距水平走步；餵入損毀或超界 JSON 時確認 Fail-Closed 自動回退內建 `'4x6'` 格線；高空掉落（`dropHeightRatio > 0.25`）確認僅觸發 `PhaseBOverlayMockEvent`（`dryRunMockOnly: true`）且回傳 `persistedToStorage: false`（零正式 `GameEngine.dispatch`、零檔案寫入）。 |
+| **`TC-B3-01`** | `SHINUAN-B3-01` | **Android 權限與焦點安全稽核：** 靜態掃描 `AndroidManifest.xml` 確認 **0 筆** `BIND_ACCESSIBILITY_SERVICE`／`AccessibilityService` 與 **0 筆** `RECEIVE_BOOT_COMPLETED` 宣告；實測懸浮窗開啟期間點擊底層 App 正常穿透開啟，於輸入框打字時輸入法不收合（全時 `FLAG_NOT_FOCUSABLE`）；撤銷 `SYSTEM_ALERT_WINDOW` 權限時安全降級回 App 內模式零閃退。 |
+| **`TC-B3-02`** | `SHINUAN-B3-01` | **Virtual Perch Grid 物理、防走空與損毀回退：** 驗證 `4×5`/`4×6`/`5×6` 格線切換與單向穿過拋物線落點精準；於寬度 `< 1.35×` 貓寬之窄 `app_tile` 上確認禁止長距水平走步；餵入損毀、`schemaVersion !== 1`、`yNorm <= 0`、重複／空白 `id` 或超界 JSON 時確認 Fail-Closed 自動回退內建 `'4x6'` 格線；高空掉落（`dropHeightRatio > 0.25`）確認僅觸發 `PhaseBOverlayMockEvent`（`dryRunMockOnly: true`）且回傳 `persistedToStorage: false`（零正式 `GameEngine.dispatch`、零檔案寫入），逾時（`> 2,000 ms`）安全降級不閃退。 |
 | **`TC-B3-03`** | `SHINUAN-B3-02` | **iOS `App Groups` 原子快照與降級防呆：** 驗證主 App 原子寫出 `widget-snapshot.json` 與 `cat-snapshot.png` 至 `group.com.shizhan.shinuan` 且 SwiftUI Widget 正常渲染；刪除或損毀 `widget-snapshot.json` 時 Widget 安全顯示預設引導卡不閃退；確認 Swift 端零實作遊戲公式且未提前寫入 Phase C `pending-widget-commands.json`。 |
-| **`TC-B3-04`** | `SHINUAN-B3-02` | **三端 `PetViewModel` 一致性對帳：** 以 §2.2 全部 4 組標準夾具（`fixture_calm_idle`、`fixture_hungry_alert`、`fixture_sleep_night`、`fixture_care_paused_low`）依序驅動 RN 主畫面、Android 懸浮窗與 iOS Widget，逐項驗證外觀、四數值、`iconIds` 與 Care Pause 狀態顯示 100% 一致。 |
+| **`TC-B3-04`** | `SHINUAN-B3-02` | **三端 `PetViewModel` 一致性對帳：** 以 §2.2 全部 4 組完整 `PetViewModel` 標準夾具（`fixture_calm_idle`、`fixture_hungry_alert`、`fixture_sleep_night`、`fixture_care_paused_low`）依序驅動 RN 主畫面、Android 懸浮窗與 iOS Widget，逐項驗證外觀、四數值（RN 與 iOS 核對畫面顯示；Android 懸浮窗透過所注入之 `PetViewModel` Snapshot／除錯檢視對帳）、`iconIds` 與 Care Pause／`recoveryState` 狀態呈現 100% 一致。 |
 | **`TC-B4-01`** | `SHINUAN-B4-01` | **9:19.5 四大核心頁面排版與動線驗證：** 於基準視口 `390 × 844 pt`（含劉海／Safe Area）走完 `AdoptionScreen` → `HomeScreen` → `ShopScreen` / `ProductDetailModal` → `SettingsScreen` 全靜態動線，確認無文字截斷、無重疊遮擋、商店「真實成分」與「遊戲效果」雙區塊清晰分離且 `mock` 商品強制顯示模擬標籤。 |
 | **`TC-B4-02`** | `SHINUAN-B4-01` | **Phase B 禁寫邊界與 Phase A 零回歸稽核：** 連續操作四大頁面全部按鈕（抽胎、領養預覽、購買按鈕、每日簽到、3 秒倒數），驗證持久化檔案系統與 SQLite **0 筆真實遊戲寫入**、積分／領養額度不變動；並確認 `node scripts/check-shinuan-integrity.mjs` 與 Phase A 全測試套件全綠無回歸。 |
 
