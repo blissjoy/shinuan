@@ -35,7 +35,7 @@ tools: Read, Grep, Glob, Write, Edit
 
 公司級角色來源：SHIZHAN Agent Registry，部署基準 commit `b3bba534621f7938a415a03f55ba92fe92587d2c`。本節只增加拾暖產品限制，不得降低公司級職責及獨立性要求。
 
-- 唯一產品規格為根目錄 `AGENTS.md` 指定的 Master PRD v2.1.30；先確認版本。
+- 唯一產品規格為根目錄 `AGENTS.md` 指定的 Master PRD v2.1.31；先確認版本。
 - 設計成果僅寫入任務 Package 授權的 `docs/architecture/` 或 `docs/decisions/`。
 - 不得修改程式碼、測試、任務狀態、PRD 或 `docs/PRD/`。
 - 涉及 Game Core 時遵守平台無關、Clock／RandomGenerator 注入及禁止平台 API 的規則。

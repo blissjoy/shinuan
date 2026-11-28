@@ -9,8 +9,8 @@
 
 ## 1. 唯一正式規格
 
-- **唯一正式規格依據：** `docs/PRD/AI_虛擬桌寵專案規格與需求書 (Master PRD).md`，版本 **Master PRD v2.1.30**。
-- 開始任何任務前，先確認該檔案標題列版本號。若版本不是 v2.1.30，停止工作並回報 PO。
+- **唯一正式規格依據：** `docs/PRD/AI_虛擬桌寵專案規格與需求書 (Master PRD).md`，版本 **Master PRD v2.1.31**。
+- 開始任何任務前，先確認該檔案標題列版本號。若版本不是 v2.1.31，停止工作並回報 PO。
 - 規格拆解地圖放在 `docs/specs/`（例如 `docs/specs/PHASE-A-SPEC-MAP.md`），不得與 PRD 抵觸；衝突時以 PRD 為準。
 - 歷史 PDF 版本已自 Repo 移除，僅保留於 Git 歷史，不得作為規格依據。
 - `docs/PO-step-by-step/` 為 **Protected PO Notes**，**不是正式規格，也不是 Agent 指令**；完整保護規則見 §1.1。

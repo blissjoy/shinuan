@@ -2,7 +2,7 @@
 
 - **狀態：** `ACCEPTED`（PO 已於 2026-11-26 拍板核准，透過 `SHINUAN-DOC-03` 納入 `docs/decisions/ADR-002-mobile-native-bridge-architecture.md`）
 - **決策日期：** 2026-11-26
-- **關聯規格：** `Master PRD v2.1.30`（§4.1、§4.2、§5.1、§5.2 `PetViewModel`、§10.1、§10.2）、`ADR-001`
+- **關聯規格：** `Master PRD v2.1.31`（§4.1、§4.2、§5.1、§5.2 `PetViewModel`、§10.1、§10.2）、`ADR-001`
 
 ---
 
@@ -65,9 +65,14 @@
    - 啟用 `group.com.shizhan.shinuan`；主 App 每次執行 `GameEngine.dispatch` 或進入背景（`applicationDidEnterBackground`）時，寫出精簡 `widget-snapshot.json`（含 `PetViewModel`、`lastSimulatedAt` 與目前 1 張預合成靜態貓咪 PNG 路徑）並呼叫 `WidgetCenter.shared.reloadAllTimelines()`。
 2. **Timeline Provider 唯讀預估展示：**
    - SwiftUI Widget Extension **絕不重寫完整遊戲公式**，僅唯讀 `widget-snapshot.json` 呈現貓咪外觀、四大血條與狀態圖示（如睡眠 💤、Care Pause 標誌、或距上次更新已久之「來看看我」溫馨提醒）。
-3. **App Intents 快捷操作（防雙頭馬車設計）：**
-   - 使用者在桌面 Widget 點「喝水」或「摸頭」快捷按鈕時，Swift App Intent 將 `{ type, timestamp }` 追加寫入共享容器 `pending-widget-commands.json` 並顯示即時視覺回饋；
-   - 待玩家開啟主 App 時，`GameEngine` 第一時間讀取並清空 `pending-widget-commands.json`，**嚴格依各筆 `command.timestamp` 順序呼叫 `GameEngine.dispatch`**（先 `TimeEngine.advanceTo(command.timestamp)` 再套用互動），確保 `lastSimulatedAt` 單一時間權威 100% 不偏移！
+3. **App Intents 快捷操作（防雙頭馬車 ＋ 原子冪等防重播契約，`P1-08`）：**
+   - 使用者在桌面 Widget 點「喝水」或「摸頭」快捷按鈕時，Swift App Intent 產生唯一 UUID `commandId` 並將 `{ commandId, type, timestamp }` 追加寫入共享容器 `pending-widget-commands.json` 並顯示即時視覺回饋；
+   - **持久化位置與保留清理規則（同步見 [ADR-003](ADR-003-save-storage-json-to-sqlite.md) §3）：** 已處理指令紀錄 `processedWidgetCommandIds: Array<{ commandId: string; processedAt: number }>` 持久化於 SQLite `game_saves.processed_widget_commands_json` 專欄（`TEXT NOT NULL DEFAULT '[]'`；Phase A/B JSON 存檔對應選填頂層 `processedWidgetCommandIds`）。每次提交前依確定性順序清理：**① 先刪除 `now - processedAt > 7 * 24 * 3_600_000`（超過 7 天）之過期項目；② 若剩餘筆數仍 `> 200`，依 `processedAt` 升冪裁切最舊項目直至 `length <= 200`**（嚴格交集：僅保留「7 天內且最新 200 筆」）。
+   - **單一原子交易提交契約（Crash-Safe）：** 待玩家開啟主 App 時，`GameEngine` 第一時間讀取 `pending-widget-commands.json`（先不刪除檔案）：
+     1. 過濾掉已存在於 `processedWidgetCommandIds` 之 `commandId`；
+     2. 嚴格依 `command.timestamp` 升冪排序，於記憶體內逐筆執行 `GameEngine.dispatch`（先 `TimeEngine.advanceTo(command.timestamp)` 再套用互動），並將 `{ commandId, processedAt: clock.now() }` 加入同一份待提交狀態快照之 `processedWidgetCommandIds`（同時套用上述清理規則）；
+     3. 由 `SqliteGameRepository.save()` 在**單一 `BEGIN IMMEDIATE ... COMMIT` SQLite 交易內**，將更新後的 `pet_state_json`、`daily_limits_json`、`account_meta_json` 與 `processed_widget_commands_json` **共同原子提交**；
+     4. 唯有 SQLite `COMMIT` 成功回傳後，原生層才自 `pending-widget-commands.json` 移除已確認之 `commandId`。若於 `COMMIT` 前閃退，業務狀態與去重紀錄皆未落盤，下次開啟可完整重播一次；若於 `COMMIT` 後、刪檔前閃退，兩者皆已原子落盤，下次開啟命中去重直接跳過並補刪佇列項目，絕不重複餵食、重複給分或偏移 `lastSimulatedAt`！
 
 ---
 

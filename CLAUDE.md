@@ -27,7 +27,7 @@
 
 ## 3. 接收任務的流程
 
-1. 確認 Master PRD 標題為 v2.1.30。
+1. 確認 Master PRD 標題為 v2.1.31。
 2. 讀取 GitHub Issue、派工包與 `po-decisions.md`；以 `git rev-parse HEAD` 核對基準 SHA。
 3. 自 `master` 切出任務分支（命名見 `AGENTS.md` §4.3），所有寫入只在任務分支進行。
 4. 需求不清、超出 Phase 範圍或觸及第 6 節暫停條件時，先問 PO。

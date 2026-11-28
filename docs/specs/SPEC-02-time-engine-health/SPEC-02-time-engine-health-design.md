@@ -2,10 +2,10 @@
 
 # SPEC-02 技術設計文件（Design Spec）：`TimeEngine`、精確交點切割、`MoodHealthPenalty`、`RecoveryState` 與 `CarePause`
 
-> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-02) ｜ [所屬規格 SPEC-02](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-02) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #13](https://github.com/blissjoy/shinuan/issues/13) / [#14](https://github.com/blissjoy/shinuan/issues/14)
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-02) ｜ [所屬規格 SPEC-02](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-02) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #13](https://github.com/blissjoy/shinuan/issues/13) / [#14](https://github.com/blissjoy/shinuan/issues/14)
 
-> **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並明確要求 Claude 實作時對本設計執行自我審核、遇邏輯／邊界疑問立即停工提出質疑，嚴禁硬做；已定稿 `SHINUAN-S2-01` 與 `SHINUAN-S2-02` 派工包）**
-> **對應唯一正式規格：** `Master PRD v2.1.30`（§0、§4.2、§5.1、§8.A.1、§8.C.1、§8.E.2 `TC-03`／`TC-04`／`TC-09`、§8.E.3 `TC-MH-01`～`TC-MH-12`、§10.2）
+> **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並於 2026-11-27 `SHINUAN-DOC-08` 補齊跨時區與夏令時間偏移語義；派工包強制要求 Claude 實作前自我審核）**
+> **對應唯一正式規格：** `Master PRD v2.1.31`（§0、§4.2、§5.1、§8.A.1、§8.C.1、§8.E.2 `TC-03`／`TC-04`／`TC-09`、§8.E.3 `TC-MH-01`～`TC-MH-12`、§10.2）
 > **設計產出路徑（Dropbox）：** `D:\Dropbox\ai-bridge\shinuan\tasks\SHINUAN-S2-01\SPEC-02-time-engine-health-design.md`
 > **未來納入 Repo 路徑：** `docs/specs/SPEC-02-time-engine-health/SPEC-02-time-engine-health-design.md`（隨 `SHINUAN-S2-01` 任務分支或獨立純文件 PR 納入）
 
@@ -96,6 +96,9 @@ export const TIME_ENGINE_CONSTANTS = Object.freeze({
 - **下一個固定時間邊界 `findNextClockBoundaryMs(utcMs, timezoneOffsetMinutes)`：**
   - 找出嚴格大於 `utcMs + TIME_EPSILON_MS` 之最近一個本地 `00:00`（跨日）、`07:00`（日夜切換）或 `23:00`（日夜切換）對應的 UTC 毫秒時間戳。
   - **為何同時切 `00:00`？** 確保跨本地午夜時精確觸發 `DayRolledOverEvent` 與 `ageInDays` 遞增，同時不影響夜間 `periodFactor = 0.3` 計算。
+- **跨時區旅行與夏令時間（DST）語義鎖定（`P1-07`）：**
+  - MVP 階段不於 `packages/game-core` 引入龐大 IANA 時區資料庫；每次 `advancePetStateTo(pet, targetTimestamp, timezoneOffsetMinutes)` 調用，一律以**該次調用當下由 `Clock.getTimezoneOffsetMinutes()` 注入之單一固定偏移值**套用於該次 `[lastSimulatedAt, targetTimestamp]` 離線補算區間，不追溯離線期間曾發生的歷史夏令時間切換點。
+  - 若玩家往西跨時區旅行導致 `currentLocalDate < dailyLimits.lastClaimedLocalDate` 或 `currentLocalDate < dailyLimits.localDate`，跨日獎勵與 R1 繁育上限受 `SPEC-03` §2.2 既有日期倒退防護保護（絕不重複發放或偷重置），待進入新本地日曆日即自動恢復正常。
 
 ### 3.2 時鐘回撥與輸入防護（Fail-Closed）
 
@@ -220,7 +223,7 @@ function isAboveRightLimit(value: number, threshold: number, ratePerHour: number
 
 ## 5. 待 PO 核准的 4 項關鍵設計決策
 
-以下 4 項均完全遵守 `Master PRD v2.1.30` 核心數值與公式（零更動任何 PRD 規則），確認後即可據此產出 `SHINUAN-S2-01` 與 `SHINUAN-S2-02` 精簡派工包：
+以下 4 項均完全遵守 `Master PRD v2.1.31` 核心數值與公式（零更動任何 PRD 規則），確認後即可據此產出 `SHINUAN-S2-01` 與 `SHINUAN-S2-02` 精簡派工包：
 
 1. **決策 1（純函式不可變 API ＋ 可選分段追蹤 `segments`）：** `advancePetStateTo(pet, targetTimestamp, timezoneOffsetMinutes, options?: { traceSegments?: boolean })` 採不可變回傳 `{ pet, events, segments }`；開啟 `traceSegments` 時直接輸出每個子區段的起訖時間、斜率與轉換點，供 `TC-09` 情境 B/C 逐段對帳與看板檢視，免去重複寫模擬器。
 2. **決策 2（右極限門檻語義 `t_start + 0⁺` 作為唯一片斷積分規則）：** 統一以門檻處數值與斜率方向決定子區段規則（並於交點處將 `|val - threshold| <= 1e-9` 貼齊精確門檻），確保 `TC-03`、`TC-04`、`TC-09`（B-1/B-2/B-3/C）與 `TC-MH-01～12` 全部 `< 1e-9` 零漂移通過。

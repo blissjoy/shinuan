@@ -12,7 +12,7 @@ import {
 } from '../../scripts/check-shinuan-integrity.mjs';
 
 const encoder = new TextEncoder();
-const GOOD_TITLE = '# 拾暖伴伴 (shinuan) AI 虛擬桌寵專案規格與需求書 (Master PRD v2.1.30)\n\nbody\n';
+const GOOD_TITLE = '# 拾暖伴伴 (shinuan) AI 虛擬桌寵專案規格與需求書 (Master PRD v2.1.31)\n\nbody\n';
 
 describe('integrity (a): .gitignore rule', () => {
   it('accepts a .gitignore containing the protected rule', () => {
@@ -63,7 +63,7 @@ describe('integrity (b): game-core forbidden API scan', () => {
 });
 
 describe('integrity (c): Master PRD bytes', () => {
-  it('accepts a UTF-8 (no BOM) file titled Master PRD v2.1.30', () => {
+  it('accepts a UTF-8 (no BOM) file titled Master PRD v2.1.31', () => {
     expect(checkPrdBytes(encoder.encode(GOOD_TITLE))).toEqual([]);
   });
 
@@ -73,12 +73,12 @@ describe('integrity (c): Master PRD bytes', () => {
   });
 
   it('rejects an older version title', () => {
-    const bytes = encoder.encode('# **Master PRD v2.1.29**\n');
-    expect(checkPrdBytes(bytes).join('\n')).toContain('v2.1.30');
+    const bytes = encoder.encode('# **Master PRD v2.1.30**\n');
+    expect(checkPrdBytes(bytes).join('\n')).toContain('v2.1.31');
   });
 
-  it('rejects a lookalike version such as v2.1.300', () => {
-    expect(checkPrdBytes(encoder.encode('# Master PRD v2.1.300\n'))).not.toEqual([]);
+  it('rejects a lookalike version such as v2.1.310', () => {
+    expect(checkPrdBytes(encoder.encode('# Master PRD v2.1.310\n'))).not.toEqual([]);
   });
 
   it('rejects invalid UTF-8', () => {

@@ -2,7 +2,7 @@
 
 - **狀態：** `ACCEPTED`（PO 已於 2026-11-26 拍板核准，透過 `SHINUAN-DOC-03` 納入 `docs/decisions/ADR-003-save-storage-json-to-sqlite.md`）
 - **決策日期：** 2026-11-26
-- **關聯規格：** `Master PRD v2.1.30`（§5.1、§5.2、§8.E.1、§8.E.3 `TC-MH-11`）、`docs/specs/SPEC-03-economy-save/SPEC-03-economy-save-design.md`
+- **關聯規格：** `Master PRD v2.1.31`（§5.1、§5.2、§8.A.5、§8.E.1、§8.E.3 `TC-MH-11`）、`docs/specs/SPEC-03-economy-save/SPEC-03-economy-save-design.md`、`docs/specs/SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md`
 
 ---
 
@@ -29,12 +29,14 @@
 -- 主存檔表（單一活躍存檔列，採 WAL 模式與 BEGIN IMMEDIATE 交易）
 CREATE TABLE IF NOT EXISTS game_saves (
   id                TEXT PRIMARY KEY,
-  schema_version    INTEGER NOT NULL,        -- 目前為 2（向後相容 v2.1.30 選填欄位）
+  schema_version    INTEGER NOT NULL,        -- 目前為 2（向後相容 v2.1.30 / v2.1.31 選填欄位）
   game_core_version TEXT NOT NULL,
-  pet_state_json    TEXT NOT NULL,           -- 完整序列化 PetState（含 lastSimulatedAt / lowMoodDuration / discoveredQuirks）
-  daily_limits_json TEXT NOT NULL,           -- 完整序列化 DailyLimits（含 littersGeneratedToday）
-  created_at        INTEGER NOT NULL,        -- 由注入 Clock.now() 寫入，僅維運追蹤
-  updated_at        INTEGER NOT NULL         -- 由注入 Clock.now() 寫入，不得取代 pet.lastSimulatedAt
+  pet_state_json                  TEXT NOT NULL,           -- 完整序列化 PetState（含 lastSimulatedAt / lowMoodDuration / discoveredQuirks）
+  daily_limits_json               TEXT NOT NULL,           -- 完整序列化 DailyLimits（含 littersGeneratedToday / lastLitterGeneratedAt）
+  account_meta_json               TEXT NOT NULL,           -- 獨立帳戶層元資料（AdoptionSlotPolicy: accountId / maxFreeOwnedPets / purchasedExtraPetSlots / ownedPetIds，不混入單一 PetState，預留 Phase E 雲端同步權威）
+  processed_widget_commands_json  TEXT NOT NULL DEFAULT '[]', -- iOS Widget App Intents 冪等去重紀錄（Array<{ commandId, processedAt }>，與業務狀態同筆交易原子提交，見 ADR-002 §4.3）
+  created_at                      INTEGER NOT NULL,        -- 由注入 Clock.now() 寫入，僅維運追蹤
+  updated_at                      INTEGER NOT NULL         -- 由注入 Clock.now() 寫入，不得取代 pet.lastSimulatedAt
 );
 
 -- 行為追蹤與除錯日誌表（非主存檔來源，定期清理 > 30 天紀錄）
@@ -50,8 +52,9 @@ CREATE INDEX IF NOT EXISTS idx_game_events_ts ON game_events (event_timestamp);
 - **交易與防損規則：**
   1. 寫入前先以 `validateGameState` 通過驗證；
   2. 開啟 SQLite `PRAGMA journal_mode = WAL;` 與 `PRAGMA synchronous = FULL;`；
-  3. 透過單一 `TRANSACTION` 寫入 `game_saves`（必要時先寫入 `game_saves_backup` 保留升級前最後一版合法快照，對應 Phase A 的 `save.bak`）；
-  4. `game_events` 寫入失敗不得回滾主存檔 `game_saves`；每次啟動自動執行 `DELETE FROM game_events WHERE event_timestamp < now - 30 * 86400000`。
+  3. 透過單一 `BEGIN IMMEDIATE ... COMMIT` `TRANSACTION` 將 `pet_state_json`、`daily_limits_json`、`account_meta_json` 與 `processed_widget_commands_json` 共同原子寫入 `game_saves`（必要時先寫入 `game_saves_backup` 保留升級前最後一版合法快照，對應 Phase A 的 `save.bak`）；
+  4. **舊存檔遷移與 `account_meta_json` 回填（對齊 `SPEC-03` §3.1）：** 凡 `v1 -> v2` 或舊版 `v2` 存檔缺失 `accountMeta` 時，由共用純函式 `migrateGameState` 確定性補齊 `{ accountId: 'local-default-account', maxFreeOwnedPets: 1, purchasedExtraPetSlots: 0, ownedPetIds: pet?.id ? [pet.id] : [] }`（自動去重回填既有活躍 `pet.id`，防止舊存檔玩家重獲免費領養名額），並補齊 `processedWidgetCommandIds = []`；
+  5. `game_events` 寫入失敗不得回滾主存檔 `game_saves`；每次啟動自動執行 `DELETE FROM game_events WHERE event_timestamp < now - 30 * 86400000`。
 - **選用套件建議（Phase C 導入，Phase A 不安裝）：** 建議採 `op-sqlite`（支援 JSI 同步／非同步高效存取，或 Expo 體系之 `expo-sqlite`），封裝於獨立套件 `packages/storage-sqlite`，不影響 `packages/game-core`。
 
 ---

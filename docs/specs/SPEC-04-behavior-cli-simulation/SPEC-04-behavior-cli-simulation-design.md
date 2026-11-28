@@ -2,10 +2,10 @@
 
 # SPEC-04 技術設計文件（Design Spec）：30 日人格記憶、`QuirkModifiers`、`BehaviorEngine`、`GameEngine` 總組裝、CLI 與長時模擬驗收
 
-> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-04) ｜ [所屬規格 SPEC-04](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-04) ｜ [Master PRD v2.1.30](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #17](https://github.com/blissjoy/shinuan/issues/17) / [#18](https://github.com/blissjoy/shinuan/issues/18) / [#19](https://github.com/blissjoy/shinuan/issues/19)
+> **導覽與追溯：** [← 回到規格入口](../README.md#entry-spec-04) ｜ [所屬規格 SPEC-04](./SPEC.md) ｜ [Phase A 規格地圖](../PHASE-A-SPEC-MAP.md#spec-04) ｜ [Master PRD v2.1.31](../../PRD/AI_虛擬桌寵專案規格與需求書%20%28Master%20PRD%29.md) ｜ [GitHub Issue #17](https://github.com/blissjoy/shinuan/issues/17) / [#18](https://github.com/blissjoy/shinuan/issues/18) / [#19](https://github.com/blissjoy/shinuan/issues/19)
 
 > **狀態：APPROVED（PO 已於 2026-11-26 核准 §5 全部 4 項設計決策，並要求三張派工單全數置頂強制加入 Claude Design 自我審核與遇疑即停條款；已定稿 `SHINUAN-S4-01`、`SHINUAN-S4-02`、`SHINUAN-S4-03` 派工包）**
-> **對應唯一正式規格：** `Master PRD v2.1.30`（§0、§3.2、§4.3、§5.1、§5.2、§8.A.1、§8.B.1～§8.B.3、§8.E.2 `TC-05`／`TC-06`／`TC-08`／`TC-09`）
+> **對應唯一正式規格：** `Master PRD v2.1.31`（§0、§3.2、§4.3、§5.1、§5.2、§8.A.1、§8.B.1～§8.B.3、§8.E.2 `TC-05`／`TC-06`／`TC-08`／`TC-09`）
 > **設計產出路徑（Dropbox）：** `D:\Dropbox\ai-bridge\shinuan\tasks\SHINUAN-S4-01\SPEC-04-behavior-cli-simulation-design.md`
 > **未來納入 Repo 路徑：** `docs/specs/SPEC-04-behavior-cli-simulation/SPEC-04-behavior-cli-simulation-design.md`
 
@@ -82,7 +82,7 @@
 ## 3. `SHINUAN-S4-02`：`GameEngine` 總組裝與 `apps/local-cli`
 
 1. **`GameEngine` 統一管線（`packages/game-core/src/engine/game-engine.ts`）：**
-   - 依賴注入：`{ clock: Clock, rng: RandomGenerator, config: LoadedGameConfig }`（不直接依賴 `GameRepository` 磁碟 I/O，存檔由上層 App 呼叫 `storage-json` 持久化）。
+   - 依賴注入：`{ clock: Clock, rng: RandomGenerator, config: ValidatedGameConfig }`（統一採用 `@shinuan/contracts` 之 `ValidatedGameConfig`，不另設 `LoadedGameConfig` 別名；不直接依賴 `GameRepository` 磁碟 I/O，存檔由上層 App 呼叫 `storage-json` 持久化）。
    - `dispatch(command: GameCommand)` 固定順序：
      1. 除 `ToggleCarePause(false)` 解除暫停外，先執行 `TimeEngine.advancePetStateTo(pet, command.timestamp, tz)`（若觸發 `DayRolledOverEvent` → 重算 30 日人格 ＋ 呼叫 `EconomyEngine.evaluateDailyHighHealthReward`）；
      2. 查詢 `BehaviorEngine.isInNegativeCooldown(command.timestamp)` 傳給 `EconomyEngine`；

@@ -2,7 +2,7 @@
 
 - **狀態：** `ACCEPTED`（PO 已於 2026-11-26 拍板核准，透過 `SHINUAN-DOC-03` 納入 `docs/decisions/ADR-001-animation-engine-rive.md`）
 - **決策日期：** 2026-11-26
-- **關聯規格：** `Master PRD v2.1.30`（§5.2、§7 Phase B、§8.B.3 動畫矩陣）、`docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md`
+- **關聯規格：** `Master PRD v2.1.31`（§5.2、§7 Phase B、§8.B.3 動畫矩陣）、`docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md`
 
 ---
 
@@ -30,12 +30,12 @@
 
 ---
 
-## 3. 建議決策（Proposed Decision）
+## 3. 正式決策（Accepted Decision）
 
 **正式採用 `Rive` 作為 Phase B ～ C 唯一 2D 骨骼動畫引擎，並搭配「一次性 3 層預合成 ＋ Image Data Binding 注入」著色管線：**
 
 1. **為什麼「預合成一次 → 塞進 Rive 零件槽」比「每影格跑客製 Shader」更好？**
-   - 依 `Master PRD v2.1.30` §3.1，每隻貓咪誕生後外觀與基因**永久鎖定不變**。
+   - 依 `Master PRD v2.1.31` §3.1，每隻貓咪誕生後外觀與基因**永久鎖定不變**。
    - 因此僅需在**領養換色**或**App 啟動初始化**時，由共用 2D 合成器花費 `< 20 ms` 將該貓咪對應之 12 個零件的 3 層 PNG（純灰階 `fur_base` × `primaryHex` ＋ 柔邊 `mask_<pattern>` × `secondaryHex` ＋ 永不染色 `linework`）一次合成為 12 張乾淨 RGBA 零件圖，透過 Rive **Image Data Binding / `FileAssetDelegate`** 注入 `.riv` 骨架檔。
    - **三大決定性優勢：**
      1. **每影格零額外著色開銷：** Android 懸浮窗極致省電、低發熱、60/24 FPS 穩定不掉幀；
