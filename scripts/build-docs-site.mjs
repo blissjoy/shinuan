@@ -87,6 +87,7 @@ const NAV_TREE = [
     group: '🎨 Phase B｜美術、UI/UX 與桌面跳台設計',
     open: true,
     items: [
+      { id: 'docs/specs/PHASE-B-SPEC-MAP.md', label: 'Phase B 規格拆解地圖', badge: '地圖' },
       { id: 'docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md', label: '2D 粉彩 12 零件拆圖與 AI Prompt', badge: 'Art' },
       { id: 'docs/specs/PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md', label: '手機 UI/UX 與桌面 App 跳台設計', badge: 'Design' },
     ],
@@ -256,9 +257,12 @@ const appScript = `(() => {
       return '@@CODE_' + idx + '@@';
     });
     s = s.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, (_, text, href) => {
-      const cleanHref = href.replace(/&amp;/g, '&');
-      if (cleanHref.startsWith('http://') || cleanHref.startsWith('https://')) {
+      const cleanHref = href.trim().replace(/&amp;/g, '&');
+      if (/^https?:\\/\\//i.test(cleanHref)) {
         return '<a href="' + escapeHtml(cleanHref) + '" target="_blank" rel="noopener noreferrer" class="ext-link">' + text + ' ↗</a>';
+      }
+      if (/^mailto:/i.test(cleanHref)) {
+        return '<a href="' + escapeHtml(cleanHref) + '" class="ext-link">' + text + '</a>';
       }
       const resolved = resolveRelativePath(currentDocId, cleanHref);
       if (DATA.docs[resolved.docId]) {
