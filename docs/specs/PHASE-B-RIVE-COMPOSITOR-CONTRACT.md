@@ -161,7 +161,7 @@
 | `slot_head` | 合成後 `head` RGBA | 掛載於 `head` 骨骼，位於眼眶裁切層下方 |
 | `slot_ear_L` / `slot_ear_R` | 合成後 `ear_L` / `ear_R` RGBA | 掛載於 `ear_L` / `ear_R` 骨骼（轉身反向視差） |
 | `slot_eye_socket_L` / `slot_eye_socket_R` | `eye_socket_L` / `R` RGBA | 受 `eye_clip_L` / `eye_clip_R` 動態裁切遮罩控制（鐵律 A） |
-| `slot_eye_iris_L` / `slot_eye_iris_R` | 染色＋瞳孔高光合成後 `eye_iris_L` / `R` RGBA | 受眼眶 Clipping Path 裁切並由 `lookX` / `lookY` 驅動；**左右眼獨立槽位永不互換** |
+| `slot_eye_iris_L` / `slot_eye_iris_R` | 染色＋瞳孔高光合成後 `eye_iris_L` / `R` RGBA | 分別掛載於 [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md) §4.1 骨架樹節點 `eye_L_pupil` / `eye_R_pupil`（Node/Bone 層）之下，受 `eye_clip_L` / `eye_clip_R` 裁切並由 `lookX` / `lookY` 驅動；**左右眼獨立槽位永不互換** |
 | `slot_nose` | 合成後 `nose` RGBA | 掛載於五官前向視差層 |
 | `slot_body_torso` | 合成後 `body_torso` RGBA | 掛載於 `torso` 骨骼 |
 | `slot_chest_ruff` | 長毛時注入 `chest_ruff` RGBA；短毛注入 `1×1` 全透明 PNG | 避免短毛模型需維護第二套 `.riv` |
@@ -222,8 +222,8 @@
 
 | 測項 ID | 所屬小單 | 驗證目標與斷言條件 |
 | --- | :---: | --- |
-| **`TC-B1-01`** | `SHINUAN-B1-02` | **線稿零染色不變量：** 對同一組 `head` 資產分別以 `#F7E2BC`（奶油）、`#5C3D2E`（海豹棕）、`#9EABB8`（藍灰）執行預合成：（1）抽樣完全不透明線稿核心像素（`a_line === 1.0`，即 8-bit `alpha === 255`），驗證輸出色彩恆貼近 `#3A281E`（色差 `ΔRGB <= 3`）；（2）抽樣半透明羽化線稿邊緣像素（`0 < a_line < 1.0`），驗證輸出與非預乘 `SrcOver(C_line, C_out)` 理論值誤差 `ΔRGB <= 1`，確認 `C_line` 絕不受毛色染色汙染。 |
-| **`TC-B1-02`** | `SHINUAN-B1-02` | **純白貓防發灰檢核：** 以 `primaryHex = #FAF6F0`、`coatPattern = 'solid'` 合成 `head` 與 `body_torso`，驗證核心高光區（原 `L_fur >= 0.88`）輸出亮度 `L_out >= 0.94`，且不出現整體暗沉發灰；同時驗證未二次套用 `lightnessDelta`/`saturationDelta`。 |
+| **`TC-B1-01`** | `SHINUAN-B1-02` | **線稿零染色不變量：** 對同一組 `head` 資產分別以 `#F7E2BC`（奶油）、`#5C3D2E`（海豹棕）、`#9EABB8`（藍灰）執行預合成：（1）抽樣完全不透明線稿核心像素（`a_line === 1.0`，即 8-bit `alpha === 255`），驗證輸出色彩恆貼近 `#3A281E`（色差 `ΔRGB <= 3`）；（2）抽樣毛底不透明區內之半透明羽化線稿像素（`0 < a_line < 1.0` 且 `a_fur === 1.0`；若外圍抽樣到 `a_fur < 1.0` 亦代入實際 `a_fur`），驗證輸出與 §2.2 步驟 4 非預乘 `SrcOver(C_line, a_line, C_out, a_fur)` 理論值誤差 `ΔRGB <= 1`，確認 `C_line` 絕不受毛色染色汙染。 |
+| **`TC-B1-02`** | `SHINUAN-B1-02` | **純白貓防發灰檢核：** 以 `primaryHex = #FAF6F0`、`coatPattern = 'solid'` 合成 `head` 與 `body_torso`，定義輸出亮度為 **gamma-encoded sRGB luma `L_out = 0.2126 * R + 0.7152 * G + 0.0722 * B`（`R, G, B ∈ [0, 1]` 歸一化 sRGB 通道值，非線性光學亮度）**；驗證核心高光區（原 `L_fur >= 0.88`、`a_fur === 1.0`）滿足 **`L_out >= 0.94`**（`#FAF6F0` 理論值約 `0.966`）且不整體暗沉發灰；同時驗證未二次套用 `lightnessDelta`/`saturationDelta`。 |
 | **`TC-B1-03`** | `SHINUAN-B1-02` | **七大圖層與異色瞳相容合成：** 依序合成 `solid`、`colorpoint`、`tabby_mackerel`、`bicolor_tuxedo`、`calico`、`tortoiseshell`、`starry_rare` 共 7 種花色與 `heterochromia_blue_gold`，驗證 `slot_eye_iris_L` 主色為 `#5C95C9`、`slot_eye_iris_R` 主色為 `#D89438`、高光點維持純白 `#FFFFFF`，且所有遮罩像素嚴格裁切於 `a_fur > 0` 範圍內。 |
 | **`TC-B1-04`** | `SHINUAN-B1-02` | **效能與快取基準：** 完成單隻測試貓全部需合成之動態零件槽位（對齊 §2.1／§3.1 完整組裝組，執行期目標 `512×512`）連續 20 次中位數耗時 **`< 20 ms`**；相同 `cacheKey` 重複呼叫命中快取且 `0 ms` 重新計算。 |
 | **`TC-B2-01`** | `SHINUAN-B2-01` | **鐵律 A（眼皮 Clipping Path）：** 於重點色、虎斑與三花 3 種多色額頭上切換 `eyelidExprIndex = 0..4` 與觸發 `blinkTrigger`，確認額頭花紋連續完整、零單色塊接縫。 |
