@@ -123,7 +123,6 @@ for (const grp of NAV_TREE) {
     }
     const fullPath = path.join(repoRoot, item.id);
     if (!fs.existsSync(fullPath)) {
-      if (item.optional) continue;
       throw new Error(`REQUIRED DOC MISSING: ${item.id}`);
     }
     const content = fs.readFileSync(fullPath, 'utf8');
@@ -140,6 +139,87 @@ for (const grp of NAV_TREE) {
     resolvedTree.push({ group: grp.group, open: grp.open, items: keptItems });
   }
 }
+
+function resolveRelativePath(fromPath, relHref) {
+  const [rawPath, anchor] = relHref.split('#');
+  if (!rawPath) return { docId: fromPath, anchor: anchor || '' };
+  let decoded = rawPath;
+  try {
+    decoded = decodeURIComponent(rawPath);
+  } catch {
+    decoded = rawPath;
+  }
+  const parts = fromPath.split('/');
+  parts.pop();
+  for (const seg of decoded.split('/')) {
+    if (!seg || seg === '.') continue;
+    if (seg === '..') parts.pop();
+    else parts.push(seg);
+  }
+  return { docId: parts.join('/'), anchor: anchor || '' };
+}
+
+function validateInternalLinks(map) {
+  const anchorsByDoc = new Map();
+  for (const [docId, doc] of Object.entries(map)) {
+    const anchors = new Set();
+    const lines = doc.markdown.replace(/\r\n/g, '\n').split('\n');
+    let inFence = false;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('```')) {
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) continue;
+      const anchorMatch = trimmed.match(/^<a\s+id="([^"]+)"\s*>\s*<\/a>$/i);
+      if (anchorMatch) anchors.add(anchorMatch[1]);
+    }
+    anchorsByDoc.set(docId, anchors);
+  }
+
+  let verifiedLinks = 0;
+  const errors = [];
+
+  for (const [docId, doc] of Object.entries(map)) {
+    const lines = doc.markdown.replace(/\r\n/g, '\n').split('\n');
+    let inFence = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.trim().startsWith('```')) {
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) continue;
+      const stripped = line.replace(/`[^`]+`/g, '');
+      for (const match of stripped.matchAll(/(?<!!)\[([^\]]+)\]\(([^)]+)\)/g)) {
+        const cleanHref = match[2].trim().replace(/&amp;/g, '&');
+        if (/^(https?:\/\/|mailto:)/i.test(cleanHref)) continue;
+        const resolved = resolveRelativePath(docId, cleanHref);
+        if (/po-step-by-step/i.test(cleanHref) || /po-step-by-step/i.test(resolved.docId)) {
+          errors.push(`FORBIDDEN LINK TARGET: ${docId}:${i + 1} -> ${cleanHref}`);
+          continue;
+        }
+        if (!Object.prototype.hasOwnProperty.call(map, resolved.docId)) {
+          errors.push(`BROKEN DOC LINK: ${docId}:${i + 1} -> ${cleanHref} (resolved: ${resolved.docId})`);
+          continue;
+        }
+        if (resolved.anchor && !anchorsByDoc.get(resolved.docId).has(resolved.anchor)) {
+          errors.push(`BROKEN ANCHOR LINK: ${docId}:${i + 1} -> ${cleanHref} (missing #${resolved.anchor} in ${resolved.docId})`);
+          continue;
+        }
+        verifiedLinks++;
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`BROKEN INTERNAL LINKS DETECTED (${errors.length}):\n${errors.join('\n')}`);
+  }
+  return verifiedLinks;
+}
+
+const verifiedLinks = validateInternalLinks(docsMap);
 
 const payloadJson = JSON.stringify({ shortSha, navTree: resolvedTree, docs: docsMap })
   .replace(/</g, '\\u003c');
@@ -589,4 +669,4 @@ const fullHtml = `<!DOCTYPE html>
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(path.join(outDir, 'index.html'), fullHtml, 'utf8');
 fs.writeFileSync(path.join(outDir, '.nojekyll'), '', 'utf8');
-console.log(`DOCS_SITE_BUILT_OK dir=${outDir} docs=${Object.keys(docsMap).length} sha=${shortSha} bytes=${Buffer.byteLength(fullHtml, 'utf8')}`);
+console.log(`DOCS_SITE_BUILT_OK dir=${outDir} docs=${Object.keys(docsMap).length} links=${verifiedLinks} sha=${shortSha} bytes=${Buffer.byteLength(fullHtml, 'utf8')}`);
