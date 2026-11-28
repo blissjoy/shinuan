@@ -81,6 +81,8 @@
 
 ## Phase B：2D 美術管線與跨平台渲染規格
 
+- **Phase B 工程拆單地圖（B1～B4，共 6 張施工小單）：** [PHASE-B-SPEC-MAP.md](PHASE-B-SPEC-MAP.md)
+  - **目的：** 將 Phase B 美術、Rive 骨骼、雙平台原生橋接與靜態 UI Prototype 拆解為 `SHINUAN-B1-01` ～ `SHINUAN-B4-01` 六張可執行施工小單，明定先後依賴、驗收門檻與 Phase B／C／D 嚴格邊界。
 - **2D 粉彩貓咪拆圖與 AI 生成規範：** [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md)
   - **目的：** 規範「12 個靜態 2D 零件 ＋ 3 層 PNG 動態換色 ＋ 共用 Rive 骨架 ＋ 眼皮 Clipping Path / 2.5D 視差轉身雙鐵律 ＋ 2026-11 雙錨點逐件 AI 指令包」，確保 6 品種與上萬毛色低成本量產且 100% 保留手繪粉彩畫風。
 - **手機 9:19.5 全流程 UI/UX 與 Android 桌面 App 方塊跳台設計：** [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md)

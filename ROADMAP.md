@@ -32,6 +32,7 @@
 
 ## Phase B：Renderer Proof of Concept（Sprint 4）
 
+- **Phase B 細部工程拆單地圖（B1～B4，6 張小單）：** [`docs/specs/PHASE-B-SPEC-MAP.md`](docs/specs/PHASE-B-SPEC-MAP.md)
 - **2D 美術與拆圖工程規範（已定案）：** [`docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md`](docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md)（12 零件紙娃娃拆圖 ＋ 3 層 PNG 動態著色 ＋ Rive 共用骨骼 ＋ 2026-11 雙錨點逐件 AI 指令包）
 - **手機 UI/UX 與桌面 App 跳台設計（已定案）：** [`docs/specs/PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md`](docs/specs/PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md)（分階段嚴格切分 Phase B/C/D 邊界 ＋ Android 零無障礙權限 Virtual Perch Grid）
 - **架構決策紀錄（ADR，PO 已拍板）：**
