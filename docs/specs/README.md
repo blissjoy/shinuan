@@ -50,7 +50,7 @@
 - **技術設計書：**
   - `SHINUAN-S1-01`（Issue #3 ✅）：[S1-01 跨模組型別與契約設計](SPEC-01-contracts-config-genetics/S1-01-contracts-design.md)
   - `SHINUAN-S1-02`（Issue #5 / #7 ✅）：[S1-02 靜態設定與批次匯入驗證設計](SPEC-01-contracts-config-genetics/S1-02-config-loader-design.md)
-  - `SHINUAN-S1-03`（Issue #9 🟡）：`S1-03-genetics-engine-design.md`（隨 #9 開發分支合併納入）
+  - `SHINUAN-S1-03`（Issue #9 🟡）：[S1-03 純品種基因引擎設計](SPEC-01-contracts-config-genetics/S1-03-genetics-engine-design.md)（已隨 PR #35 提前納入）
   - `SHINUAN-S1-04`（Issue #12 📋）：[S1-04 真實遺傳學、皮克敏式換色與一胎 3～5 隻設計](SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md)
 
 <a id="entry-spec-02"></a>

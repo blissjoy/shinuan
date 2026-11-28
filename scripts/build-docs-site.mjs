@@ -55,7 +55,7 @@ const NAV_TREE = [
       { id: 'docs/specs/SPEC-01-contracts-config-genetics/SPEC.md', label: 'SPEC-01 導讀（目的與功能）', badge: 'SPEC' },
       { id: 'docs/specs/SPEC-01-contracts-config-genetics/S1-01-contracts-design.md', label: 'S1-01 跨模組型別契約', badge: 'Design' },
       { id: 'docs/specs/SPEC-01-contracts-config-genetics/S1-02-config-loader-design.md', label: 'S1-02 設定載入與匯入驗證', badge: 'Design' },
-      { id: 'docs/specs/SPEC-01-contracts-config-genetics/S1-03-genetics-engine-design.md', label: 'S1-03 純品種基因引擎設計', badge: 'Design', optional: true },
+      { id: 'docs/specs/SPEC-01-contracts-config-genetics/S1-03-genetics-engine-design.md', label: 'S1-03 純品種基因引擎設計', badge: 'Design' },
       { id: 'docs/specs/SPEC-01-contracts-config-genetics/S1-04-preset-parents-litter-design.md', label: 'S1-04 真實遺傳與一胎 3～5 隻', badge: 'Design' },
     ],
   },
