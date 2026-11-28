@@ -89,6 +89,8 @@
   - **目的：** 鎖定跨平台 3 層預合成像素公式與 `< 20 ms` 快取契約、Rive `ShinuanCatRoot` 資產槽位命名表、`CatMainSM` 全量 Input 變數契約與 `TC-B1-01`～`TC-B2-03` 驗收斷言。
 - **手機 9:19.5 全流程 UI/UX 與 Android 桌面 App 方塊跳台設計：** [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md)
   - **目的：** 定義領養育種室（簡潔孟德爾 `%`）、拾暖小窩、商店 3 秒營養探索與雙平台設定頁面契約，以及零無障礙權限合規之 Android 桌面「App 方塊跳台系統（Virtual Perch Grid）」物理與校正設計。
+- **雙平台原生橋接與靜態 UI 契約（`B3-01`／`B3-02`／`B4-01`）：** [PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md](PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md)
+  - **目的：** 鎖定 Android Virtual Perch Grid JSON Schema、Phase B Headless JS Mock Event 介面、iOS `App Groups` `widget-snapshot.json` 精確 Schema、四大頁面禁寫邊界與 `TC-B3-01`～`TC-B4-02` 驗收斷言。
 - **關聯架構決策（已拍板）：**
   - [ADR-001 動畫引擎選定 Rive](../decisions/ADR-001-animation-engine-rive.md)
   - [ADR-002 雙平台原生橋接（React Native / Android 懸浮窗 / iOS Widget）](../decisions/ADR-002-mobile-native-bridge-architecture.md)

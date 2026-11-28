@@ -91,6 +91,7 @@ const NAV_TREE = [
       { id: 'docs/specs/PHASE-B-2D-ART-PIPELINE-SPEC.md', label: '2D 粉彩 12 零件拆圖與 AI Prompt', badge: 'Art' },
       { id: 'docs/specs/PHASE-B-RIVE-COMPOSITOR-CONTRACT.md', label: 'B1-02/B2-01 預合成與 Rive 介面契約', badge: 'Design' },
       { id: 'docs/specs/PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md', label: '手機 UI/UX 與桌面 App 跳台設計', badge: 'Design' },
+      { id: 'docs/specs/PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md', label: 'B3/B4 原生橋接與靜態 UI 契約', badge: 'Design' },
     ],
   },
   {

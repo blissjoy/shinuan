@@ -92,6 +92,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 - **核心目的：** 驗證 React Native、Android Kotlin 透明懸浮窗與 iOS SwiftUI Widget 三端唯讀消費同一份 `PetViewModel`，並跑通零無障礙權限合規之 Android 桌面 App 方塊跳台物理。
 - **包含小單：**
   - **`SHINUAN-B3-01`（前置：`SHINUAN-B2-01` ＋ Phase A `PetViewModel` 契約）— React Native 宿主骨架 ＋ Android Kotlin 懸浮窗與 Virtual Perch Grid 跳台 PoC**
+    - **技術設計書：** [PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md](PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md#sec-1)（Virtual Perch Grid JSON Schema、Headless JS Mock Event 契約與 `TC-B3-01`～`TC-B3-02`）
     - **核心交付：**
       1. 建立 React Native 宿主專案接入 `@rive-app/react-native` 與唯讀 `PetViewModel`（先接固定 Mock／Phase A Core Snapshot 驗證）。
       2. 建立 Android Kotlin `ForegroundService` ＋ `WindowManager` 透明懸浮窗（`RiveAnimationView` 繼承 `TextureView`、`PixelFormat.TRANSLUCENT`、透明區域 `FLAG_NOT_TOUCHABLE` 穿透、全時 `FLAG_NOT_FOCUSABLE` 不搶鍵盤焦點、螢幕熄滅自動暫停釋放防耗電）。
@@ -102,6 +103,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
       - Android 懸浮窗消費之 `PetViewModel`（含 `behavior.iconIds`）與 RN 主畫面 100% 一致，UI／Kotlin 層零自算需求衰退或健康公式；高空掉落測試僅走 Mock／記憶體內回呼，零真實 `GameEngine.dispatch` 與零存檔寫入。
     - **PO 看得到的成果：** 實機／模擬器 Android 桌面上粉彩貓咪會在 App 方塊與 Dock 間拋物線跳躍停靠、可摸頭追指、可拎起掉落且不擋滑手機。
   - **`SHINUAN-B3-02`（前置：`SHINUAN-B2-01` ＋ Phase A `PetViewModel` 契約）— iOS SwiftUI `WidgetKit` ＋ `App Groups` 唯讀快照與三端一致性驗證**
+    - **技術設計書：** [PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md](PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md#sec-2)（`widget-snapshot.json` Schema、4 組三端一致性夾具與 `TC-B3-03`～`TC-B3-04`）
     - **核心交付：**
       1. 啟用 `App Groups`（`group.com.shizhan.shinuan`），由主 App 寫出 `widget-snapshot.json`（含 `PetViewModel`、`lastSimulatedAt` 與預合成靜態貓咪 PNG 路徑）並呼叫 `WidgetCenter.shared.reloadAllTimelines()`。
       2. 實作 SwiftUI `WidgetKit` Timeline Provider 唯讀展示貓咪外觀、四大血條與狀態圖示（🐟／💧／❤️／💢／💤／🏥 與 Care Pause 標誌）。
@@ -120,6 +122,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 - **核心目的：** 驗證手機 9:19.5 四大核心頁面的視覺版面、動線、非文字陪伴體驗與雙平台開通教學，並正式彙整 Phase B 驗收報告。
 - **包含小單：**
   - **`SHINUAN-B4-01`（前置：`SHINUAN-B3-01`、`SHINUAN-B3-02`）— 四大核心頁面固定 Mock 靜態 UI Prototype 與 Phase B 結案報告**
+    - **技術設計書：** [PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md](PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md#sec-3)（9:19.5 固定 Mock 禁寫契約與 `TC-B4-01`～`TC-B4-02`）
     - **核心交付：**
       1. 基準視口 `390×844 pt`（相容安全區 Safe Area）實作四頁靜態 UI Prototype（全部採固定 Mock Data）：
          - `AdoptionScreen`（開局領養育種室：左右雙親卡片、精簡版孟德爾 `%` 預覽條與一胎 3～5 隻展示版面）。
