@@ -36,7 +36,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
    └──▶ SHINUAN-B1-02（3 層動態預合成器＋7 圖層換裝相容驗證）
            └──▶ SHINUAN-B2-01（Rive 共用骨架 .riv ＋ 6 支 P0-B 動作 ＋ 渲染雙鐵律）
                    ├──▶ SHINUAN-B3-01（RN 宿主 ＋ Android Kotlin 懸浮窗與 Virtual Perch Grid 跳台 PoC）──┐
-                   └──▶ SHINUAN-B3-02（iOS SwiftUI WidgetKit ＋ App Groups 唯讀快照與三端一致性）──────┴──▶（AND 匯聚）SHINUAN-B4-01（9:19.5 四大頁面固定 Mock 靜態 UI Prototype ＋ Phase B 結案報告）
+                   └──▶ SHINUAN-B3-02（iOS SwiftUI WidgetKit ＋ App Groups 快照／App Intents Dry-Run Mock 佇列與三端一致性）──┴──▶（AND 匯聚）SHINUAN-B4-01（9:19.5 四大頁面固定 Mock 靜態 UI Prototype ＋ Phase B 結案報告）
 ```
 
 <a id="b1"></a>
@@ -92,22 +92,25 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 - **核心目的：** 驗證 React Native、Android Kotlin 透明懸浮窗與 iOS SwiftUI Widget 三端唯讀消費同一份 `PetViewModel`，並跑通零無障礙權限合規之 Android 桌面 App 方塊跳台物理。
 - **包含小單：**
   - **`SHINUAN-B3-01`（前置：`SHINUAN-B2-01` ＋ Phase A `PetViewModel` 契約）— React Native 宿主骨架 ＋ Android Kotlin 懸浮窗與 Virtual Perch Grid 跳台 PoC**
+    - **技術設計書：** [PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md](PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md#sec-1)（Virtual Perch Grid JSON Schema、Headless JS Mock Event 契約與 `TC-B3-01`～`TC-B3-02`）
     - **核心交付：**
       1. 建立 React Native 宿主專案接入 `@rive-app/react-native` 與唯讀 `PetViewModel`（先接固定 Mock／Phase A Core Snapshot 驗證）。
-      2. 建立 Android Kotlin `ForegroundService` ＋ `WindowManager` 透明懸浮窗（`RiveAnimationView` 繼承 `TextureView`、`PixelFormat.TRANSLUCENT`、透明區域 `FLAG_NOT_TOUCHABLE` 穿透、全時 `FLAG_NOT_FOCUSABLE` 不搶鍵盤焦點、螢幕熄滅自動暫停釋放防耗電）。
+      2. 建立 Android Kotlin `ForegroundService` ＋ `WindowManager` 透明懸浮窗（`RiveAnimationView` 繼承 `TextureView`、`PixelFormat.TRANSLUCENT`、視窗緊貼貓咪容器邊界動態位移使窗外透明區天然穿透點擊〔避免 Android 12+ 不受信任觸控封鎖〕、全時 `FLAG_NOT_FOCUSABLE` 不搶鍵盤焦點、螢幕熄滅自動暫停釋放防耗電）。
       3. 實作桌面 **Virtual Perch Grid（App 方塊跳台系統）**：內建 `4×5`／`4×6`／`5×6` 格線＋頂部 Widget＋底部 Dock、5 秒半透明拖拉校正、單向穿過拋物線跳躍、窄方塊防走空（寬 `< 1.35×` 身寬禁長距水平走步）、本地拎起拖曳手勢物理與落地彈性回彈；高空掉落（`> 25%` 螢幕高）於 Phase B **僅驗證短生命週期 Headless JS 喚醒流程與記憶體內 Mock／Snapshot 事件回呼**（**嚴禁於 Phase B 呼叫正式 `GameEngine.dispatch(TriggerLanding)`、不得改變真實遊戲數值、不得寫入任何存檔**；`ADR-002` §3 所述完整 `GameEngine.dispatch` 接線與持久化留待 **Phase C**）。
     - **驗收門檻：**
       - `AndroidManifest.xml` **嚴格零 `BIND_ACCESSIBILITY_SERVICE`／無障礙權限宣告**。
       - 懸浮窗外圍透明區正常穿透點開底層 App；全時維持 `FLAG_NOT_FOCUSABLE`。
       - Android 懸浮窗消費之 `PetViewModel`（含 `behavior.iconIds`）與 RN 主畫面 100% 一致，UI／Kotlin 層零自算需求衰退或健康公式；高空掉落測試僅走 Mock／記憶體內回呼，零真實 `GameEngine.dispatch` 與零存檔寫入。
     - **PO 看得到的成果：** 實機／模擬器 Android 桌面上粉彩貓咪會在 App 方塊與 Dock 間拋物線跳躍停靠、可摸頭追指、可拎起掉落且不擋滑手機。
-  - **`SHINUAN-B3-02`（前置：`SHINUAN-B2-01` ＋ Phase A `PetViewModel` 契約）— iOS SwiftUI `WidgetKit` ＋ `App Groups` 唯讀快照與三端一致性驗證**
+  - **`SHINUAN-B3-02`（前置：`SHINUAN-B2-01` ＋ Phase A `PetViewModel` 契約）— iOS SwiftUI `WidgetKit` ＋ `App Groups` 快照、`App Intents` Dry-Run Mock 佇列與三端一致性驗證**
+    - **技術設計書：** [PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md](PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md#sec-2)（`widget-snapshot.json` Schema、`App Intents` Dry-Run Mock 佇列契約、4 組三端一致性夾具與 `TC-B3-03`～`TC-B3-04`）
     - **核心交付：**
-      1. 啟用 `App Groups`（`group.com.shizhan.shinuan`），由主 App 寫出 `widget-snapshot.json`（含 `PetViewModel`、`lastSimulatedAt` 與預合成靜態貓咪 PNG 路徑）並呼叫 `WidgetCenter.shared.reloadAllTimelines()`。
+      1. 啟用 `App Groups`（`group.com.shizhan.shinuan`），由主 App 遵循「先寫版本化預合成靜態貓咪 PNG → 再原子發布 `widget-snapshot.json`」並呼叫 `WidgetCenter.shared.reloadAllTimelines()`。
       2. 實作 SwiftUI `WidgetKit` Timeline Provider 唯讀展示貓咪外觀、四大血條與狀態圖示（🐟／💧／❤️／💢／💤／🏥 與 Care Pause 標誌）。
-      3. 針對同一份標準 `PetViewModel` 測試夾具執行三端（RN / Android Overlay / iOS Widget）顯示一致性檢核。
-    - **驗收門檻：** Swift Extension 零重寫任何遊戲數值公式；三端顯示之 `animationId`、`iconIds` 與外觀參數 100% 一致。（註：`App Intents` 快捷按鈕寫入 `pending-widget-commands.json` 與 SQLite 原子冪等落盤依 `ADR-002` §4 / `ADR-003` 留待 **Phase C** 實作。）
-    - **PO 看得到的成果：** iOS 桌面小工具與 Android 懸浮窗、主 App 呈現完全一致的粉彩貓咪與狀態圖示。
+      3. 依 `Master PRD v2.1.31` §5.2 驗證 iOS `App Intents` 快捷操作佇列通道（採與 Android Headless JS Mock 對稱之 **Dry-Run Mock 佇列**：寫入 `pending-widget-mock-commands.json` 並標記 `dryRunMockOnly: true`，主 App 讀回並於記憶體內驗證 `commandId` 去重與回呼，**嚴禁呼叫正式 `GameEngine.dispatch` 或寫入真實存檔**）。
+      4. 針對同一份標準 `PetViewModel` 測試夾具執行三端（RN / Android Overlay / iOS Widget）顯示一致性檢核。
+    - **驗收門檻：** Swift Extension 零重寫任何遊戲數值公式；三端顯示之 `animationId`、`tailState`、`iconIds`、外觀、四數值與 `display` 全欄位 100% 一致；`App Intents` 僅驗證 Dry-Run Mock 佇列跨行程通訊（`persistedToStorage: false`），正式寫入 `pending-widget-commands.json` 並搭配 SQLite 單一交易原子冪等落盤依 `ADR-002` §4 / `ADR-003` 留待 **Phase C** 實作。
+    - **PO 看得到的成果：** iOS 桌面小工具與 Android 懸浮窗、主 App 呈現完全一致的粉彩貓咪與狀態圖示，並提前跑通 iOS `App Intents` ＋ `App Groups` 跨行程通道。
 
 [↑ 回到頂部目錄](#top)
 
@@ -120,6 +123,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 - **核心目的：** 驗證手機 9:19.5 四大核心頁面的視覺版面、動線、非文字陪伴體驗與雙平台開通教學，並正式彙整 Phase B 驗收報告。
 - **包含小單：**
   - **`SHINUAN-B4-01`（前置：`SHINUAN-B3-01`、`SHINUAN-B3-02`）— 四大核心頁面固定 Mock 靜態 UI Prototype 與 Phase B 結案報告**
+    - **技術設計書：** [PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md](PHASE-B-NATIVE-BRIDGE-UI-CONTRACT.md#sec-3)（9:19.5 固定 Mock 禁寫契約與 `TC-B4-01`～`TC-B4-02`）
     - **核心交付：**
       1. 基準視口 `390×844 pt`（相容安全區 Safe Area）實作四頁靜態 UI Prototype（全部採固定 Mock Data）：
          - `AdoptionScreen`（開局領養育種室：左右雙親卡片、精簡版孟德爾 `%` 預覽條與一胎 3～5 隻展示版面）。
@@ -140,7 +144,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 
 1. **Game Core 單一真相與零汙染：** `packages/game-core` 與 `packages/contracts` 維持純 TypeScript、零平台依賴；Phase B 渲染層本地物理過渡片段（`run_chase`、`jump_prep`、`jump_air`、`land_squash`、`turn_25d_parallax`）**嚴禁寫入或擴充 `AnimationId` 正式枚舉**。
 2. **嚴禁超前實作 Phase C／D 功能：**
-   - **禁止於 Phase B 實作（屬 Phase C）：** 正式 P1 動畫（`drag`、`drop`、`landing`）與 Phase C 動作（`cat_loaf`、`play`）、正式 `GameEngine.dispatch(TriggerLanding)` 指令接線與數值／存檔寫入、正式接通 `generateLitter()` 領養寫入與 R1 每日 3 胎鎖定、SQLite 存檔與遷移（`ADR-003`）、iOS Widget `App Intents` 指令佇列原子冪等落盤、全 6 品種完整外觀擴充。
+   - **禁止於 Phase B 實作（屬 Phase C）：** 正式 P1 動畫（`drag`、`drop`、`landing`）與 Phase C 動作（`cat_loaf`、`play`）、正式 `GameEngine.dispatch(TriggerLanding)` 指令接線與數值／存檔寫入、正式接通 `generateLitter()` 領養寫入與 R1 每日 3 胎鎖定、SQLite 存檔與遷移（`ADR-003`）、正式 iOS Widget `App Intents` 寫入 `pending-widget-commands.json` 與 SQLite 原子冪等落盤（Phase B 僅做 `pending-widget-mock-commands.json` Dry-Run Mock 佇列通道驗證）、全 6 品種完整外觀擴充。
    - **禁止於 Phase B 實作（屬 Phase D）：** 正式接通 `EconomyEngine`（`BuyItem`、`InspectProduct` 3 秒真實入帳、`ClaimDailyCheckIn`、背包消耗、Remote Config 商品熱更新）。
 3. **Android 零無障礙合規紅線：** 嚴禁申請 `AccessibilityService` 讀取第三方桌面 App 座標；所有桌面跳台一律透過 Virtual Perch Grid ＋ 使用者 5 秒校正實現。
 4. **渲染雙鐵律紅線：** 嚴禁眼皮單色塊蓋額頭、嚴禁 `scaleX: +1 → 0 → -1` 紙片翻面（詳見 [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md) §4.3）。
