@@ -9,9 +9,10 @@
 
 - **預計 Task ID：** `SHINUAN-S1-04`（GitHub Issue `#12`，排程於 `SHINUAN-S1-03` PR 合併後開工）
 - **資料驅動原則（PO 2026-11-26 定案）：** 本設計與 PRD **僅定義 Schema、通用驗證不變量與 9 個孟德爾基因座遺傳演算法（8 毛色〔1 性聯 `O/o` ＋ 7 常染色體〕＋ 1 毛長 `L/l`；`irisPigment` 另屬多基因連續虹膜模型）**；所有系統內定父母之名字、隻數、花色與基因型一律由外部設定檔 `content/genetics/preset-parents.v1.json` 驅動，**隨時可自由增刪調整而無須修改 PRD、設計文件或程式碼**。
-- **跨模組增量施工責任（`P0-03` 明文歸屬，不回改已結案之 `S1-01`/`S1-02`）：** `SHINUAN-S1-04` 須於同一任務分支增量擴充：
-  1. `@shinuan/contracts`（`packages/contracts/src/**`）：補齊 `v2.1.30`/`v2.1.31` 新增型別（`CoatGenotype`、`PresetParentCat`、`PresetParentsConfig`、`PigmentedFeatureColor`、`GeneticsEasterEggId`、`AdoptionSlotPolicy`、`AccountMeta`、`DailyLimits.littersGeneratedToday`、`DailyLimits.lastLitterGeneratedAt`、`ValidatedGameConfig.presetParents`）。
+- **跨模組增量施工責任與唯一 Canonical Export 鎖定（`P0-03` / `D-B03` 明文歸屬，不回改已結案之 `S1-01`/`S1-02`）：** `SHINUAN-S1-04` 須於同一任務分支增量擴充以下**唯一正式匯出名稱**（全專案 Design、Issue `#12`、Phase B 與測試一律以此為準，**嚴禁另設 `PresetParentEntry`、`LitterGenerationResult`、`ParentColorMatchOdds`、`computeParentColorMatchOdds`、`loadPresetParentsCatalog` 等舊名別名**）：
+  1. `@shinuan/contracts`（`packages/contracts/src/**`）：`CoatGenotype`、`CoatLengthPhenotype`、`PigmentedFeatureColor`（供 `noseColor`/`pawPadColor` 共用）、`GeneticsEasterEggId`、`PresetParentSourceType`、`PresetParentCat`、`PresetParentsConfig`、`AdoptionKittenPreview`（僅含 `hasHiddenQuirks: boolean`）、`AdoptionLitter`、`PairingPreviewProbability`、`AdoptionSlotPolicy`、`AccountMeta`、`GameState.accountMeta`、`DailyLimits.littersGeneratedToday`、`DailyLimits.lastLitterGeneratedAt`、`ValidatedGameConfig.presetParents`。
   2. `@shinuan/config-loader`（`packages/config-loader/src/**`）：新增 `preset-parents-validator.ts`（`validatePresetParentsConfig()`）與 `loadPresetParentsConfig()` 並整合進 `loadGameConfig()`，定義明確錯誤碼（`ERR_PRESET_PARENTS_DUPLICATE_ID`、`ERR_PRESET_PARENTS_BREED_COVERAGE`、`ERR_PRESET_PARENTS_INVALID_GENOTYPE`、`ERR_PRESET_PARENTS_MALE_CALICO_FORBIDDEN`、`ERR_PRESET_PARENTS_COMPAT_CONFLICT`、`ERR_PRESET_PARENTS_RARE_MUTATION_FORBIDDEN`）與對應單元測試。
+  3. `@shinuan/game-core`（`packages/game-core/src/**`）：`resolveCoatPhenotype()`、`resolvePupilColor()`、`resolveNoseAndPawPadColors()`、`calculatePairingPreviewProbability()`、`generateKittenFromParents()`、`generateLitterFromParents()`。
 - **零破壞承諾：** 完全保留既有 `S1-03` 純品種 API、`TC-01`、`TC-02` 與 `tests/fixtures/genetics-golden-v1.json`，以及所有既有時間／健康／經濟數值。
 
 ---

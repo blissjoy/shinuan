@@ -19,6 +19,11 @@
 | **`SHINUAN-S3-02`** | 防損 JSON 存檔與 `v1 -> v2` 遷移 | `packages/game-core/src/save/**`（純 TS 結構驗證＋`v1 -> v2` 遷移＋序列化）＋ 本機防損 `JsonGameRepository`（`save.tmp` → 驗證 → `save.bak` → 原子替換與毀損回退） | **`TC-MH-11`**（`lowMoodDuration` 跨存檔續算）＋ 損毀回退與 `v1 -> v2` 遷移不改外觀／個性測試 | Tab 3 存檔區塊：手動存檔／重整網頁還原／模擬損毀回退驗證 |
 
 > **平台純淨度紅線（不可妥協）：** `packages/game-core` 內嚴禁出現任何 `fs`、`path`、`process`、`Date.now()` 或系統時區呼叫；所有磁碟讀寫與原子替換統一封裝在外部 Adapter（實作 `@shinuan/contracts` 的 `GameRepository` 介面）。
+>
+> **跨單契約前置依賴鎖定（`D-B04`）：**
+> - **`SHINUAN-S3-01`（Issue `#15`）強制前置依賴 `#12`（`SHINUAN-S1-04`）與 `#14`（`SHINUAN-S2-02`）：** 開工前必須確認 `#12` 增量擴充之 `DailyLimits.littersGeneratedToday`、`DailyLimits.lastLitterGeneratedAt` 與 `#14` `TimeEngine` 均已合併進 `master`。
+> - **`SHINUAN-S3-02`（Issue `#16`）強制前置依賴 `#12`（`SHINUAN-S1-04`）與 `#15`（`SHINUAN-S3-01`）：** 開工前必須確認 `#12` 增量擴充之 `AccountMeta`、`GameState.accountMeta`、`DailyLimits` 繁育欄位及 `#15` 經濟引擎語義均已合併進 `master`。
+> - **嚴禁契約繞過：** 上述前置未合併前不得開工，嚴禁以 `as any`、臨時型別斷言或私自複製介面繞過型別檢查。
 
 ---
 
@@ -88,8 +93,9 @@ export const ECONOMY_CONSTANTS = Object.freeze({
    - **免費品（`productType === 'free'`）：** 僅須 `status === 'active'`，無限供應，**絕不檢查亦不扣減 `inventory`**。
    - **付費品（`regular` / `sponsored`）：** 允許 `status === 'active'` **或 `status === 'discontinued'`**（軟下架商品背包內仍可正常使用！），拒絕 `pending_review`；須 `(inventory[itemId] ?? 0) >= 1`，消耗 1 份（數量歸 0 時自 `inventory` 移除該鍵以維持存檔整潔）。
    - 套用 `gameEffect` 至 `hunger` / `hydration` / `mood` 並嚴格 Clamp `[0, 100]`，發 `ItemConsumedEvent`、`NeedsUpdatedEvent`，並立即呼叫 `evaluateRecoveryState(nextPet, timestamp)`（P1-4）。
-7. **跨日高健康日結獎勵（`evaluateDailyHighHealthReward`）：**
-   - 僅於 `advancePetStateTo` 觸發 `DayRolledOverEvent` 且完成跨日結算之當下呼叫一次：若 `!dailyLimits.dailyHighHealthRewardClaimed && pet.health >= 90 && pet.mood >= 80`，發放 `+25` 積分、標記 `dailyHighHealthRewardClaimed = true`，絕不補發離線錯過的歷史天數。
+7. **跨日高健康日結獎勵（`evaluateDailyHighHealthReward`，`D-B01` 單次結算鎖定）：**
+   - 單次 `TimeEngine.advancePetStateTo(pet, now, tz)` 完整執行結束後，**只要本次補算產出之事件集合包含至少 1 筆 `DayRolledOverEvent`（即使離線跨越多個本地午夜而產出多筆 `DayRolledOverEvent`）**，應先以最新本地日期完成 `syncDailyLimitsForDate`，再以最終結算後之 `pet` 狀態**呼叫且僅呼叫一次** `evaluateDailyHighHealthReward`：若 `!dailyLimits.dailyHighHealthRewardClaimed && pet.health >= 90 && pet.mood >= 80`，發放 `+25` 積分一次並標記 `dailyHighHealthRewardClaimed = true`。
+   - **嚴禁對每筆 `DayRolledOverEvent` 逐筆迴圈發放獎勵**，絕不補發離線錯過的歷史天數；`TC-07` 與單元測試必須明確覆蓋「一次離線跨越 2～3 個本地午夜」情境，斷言最多發放 `+25` 一次且舊日不補發。
 
 ---
 

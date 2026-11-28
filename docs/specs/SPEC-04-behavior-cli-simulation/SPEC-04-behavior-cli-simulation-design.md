@@ -84,13 +84,21 @@
 1. **`GameEngine` 統一管線（`packages/game-core/src/engine/game-engine.ts`）：**
    - 依賴注入：`{ clock: Clock, rng: RandomGenerator, config: ValidatedGameConfig }`（統一採用 `@shinuan/contracts` 之 `ValidatedGameConfig`，不另設 `LoadedGameConfig` 別名；不直接依賴 `GameRepository` 磁碟 I/O，存檔由上層 App 呼叫 `storage-json` 持久化）。
    - `dispatch(command: GameCommand)` 固定順序：
-     1. 除 `ToggleCarePause(false)` 解除暫停外，先執行 `TimeEngine.advancePetStateTo(pet, command.timestamp, tz)`（若觸發 `DayRolledOverEvent` → 重算 30 日人格 ＋ 呼叫 `EconomyEngine.evaluateDailyHighHealthReward`）；
+     1. 除 `ToggleCarePause(false)` 解除暫停外，先執行 `TimeEngine.advancePetStateTo(pet, command.timestamp, tz)`；**待整次 `advancePetStateTo` 完整結束後（`D-B01` 鎖定），只要產出事件陣列含至少 1 筆 `DayRolledOverEvent`（不論跨 1 日或多日產生多筆事件），先以最新本地日執行 `syncDailyLimitsForDate`，再以最終 `PetState` 重算 30 日人格並至多呼叫一次 `EconomyEngine.evaluateDailyHighHealthReward`（嚴禁對每筆 `DayRolledOverEvent` 逐筆重複發放 `+25`）**；
      2. 查詢 `BehaviorEngine.isInNegativeCooldown(command.timestamp)` 傳給 `EconomyEngine`；
      3. 執行對應指令（Economy / CarePause / Poke / Landing），若屬有效照護互動則更新 `pet.memories.dailyBuckets[localDate]` 並重算 `basePersonality`；
      4. 若改變需求或健康，立即執行 `evaluateRecoveryState(pet, command.timestamp)`（P1-4）；
      5. 執行 `BehaviorEngine.evaluate(...)` 產生 `BehaviorDecision` 與 `BehaviorDecidedEvent`；
      6. 產出唯讀 `PetViewModel` 與完整不可變 `GameEvent[]`。
-   - `dispatchBatch(commands: readonly GameCommand[])`：同一時間戳多筆指令自動依 `FeedPet > DrinkWater > PlayWithPet > PetCat` 排序處理。
+   - `dispatchBatch(commands: readonly GameCommand[])` 完整確定性契約（`D-B02` 鎖定）：
+     1. **時間戳穩定升冪排序與分組：** 允許批次包含相同或不同 `timestamp`；進入執行前先對 `commands` 依 `command.timestamp` 執行**穩定升冪排序**（防止較晚指令先跑導致較早指令誤觸 `TimeEngine` 時鐘回撥），再將相同 `timestamp` 之指令歸併為連續的 Tick 群組（`tickGroup`）逐組處理（空陣列直接回傳當前狀態與空事件陣列）。
+     2. **同 Tick 群組內 4 層固定優先序（同層保留原輸入穩定序）：**
+        - **優先層 1（控制狀態）：** `ToggleCarePause`（確保同 Tick 開／關暫停先於數值與互動指令生效）；
+        - **優先層 2（負面防禦事件）：** `TriggerLanding` > `PokePet`（對齊 PRD §8.B.1 Priority 90 `LANDING > POKE`）；
+        - **優先層 3（PRD 明定四大照護互動）：** `FeedPet` > `DrinkWater` > `PlayWithPet` > `PetCat`（嚴格對齊 PRD §8.B.1 Priority 40 同 Tick 序）；
+        - **優先層 4（商店與簽到經濟指令）：** `ClaimDailyCheckIn`、`OpenShop`、`InspectProduct`、`BuyItem`（同層多筆依原輸入陣列順序穩定執行）。
+     3. **數值結算與行為仲裁時機（單 Tick 單次仲裁）：** 每個 `tickGroup` 開始時先對該群組統一推進時間一次（首筆非解除暫停指令觸發 `advancePetStateTo(tickTs)` 與上述 `D-B01` 單次跨日結算；同 Tick 後續指令 Δt = 0 不重複補算），接著依 4 層順序逐筆完成所有指令之數值結算、30 日記憶更新與 P1-4 `evaluateRecoveryState`（依執行順序累積所有業務事實事件如 `CommandExecuted`/`CommandRejected`/`ItemConsumed`/`CoinsChanged`/`NeedsUpdated`/`RecoveryStateChanged` 等，不在中間指令插入臨時動畫事件）；**待該 `tickGroup` 全部數值結算完成後，僅呼叫一次 `BehaviorEngine.evaluate(...)` 並產出 1 筆該 Tick 之最終 `BehaviorDecidedEvent` 與 `PetViewModel`**（若批次橫跨 `K` 個不同 `timestamp` 群組，則每個 `tickGroup` 結束各產出 1 筆 `BehaviorDecidedEvent`，總計 `K` 筆，最終回傳最後一個群組之 `PetViewModel`）。
+     4. **強制整合測試覆蓋（`tests/integration/game-engine-cli.test.ts`）：** 必測 ① 一次跨越 2～3 個本地午夜之離線補算最多發 `+25` 一次且不補發舊日（`D-B01`）；② 混合亂序 `timestamp` 自動升冪不誤觸回撥；③ 同 Tick 多筆指令（含 `PetCat`/`FeedPet`/`DrinkWater`/`PlayWithPet` 與重複命令）嚴格按 4 層序結算且僅產出 1 筆 `BehaviorDecidedEvent`；④ `ToggleCarePause` 與照護指令同 Tick 批次行為。
 2. **`apps/local-cli`（Windows 終端機互動養貓 CLI）：**
    - 透過 `@shinuan/game-core`、`@shinuan/config-loader`、`@shinuan/storage-json` 提供互動 REPL 指令：`adopt`、`status`、`feed <itemId>`、`water`、`pet`、`play`、`poke`、`advance <hours>`、`pause on|off`、`shop`、`inspect <itemId> <sec>`、`buy <itemId>`、`save`、`quit`，另支援非互動 `--script` 模式便於自動化端對端整合測試。
 
