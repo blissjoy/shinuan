@@ -125,7 +125,7 @@ export interface DesktopPerchPlatform {
    - 凡寬度小於貓咪身寬 `1.35×` 之單顆 `app_tile`，貓咪停留期間**禁止長距離水平走步**，僅允許原地坐姿、搖尾、打瞌睡、轉頭追蹤手指，或透過「跨跳（`jump_prep` → `jump_air`）」移動至鄰近 App 方塊／Widget／Dock。
 4. **重量感回饋與懸浮視窗互動：**
    - 落地瞬間施加彈性壓扁回彈（`scaleX: 1.20, scaleY: 0.80` → 彈回 `1.0`）並於腳下釋放柔和粉彩微塵粒子；於 App 內模擬桌面預覽時，同步對受踩方塊施加輕微彈性下陷微彈回饋。
-   - 玩家拎起貓咪放手後，貓咪依重力自然降落於正下方第一個經過的跳台或 Dock；若連續下墜距離超過螢幕高度 `25%`，依 `ADR-002` §3.2 喚醒短生命週期 Headless JS 派發 `TriggerLanding` 指令給 `GameEngine`。
+   - 玩家拎起貓咪放手後，貓咪依重力自然降落於正下方第一個經過的跳台或 Dock；若連續下墜距離超過螢幕高度 `25%`：**Phase B** 僅驗證短生命週期 Headless JS 喚醒流程與記憶體內 Mock／Snapshot 事件回呼（**嚴禁於 Phase B 呼叫正式 `GameEngine.dispatch(TriggerLanding)`、改變真實數值或寫入存檔**）；**Phase C** 始依 `ADR-002` §3.2 正式派發 `TriggerLanding` 指令給 `GameEngine` 並更新存檔。
    - **不干擾點擊原則：** 貓咪以外之透明區域一律 `FLAG_NOT_TOUCHABLE` 穿透給底層手機桌面，玩家照常點開 LINE、相機等任何 App；僅貓咪本體邊界框接收摸頭／拖曳手勢，且永遠維持 `FLAG_NOT_FOCUSABLE` 不搶鍵盤焦點。
 
 ---
@@ -136,7 +136,7 @@ export interface DesktopPerchPlatform {
 
 | 層級 | 識別項目 | 負責層 | 說明 |
 | --- | --- | --- | --- |
-| **Game Core 正式契約 (`PetViewModel.behavior.animationId`)** | Phase B 實作子集：`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`（P0-B 6 支）＋ `drag`（P1）；完整 15 支正式枚舉（另含 Phase C `cat_loaf`/`play` 與 P1 `drop`/`landing` 等）詳見 `Master PRD v2.1.31` §8.B.3 | `packages/game-core`（唯讀下發） | 由 `BehaviorEngine` 依 6 級優先順序仲裁產生，跨平台唯一真相。 |
+| **Game Core 正式契約 (`PetViewModel.behavior.animationId`)** | Phase B 實作子集：嚴格限縮於 6 支 P0-B（`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`）；完整 15 支正式枚舉（另含 Phase C `cat_loaf`/`play` 與 P1 `drag`/`drop`/`landing` 等）詳見 `Master PRD v2.1.31` §8.B.3 | `packages/game-core`（唯讀下發） | 由 `BehaviorEngine` 依 6 級優先順序仲裁產生，跨平台唯一真相。 |
 | **渲染層本地移動過渡片段（非 `AnimationId` 枚舉）** | `run_chase`（逗貓棒／遠距快跑）、`jump_prep`（起跳蹲低蓄力）、`jump_air`（拋物線滯空）、`land_squash`（一般低高度落地彈性回彈，區別於 P1 正式高空掉落抗議 `landing`）、`turn_25d_parallax`（2.5D 球面視差轉身） | React Native / Android Kotlin 渲染層本地驅動 | 僅依本地座標位移與物理速度觸發 Rive State Machine 過渡節點，**不回寫也不新增 `GameCore` 枚舉**。 |
 
 ---
