@@ -52,6 +52,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
     - **驗收門檻：** 全套產物皆為 `1024×1024` 32-bit RGBA 透明 PNG、符合 `<part_id>__<variant_id>__<layer>.png` 命名規範、`fur_base` 與 `linework` 輪廓對齊誤差 `< 1%` 且零棋盤格／殘綠邊。
     - **PO 看得到的成果：** 完整 12 零件透明資產庫與 4 色以上（奶油／海豹重點／藍灰／純白）靜態換色檢核圖。
   - **`SHINUAN-B1-02`（前置：`SHINUAN-B1-01`）— 3 層動態預合成器與 7 大圖層換裝相容驗證**
+    - **技術設計書：** [PHASE-B-RIVE-COMPOSITOR-CONTRACT.md](PHASE-B-RIVE-COMPOSITOR-CONTRACT.md#sec-2)（像素公式、快取契約與 `TC-B1-01`～`TC-B1-04`）
     - **核心交付：**
       1. 依 `ADR-001` §3 實作一次性預合成器：讀取 `PetAppearance` 與 `colorParams`，於 `< 20 ms` 內將 `fur_base × primaryHex`、`mask_<pattern> × secondaryHex`（受毛底 Alpha 裁切）、永不染色 `linework` 合成為最終 12 張乾淨 RGBA 零件圖；鼻頭／肉球／虹膜獨立染色，保留純白高光點與左右眼獨立色（支援藍金異色瞳）。
       2. 覆蓋 7 大外觀圖層相容組合測試（含重點色、虎斑、賓士白、三花／玳瑁無重疊雙色塊、星空微光、純白防發灰）。
@@ -69,6 +70,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 - **核心目的：** 交付全品種共用之單一 `.riv` 骨骼動畫檔，落實 PoC 驗證鎖定的兩大渲染鐵律與多軌互動狀態機。
 - **包含小單：**
   - **`SHINUAN-B2-01`（前置：`SHINUAN-B1-02`）— Rive 共用骨架（`.riv`）、6 支 P0-B 動作、8 種尾巴軌與雙渲染鐵律驗證**
+    - **技術設計書：** [PHASE-B-RIVE-COMPOSITOR-CONTRACT.md](PHASE-B-RIVE-COMPOSITOR-CONTRACT.md#sec-3)（`ShinuanCatRoot` 槽位命名、`CatMainSM` 輸入契約與 `TC-B2-01`～`TC-B2-03`）
     - **核心交付：**
       1. 建立 §4.1 單一 2D 骨架樹（`root` → `pelvis` → `tail_1..3` / `leg_L/R` / `torso` → `arm_L/R` / `neck` → `head` → `ear_L/R` / `eye_clip_L/R` / 五官前向視差層 / `status_icon_anchor`），串接 Image Data Binding / `FileAssetDelegate` 零件槽位。
       2. 完成 Track 1 主動作（嚴格對齊 `Master PRD v2.1.31` §7 與 §8.B.3：Phase B 僅交付 **6 支 P0-B 動作：`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`**）、Track 2 獨立尾巴軌（8 種情緒狀態）、眼球偏移追蹤輸入（`±6px`～`±9px`）與摸頭彈性傾斜（Spring Physics）。

@@ -85,6 +85,8 @@
   - **目的：** 將 Phase B 美術、Rive 骨骼、雙平台原生橋接與靜態 UI Prototype 拆解為 `SHINUAN-B1-01` ～ `SHINUAN-B4-01` 六張可執行施工小單，明定先後依賴、驗收門檻與 Phase B／C／D 嚴格邊界。
 - **2D 粉彩貓咪拆圖與 AI 生成規範：** [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md)
   - **目的：** 規範「12 個靜態 2D 零件 ＋ 3 層 PNG 動態換色 ＋ 共用 Rive 骨架 ＋ 眼皮 Clipping Path / 2.5D 視差轉身雙鐵律 ＋ 2026-11 雙錨點逐件 AI 指令包」，確保 6 品種與上萬毛色低成本量產且 100% 保留手繪粉彩畫風。
+- **3 層動態預合成器與 Rive 骨骼介面契約（`B1-02`／`B2-01`）：** [PHASE-B-RIVE-COMPOSITOR-CONTRACT.md](PHASE-B-RIVE-COMPOSITOR-CONTRACT.md)
+  - **目的：** 鎖定跨平台 3 層預合成像素公式與 `< 20 ms` 快取契約、Rive `ShinuanCatRoot` 資產槽位命名表、`CatMainSM` 全量 Input 變數契約與 `TC-B1-01`～`TC-B2-03` 驗收斷言。
 - **手機 9:19.5 全流程 UI/UX 與 Android 桌面 App 方塊跳台設計：** [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md)
   - **目的：** 定義領養育種室（簡潔孟德爾 `%`）、拾暖小窩、商店 3 秒營養探索與雙平台設定頁面契約，以及零無障礙權限合規之 Android 桌面「App 方塊跳台系統（Virtual Perch Grid）」物理與校正設計。
 - **關聯架構決策（已拍板）：**
