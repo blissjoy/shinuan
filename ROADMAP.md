@@ -1,7 +1,7 @@
 # 拾暖伴伴（shinuan）ROADMAP — Phase A～E 進度看板
 
 - **規格基準：** Master PRD v2.1.31（§6 長期留存、§7 開發與實作路線圖、§11.2 Sprint 執行順序）
-- **Phase A 細部拆解：** [`docs/specs/PHASE-A-SPEC-MAP.md`](docs/specs/PHASE-A-SPEC-MAP.md)
+- **Phase A／Phase B 細部拆解：** [`docs/specs/PHASE-A-SPEC-MAP.md`](docs/specs/PHASE-A-SPEC-MAP.md) ｜ [`docs/specs/PHASE-B-SPEC-MAP.md`](docs/specs/PHASE-B-SPEC-MAP.md)
 - **任務追蹤：** GitHub Issues ＋ Branch ＋ PR（`AGENTS.md` §6）
 - **狀態圖例：** ⬜ 未開始　🟡 進行中　🔍 待 QA／審查　✅ 已合併（PO 核准）
 

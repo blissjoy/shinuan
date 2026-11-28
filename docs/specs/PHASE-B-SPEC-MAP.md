@@ -35,9 +35,8 @@
 SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
    └──▶ SHINUAN-B1-02（3 層動態預合成器＋7 圖層換裝相容驗證）
            └──▶ SHINUAN-B2-01（Rive 共用骨架 .riv ＋ 6 支 P0-B 動作 ＋ 渲染雙鐵律）
-                   ├──▶ SHINUAN-B3-01（RN 宿主 ＋ Android Kotlin 懸浮窗與 Virtual Perch Grid 跳台 PoC）
-                   ├──▶ SHINUAN-B3-02（iOS SwiftUI WidgetKit ＋ App Groups 唯讀快照與三端 PetViewModel 一致性）
-                   └──▶ SHINUAN-B4-01（9:19.5 四大頁面固定 Mock 靜態 UI Prototype ＋ Phase B 結案報告）
+                   ├──▶ SHINUAN-B3-01（RN 宿主 ＋ Android Kotlin 懸浮窗與 Virtual Perch Grid 跳台 PoC）──┐
+                   └──▶ SHINUAN-B3-02（iOS SwiftUI WidgetKit ＋ App Groups 唯讀快照與三端一致性）──────┴──▶（AND 匯聚）SHINUAN-B4-01（9:19.5 四大頁面固定 Mock 靜態 UI Prototype ＋ Phase B 結案報告）
 ```
 
 <a id="b1"></a>
@@ -69,16 +68,16 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 - **設計依據：** [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md) §4；[PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md) §4；[ADR-001](../decisions/ADR-001-animation-engine-rive.md)
 - **核心目的：** 交付全品種共用之單一 `.riv` 骨骼動畫檔，落實 PoC 驗證鎖定的兩大渲染鐵律與多軌互動狀態機。
 - **包含小單：**
-  - **`SHINUAN-B2-01`（前置：`SHINUAN-B1-02`）— Rive 共用骨架（`.riv`）、6 支 P0-B 動作＋P1 `drag`、8 種尾巴軌與雙渲染鐵律驗證**
+  - **`SHINUAN-B2-01`（前置：`SHINUAN-B1-02`）— Rive 共用骨架（`.riv`）、6 支 P0-B 動作、8 種尾巴軌與雙渲染鐵律驗證**
     - **核心交付：**
       1. 建立 §4.1 單一 2D 骨架樹（`root` → `pelvis` → `tail_1..3` / `leg_L/R` / `torso` → `arm_L/R` / `neck` → `head` → `ear_L/R` / `eye_clip_L/R` / 五官前向視差層 / `status_icon_anchor`），串接 Image Data Binding / `FileAssetDelegate` 零件槽位。
-      2. 完成 Track 1 主動作（P0-B 6 支：`idle`、`walk`、`sit`、`sleep`、`eat`、`pet` ＋ P1 `drag`）、Track 2 獨立尾巴軌（8 種情緒狀態）、眼球偏移追蹤輸入（`±6px`～`±9px`）與摸頭彈性傾斜（Spring Physics）。
-      3. 提供渲染層本地移動過渡節點（`run_chase`、`jump_prep`、`jump_air`、`land_squash`、`turn_25d_parallax`），嚴格區隔於 `Master PRD v2.1.31` §8.B.3 `AnimationId` 正式枚舉。
+      2. 完成 Track 1 主動作（嚴格對齊 `Master PRD v2.1.31` §7 與 §8.B.3：Phase B 僅交付 **6 支 P0-B 動作：`idle`、`walk`、`sit`、`sleep`、`eat`、`pet`**）、Track 2 獨立尾巴軌（8 種情緒狀態）、眼球偏移追蹤輸入（`±6px`～`±9px`）與摸頭彈性傾斜（Spring Physics）。
+      3. 提供渲染層本地移動過渡節點（`run_chase`、`jump_prep`、`jump_air`、`land_squash`、`turn_25d_parallax`），嚴格區隔於 `Master PRD v2.1.31` §8.B.3 `AnimationId` 正式枚舉。（**階段歸屬澄清：** 依唯一正式規格 `Master PRD v2.1.31` §8.B.3，`drag`、`drop`、`landing` 屬 **Phase C P1 進階動畫**，`cat_loaf`、`play` 亦屬 Phase C；Phase B 懸浮窗若需驗證拖曳手勢僅採本地手勢／物理座標追蹤，**不將正式 `AnimationId=drag` 列入 Phase B 動畫交付**；若衍生設計文件文字提及 P1 `drag`，衝突時一律以 Master PRD 為準。）
     - **驗收門檻：**
       - **鐵律 A 必過：** 眼皮 100% 採眼眶 Clipping Path ＋ `#3A281E` 上眼皮線稿，於重點色／虎斑／三花貓臉上絕無單色塊遮蓋額頭（「眉毛貼膠帶」破綻）。
       - **鐵律 B 必過：** 左右轉身採 2.5D 球面視差（`turnDir ∈ [-1, +1]`），`scaleX` 永不壓扁歸零翻面，且藍金異色瞳（左藍右金）轉身後左右眼色不對調。
-      - `packages/game-core` 零修改、`AnimationId` 枚舉零新增。
-    - **PO 看得到的成果：** 單一 `.riv` 檔可流暢播放 6+1 動作、獨立搖尾、追手指與 2.5D 立體轉身，且切換任何毛色均零破綻。
+      - `packages/game-core` 零修改、`AnimationId` 枚舉零新增，且正式動畫交付嚴格限縮於 6 支 P0-B。
+    - **PO 看得到的成果：** 單一 `.riv` 檔可流暢播放 6 支 P0-B 動作、獨立搖尾、追手指與 2.5D 立體轉身，且切換任何毛色均零破綻。
 
 [↑ 回到頂部目錄](#top)
 
@@ -94,11 +93,11 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
     - **核心交付：**
       1. 建立 React Native 宿主專案接入 `@rive-app/react-native` 與唯讀 `PetViewModel`（先接固定 Mock／Phase A Core Snapshot 驗證）。
       2. 建立 Android Kotlin `ForegroundService` ＋ `WindowManager` 透明懸浮窗（`RiveAnimationView` 繼承 `TextureView`、`PixelFormat.TRANSLUCENT`、透明區域 `FLAG_NOT_TOUCHABLE` 穿透、全時 `FLAG_NOT_FOCUSABLE` 不搶鍵盤焦點、螢幕熄滅自動暫停釋放防耗電）。
-      3. 實作桌面 **Virtual Perch Grid（App 方塊跳台系統）**：內建 `4×5`／`4×6`／`5×6` 格線＋頂部 Widget＋底部 Dock、5 秒半透明拖拉校正、單向穿過拋物線跳躍、窄方塊防走空（寬 `< 1.35×` 身寬禁長距水平走步）、落地彈性回彈，以及高空拎起掉落（`> 25%` 螢幕高）喚醒短生命週期 Headless JS 派發 `TriggerLanding` 驗證。
+      3. 實作桌面 **Virtual Perch Grid（App 方塊跳台系統）**：內建 `4×5`／`4×6`／`5×6` 格線＋頂部 Widget＋底部 Dock、5 秒半透明拖拉校正、單向穿過拋物線跳躍、窄方塊防走空（寬 `< 1.35×` 身寬禁長距水平走步）、本地拎起拖曳手勢物理與落地彈性回彈；高空掉落（`> 25%` 螢幕高）於 Phase B **僅驗證短生命週期 Headless JS 喚醒流程與記憶體內 Mock／Snapshot 事件回呼**（**嚴禁於 Phase B 呼叫正式 `GameEngine.dispatch(TriggerLanding)`、不得改變真實遊戲數值、不得寫入任何存檔**；`ADR-002` §3 所述完整 `GameEngine.dispatch` 接線與持久化留待 **Phase C**）。
     - **驗收門檻：**
       - `AndroidManifest.xml` **嚴格零 `BIND_ACCESSIBILITY_SERVICE`／無障礙權限宣告**。
       - 懸浮窗外圍透明區正常穿透點開底層 App；全時維持 `FLAG_NOT_FOCUSABLE`。
-      - Android 懸浮窗消費之 `PetViewModel`（含 `behavior.iconIds`）與 RN 主畫面 100% 一致，UI／Kotlin 層零自算需求衰退或健康公式。
+      - Android 懸浮窗消費之 `PetViewModel`（含 `behavior.iconIds`）與 RN 主畫面 100% 一致，UI／Kotlin 層零自算需求衰退或健康公式；高空掉落測試僅走 Mock／記憶體內回呼，零真實 `GameEngine.dispatch` 與零存檔寫入。
     - **PO 看得到的成果：** 實機／模擬器 Android 桌面上粉彩貓咪會在 App 方塊與 Dock 間拋物線跳躍停靠、可摸頭追指、可拎起掉落且不擋滑手機。
   - **`SHINUAN-B3-02`（前置：`SHINUAN-B2-01` ＋ Phase A `PetViewModel` 契約）— iOS SwiftUI `WidgetKit` ＋ `App Groups` 唯讀快照與三端一致性驗證**
     - **核心交付：**
@@ -139,7 +138,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 
 1. **Game Core 單一真相與零汙染：** `packages/game-core` 與 `packages/contracts` 維持純 TypeScript、零平台依賴；Phase B 渲染層本地物理過渡片段（`run_chase`、`jump_prep`、`jump_air`、`land_squash`、`turn_25d_parallax`）**嚴禁寫入或擴充 `AnimationId` 正式枚舉**。
 2. **嚴禁超前實作 Phase C／D 功能：**
-   - **禁止於 Phase B 實作（屬 Phase C）：** 正式接通 `generateLitter()` 領養寫入與 R1 每日 3 胎鎖定、SQLite 存檔與遷移（`ADR-003`）、iOS Widget `App Intents` 指令佇列原子冪等落盤、全 6 品種完整外觀擴充。
+   - **禁止於 Phase B 實作（屬 Phase C）：** 正式 P1 動畫（`drag`、`drop`、`landing`）與 Phase C 動作（`cat_loaf`、`play`）、正式 `GameEngine.dispatch(TriggerLanding)` 指令接線與數值／存檔寫入、正式接通 `generateLitter()` 領養寫入與 R1 每日 3 胎鎖定、SQLite 存檔與遷移（`ADR-003`）、iOS Widget `App Intents` 指令佇列原子冪等落盤、全 6 品種完整外觀擴充。
    - **禁止於 Phase B 實作（屬 Phase D）：** 正式接通 `EconomyEngine`（`BuyItem`、`InspectProduct` 3 秒真實入帳、`ClaimDailyCheckIn`、背包消耗、Remote Config 商品熱更新）。
 3. **Android 零無障礙合規紅線：** 嚴禁申請 `AccessibilityService` 讀取第三方桌面 App 座標；所有桌面跳台一律透過 Virtual Perch Grid ＋ 使用者 5 秒校正實現。
 4. **渲染雙鐵律紅線：** 嚴禁眼皮單色塊蓋額頭、嚴禁 `scaleX: +1 → 0 → -1` 紙片翻面（詳見 [PHASE-B-2D-ART-PIPELINE-SPEC.md](PHASE-B-2D-ART-PIPELINE-SPEC.md) §4.3）。
@@ -156,7 +155,7 @@ SHINUAN-B1-01（12 零件＋5 遮罩透明資產與後製腳本）
 須同時滿足以下全部條件，並經獨立 QA 實測 `PASS`、獨立 Reviewer `APPROVED` 與 PO 核准，始得宣告 Phase B 封版並啟動 Phase C：
 
 - [ ] `SHINUAN-B1-01` ～ `SHINUAN-B4-01` 全部 6 張小單對應之 PR 均已合併進 `master`。
-- [ ] 單隻測試貓 12 零件透明資產 ＋ 5 組遮罩 ＋ `< 20 ms` 3 層預合成器 ＋ Rive 6+1 動作＋8 尾巴軌，**100% 通過渲染雙鐵律 A／B**。
+- [ ] 單隻測試貓 12 零件透明資產 ＋ 5 組遮罩 ＋ `< 20 ms` 3 層預合成器 ＋ Rive 6 支 P0-B 動作＋8 尾巴軌，**100% 通過渲染雙鐵律 A／B**。
 - [ ] React Native、Android Kotlin 透明懸浮窗（含零無障礙權限 Virtual Perch Grid 跳台）與 iOS SwiftUI Widget 三端唯讀消費同一份 `PetViewModel` 驗證一致。
 - [ ] 四大核心頁面固定 Mock 靜態 UI Prototype 通過動線與邊界檢查（零偷渡真實領養／經濟／SQLite）。
 - [ ] `node scripts/check-shinuan-integrity.mjs` 與既有 Phase A 全自動化測試套件（`TC-01`～`TC-10`、`TC-MH-01`～`TC-MH-12`）維持 100% 全綠無回歸。

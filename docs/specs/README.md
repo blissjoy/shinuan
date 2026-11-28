@@ -14,7 +14,7 @@
 3. **技術設計書（`*-design.md`）：** 進工程細節 — 演算法、型別契約、狀態機公式與測試斷言（給開發、QA 與 Reviewer 照表施工）。
 4. **重大技術選型（ADR）與進度看板：**
    - 進度總表：[ROADMAP.md](../../ROADMAP.md)
-   - Phase A 完整大綱地圖：[PHASE-A-SPEC-MAP.md](PHASE-A-SPEC-MAP.md)
+   - Phase A／Phase B 拆解地圖：[PHASE-A-SPEC-MAP.md](PHASE-A-SPEC-MAP.md) ｜ [PHASE-B-SPEC-MAP.md](PHASE-B-SPEC-MAP.md)
    - 架構決策紀錄（ADR）：[ADR-001 動畫引擎 Rive](../decisions/ADR-001-animation-engine-rive.md) ｜ [ADR-002 雙平台原生橋接](../decisions/ADR-002-mobile-native-bridge-architecture.md) ｜ [ADR-003 JSON→SQLite 存檔演進](../decisions/ADR-003-save-storage-json-to-sqlite.md)
 
 ---
