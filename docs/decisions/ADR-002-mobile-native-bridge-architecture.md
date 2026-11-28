@@ -47,7 +47,7 @@
    - 僅於領養完成後引導授權 `SYSTEM_ALERT_WINDOW`；若使用者拒絕或日後於系統設定撤銷權限，自動無痛降級為「App 內模式」並保存進度，絕不閃退。
 2. **背景零常駐 JS 引擎的互動回流機制：**
    - **純視覺與物理互動在 Kotlin 本地跑：** 貓咪螢幕漫步、邊界轉向、手指拖曳、虛擬重力掉落、摸頭輕晃與眼球追蹤，全部在 Kotlin 層對 `RiveAnimationView`（`TextureView`）低耗電本地執行，完全不喚醒 JS。
-   - **僅在真正需要改數值／仲裁時觸發事件回流：** 當玩家點擊摸頭（`PetCat`）、連戳（`PokePet`）、或高空掉落超過螢幕高度 25%（`TriggerLanding`）時，Kotlin 紀錄精確 `timestamp`，透過輕量 **Headless JS Task**（若 App 在背景）或直接透過 JSI（若 App 在前景）呼叫 `GameEngine.dispatch(command)` → 更新存檔與最新 `PetViewModel` → 回傳最新動畫指令給 Kotlin 懸浮窗後隨即釋放 JS 任務。
+   - **僅在真正需要改數值／仲裁時觸發事件回流：** 當玩家點擊摸頭（`PetCat`）、連戳（`PokePet`）、或高空掉落超過螢幕高度 25%（`TriggerLanding`）時，Kotlin 紀錄精確 `timestamp`，透過輕量 **Headless JS Task**（若 App 在背景）或直接透過 JSI（若 App 在前景）呼叫 `GameEngine.dispatch(command)` → 更新存檔與最新 `PetViewModel` → 回傳最新動畫指令給 Kotlin 懸浮窗後隨即釋放 JS 任務。（**階段邊界，對齊 [PHASE-B-SPEC-MAP.md](../specs/PHASE-B-SPEC-MAP.md)：** Phase B 僅驗證短生命週期 Headless JS 喚醒流程與記憶體內 Mock／Snapshot 回呼，**嚴禁呼叫正式 `GameEngine.dispatch`、改變真實數值或寫入存檔**；上述完整 `GameEngine.dispatch` 接線與存檔更新留待 **Phase C** 正式啟用。）
 3. **省電與生命週期護欄：**
    - 偵測 Android 省電模式（`PowerManager.isPowerSaveMode`）自動將 Rive 渲染頻率降至 `15~24 FPS`；
    - 螢幕關閉（`ACTION_SCREEN_OFF`）立即暫停 `riveView.onPause()`，亮屏（`ACTION_USER_PRESENT`）才恢復；

@@ -92,12 +92,12 @@ root (地面影與整體縮放：小／中／大)
 
 ### 4.2 動畫軌與程式分工表
 
-- **Rive 骨骼動畫檔負責（Phase B P0-B 先做 6 支正式動作）：** `idle`（呼吸微晃＋偶爾眨眼）、`walk`（四肢輪擺＋骨盆微彈）、`sit`（坐姿微搖）、`sleep`（身體壓扁閉眼慢呼吸＋💤）、`eat`（低頭點頭＋張嘴咀嚼）、`pet`（閉眼瞇笑＋頭微仰＋耳微壓），以及 P1 `drag`（拎起微拉長踢腳）；另於 Rive State Machine 提供渲染層本地移動過渡片段（`run_chase`、`jump_prep`、`jump_air`、`land_squash`，**僅屬渲染層物理過渡，非 `Master PRD` §8.B.3 `PetViewModel.behavior.animationId` 正式枚舉**，邊界切分詳見 [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md) §4）。
+- **Rive 骨骼動畫檔負責（Phase B 僅先做 6 支 P0-B 正式動作）：** `idle`（呼吸微晃＋偶爾眨眼）、`walk`（四肢輪擺＋骨盆微彈）、`sit`（坐姿微搖）、`sleep`（身體壓扁閉眼慢呼吸＋💤）、`eat`（低頭點頭＋張嘴咀嚼）、`pet`（閉眼瞇笑＋頭微仰＋耳微壓）；依 `Master PRD v2.1.31` §8.B.3，正式 P1 `drag`（拎起微拉長踢腳）／`drop`／`landing` 與 `cat_loaf`／`play` 均歸屬 **Phase C** 交付（Phase B 懸浮窗拖曳驗證僅採本地手勢／座標追蹤，不列入 Phase B 正式 `AnimationId` 動畫交付）；另於 Rive State Machine 提供渲染層本地移動過渡片段（`run_chase`、`jump_prep`、`jump_air`、`land_squash`，**僅屬渲染層物理過渡，非 `Master PRD` §8.B.3 `PetViewModel.behavior.animationId` 正式枚舉**，邊界切分詳見 [PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md](PHASE-B-MOBILE-UIUX-OVERLAY-DESIGN.md) §4）。
 - **程式（React Native / Kotlin / Swift 渲染層）即時負責：**
   1. 唯讀接收 `PetViewModel` 切換主動畫軌（Track 1：`animationId`）與獨立尾巴軌（Track 2：`tailState`）；
   2. 讀取 `PetAppearance` 與 `colorParams`，依 [ADR-001](../decisions/ADR-001-animation-engine-rive.md) 一次性預合成 3 層著色點陣圖並注入 Rive Image Data Binding；
   3. **眼球追蹤與摸頭物理：** 手指移動時將眼球偏移限制在眼眶圓內（`±6px`～`±9px`）；摸頭時依手指水平位移驅動 `head` 骨骼彈性傾斜（Spring Physics）＋噴出 ❤️ 粒子與呼嚕音效；
-  4. **Android 懸浮窗互動：** 拎起切 `drag` 姿勢，放開依重力掉落，高度 > 25% 螢幕送出 `TriggerLanding` 指令給 `GameEngine`。
+  4. **Android 懸浮窗互動：** **Phase B** 僅驗證本地拎起拖曳座標追蹤、放開重力掉落物理，以及連續下墜高度 `> 25%` 螢幕時之短生命週期 Headless JS 喚醒與記憶體內 Mock／Snapshot 回呼（**嚴禁呼叫正式 `GameEngine.dispatch(TriggerLanding)` 或寫入存檔**）；**Phase C** 始正式切 P1 `drag` 姿勢並派發 `TriggerLanding` 指令給 `GameEngine`。
 
 ### 4.3 PoC 實證鎖定之兩大前端／Rive 渲染鐵律（2026-11-26 實測修訂）
 
