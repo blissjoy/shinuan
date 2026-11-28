@@ -63,7 +63,7 @@
     - **驗收門檻：** 級距白名單、損毀 Fallback 與 CLI 驗證測試全綠。
     - **PO 看得到的成果：** 可直接用 CSV/JSON 批次驗證商品目錄。
   - **`SHINUAN-S1-03`（Issue #9 🟡 95% 暫停中）— `GeneticsEngine`（純品種模式）＋ 領養盲盒可視化頁**
-    - **技術設計書：** `SPEC-01-contracts-config-genetics/S1-03-genetics-engine-design.md`（隨 Issue #9 合併納入）
+    - **技術設計書：** [S1-03-genetics-engine-design.md](SPEC-01-contracts-config-genetics/S1-03-genetics-engine-design.md)（已透過 `SHINUAN-DOC-09` 提前納入 Repo 供完整審查；程式碼隨 Issue #9 合併）
     - **核心交付：** FNV-1a 32-bit → `mulberry32-v1`、90/10 同種、60/40 加菲、30/50/20 米克斯、規則 1→4 相容修正、`colorParams`、4 款小怪癖抽取。
     - **驗收門檻：** **`TC-01`**（Golden Fixture）、**`TC-02`**（1,000 種子全組合統計）。
     - **PO 看得到的成果：** 開瀏覽器親手選爸媽品種「抽盲盒生貓」＋ 看色塊與 1,000 隻分布圖。

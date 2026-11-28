@@ -56,7 +56,7 @@
 
 - **`SHINUAN-S1-03`（Issue #9 — 開發 95% 暫停中 🟡）**
   - **主題：** `GeneticsEngine`（純品種模式）＋ 領養盲盒可視化頁
-  - **技術設計書：** `S1-03-genetics-engine-design.md`（將於 Issue #9 合併時納入本目錄）
+  - **技術設計書：** [S1-03-genetics-engine-design.md](S1-03-genetics-engine-design.md)（已透過 `SHINUAN-DOC-09` 提前納入本目錄供完整審查）
   - **驗收與成果：** 通過 **`TC-01`**（Golden Fixture 確定性）與 **`TC-02`**（1,000 種子全組合統計）；開瀏覽器親手選爸媽品種抽盲盒與看 1,000 隻分布圖。
 
 - **`SHINUAN-S1-04`（Issue #12 — 設計定案、派工包完成 📋）**
