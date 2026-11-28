@@ -37,7 +37,7 @@
   - **向下相容預設回退（當僅具 `S1-03` 基礎 `PetAppearance` 或 Phase B Mock Data 時）：**
     - `coatLength` 未提供時，若 `body` 為 `'large_fluffy' | 'giant_fluffy'` 或 `tail === 'fluffy_plume'` 視為 `'long'`，否則預設 `'short'`。
     - `noseColor` 未提供時，預設 `{ id: 'default_pink', hex: '#D98E88', secondaryHex: null }`；若 `coatPattern === 'colorpoint'` 預設海豹鼻 `{ id: 'default_seal', hex: '#4A3728', secondaryHex: null }`。
-    - `pawPadColor` 未提供時，沿用 `noseColor` 之 `hex` 與 `secondaryHex`。
+    - `pawPadColor` 未提供時，沿用 `noseColor` 之 `hex` 與 `secondaryHex ?? null`（正規化省略欄位 `undefined` 為 `null`）。
 
 ### 1.2 Phase B 嚴格邊界重申（對齊 `Master PRD v2.1.31` §7／§8.B.3 與 `PHASE-B-SPEC-MAP.md`）
 
@@ -66,7 +66,7 @@
 | `body_torso` | `appearance.body` | `chubby` | `fur_base` ＋ `mask_<pattern>`（按花色）＋ `linework` |
 | `chest_ruff`（選配） | `options.coatLength === 'long'` | `fluffy`（Phase B 可空透明圖） | `fur_base` ＋ `linework` |
 | `arm_L` / `arm_R` | `appearance.body` | `standard` | `fur_base` ＋ `linework` |
-| `paw_pad_L` / `R` | `options.pawPadColor` | `standard` | `base`（＋花肉球時選疊 `mottle_mask`） |
+| `paw_pad_L` / `R` | `options.pawPadColor` | `standard` | `base`（＋花肉球時選疊 `mottle_mask`，完整檔名 `paw_pad__standard__mottle_mask.png`，對應美術規範 §2 簡稱 `paw_pad_mottle_mask.png`） |
 | `leg_L` / `leg_R` | `appearance.body` | `standard` | `fur_base` ＋ `linework` |
 | `tail` | `appearance.tail` | `short_bobtail` | `fur_base` ＋ `linework` |
 
@@ -131,13 +131,13 @@
 
    - 以 `shade_iris = clamp(L_iris / 0.88, 0.0, 1.0)` 染 `eye_iris__standard__base.png` 後，再將 `eye_iris__standard__pupil_highlight.png` 以 `SrcOver` 覆蓋於上層，確保黑瞳孔 `#1F1916` 與純白高光點 `#FFFFFF` 永遠純淨不被染黃。
 2. **鼻頭（`nose`）與肉球（`paw_pad_L` / `paw_pad_R`）：**
-   - 灰階底圖以相同 `shade = clamp(L / 0.88, 0.0, 1.0)` 乘上 `noseColor.hex` / `pawPadColor.hex`；若 `secondaryHex !== null`（花鼻／花肉球），再依花斑遮罩線性混合 `secondaryHex * shade`；鼻頭最後疊上 `nose__standard__linework.png`（`SrcOver`）。
+   - 灰階底圖以相同 `shade = clamp(L / 0.88, 0.0, 1.0)` 乘上 `noseColor.hex` / `pawPadColor.hex`；若存在非空 `secondaryHex`（`secondaryHex != null`，即非 `null` 且非 `undefined`，代表花鼻／花肉球），再依花斑遮罩線性混合 `secondaryHex * shade`；鼻頭最後疊上 `nose__standard__linework.png`（`SrcOver`）。
 
 ### 2.3 效能、快取與三端復用契約
 
 1. **一次性預合成與快取鍵：**
-   - 計算確定性快取鍵：`cacheKey = sha256(JSON.stringify({ appearance, coatLength, noseColor, pawPadColor, compositorVersion: 'v1' }))`。
-   - 僅於領養換色、初次啟動或 `cacheKey` 變更時觸發預合成；之後直接重用快取之 12+ 張 RGBA 點陣圖（每影格著色開銷為 **`0 ms`**）。
+   - 計算確定性快取鍵：`cacheKey = sha256(canonicalJson({ appearance, coatLength, noseColor, pawPadColor, compositorVersion: 'v1' }))`（強制採固定鍵排序之 canonical JSON 序列化，且 `undefined` 欄位一律先正規化為 `null`，確保 JS / Kotlin / Swift 跨橋接層計算雜湊 100% 一致）。
+   - 僅於領養換色、初次啟動或 `cacheKey` 變更時觸發預合成；之後直接重用快取之全部動態零件槽位 RGBA 點陣圖（每影格著色開銷為 **`0 ms`**）。
 2. **耗時門檻（對齊 `ADR-001` §3）：**
    - 於中階行動裝置或本機 Node／Skia 基準環境下，單次完整預合成（含縮放至執行期目標解析度 `512×512` 注入 Rive，原始母片維持 `1024×1024`）總耗時須 **`< 20 ms`**。
    - **iOS Widget 靜態快照復用：** 預合成完成時同步輸出 1 張組合態靜態貓咪 PNG 至 `App Groups` 共享容器，供 iOS SwiftUI Widget 直接呈現（零重複著色邏輯）。
@@ -181,7 +181,7 @@
 | --- | --- | :---: | --- | --- |
 | **Track 1（主動作）** | `coreAnimIndex` | `Number` | **Phase B 實作（P0-B 6 支）：** `0=idle`, `1=walk`, `2=sit`, `3=sleep`, `4=eat`, `5=pet`<br>**Phase C 保留槽位（Phase B 統一安全回退 `0=idle`）：** `6=cat_loaf`, `7=play`, `8=drag`, `9=drop`, `10=landing`, `11=turn_back_angry`, `12=sniff_and_turn_away`, `13=crouch_alert`, `14=side_sleep` | 唯讀映射 `PetViewModel.behavior.animationId`（嚴格對齊 `ANIMATION_IDS` 順序） |
 | **Track 1（狀態旗標）** | `isSleeping` | `Boolean` | `true` / `false` | 唯讀映射 `PetViewModel.display.isSleeping` |
-| **Track 1（狀態旗標）** | `isHealthCritical` | `Boolean` | `true` / `false` | 唯讀映射 `PetViewModel.display.isHealthCritical`（僅切委屈眼皮，不自算數值） |
+| **Track 1（狀態旗標）** | `isHealthCritical` | `Boolean` | `true` / `false` | 唯讀映射 `PetViewModel.display.isHealthCritical`（僅切委屈眼皮與嘴型，不自算數值） |
 | **Track 2（獨立尾巴）** | `tailStateIndex` | `Number` | `0=neutral`, `1=question_mark`, `2=question_mark_tremble`, `3=slow_sway`, `4=fast_whip`, `5=tucked_drooped`, `6=curled_sleep`, `7=puffed_alert` | 唯讀映射 `PetViewModel.behavior.tailState`（嚴格對齊 `TAIL_STATES` 順序） |
 | **Track 3（表情線稿）** | `eyelidExprIndex` | `Number` | `0=neutral`, `1=happy_squint`, `2=sleep_closed`, `3=angry_brow`, `4=sad_droopy` | 由渲染層依 `coreAnimIndex` + `isSleeping` + `isHealthCritical` 決定對應眼皮線稿（配合鐵律 A 裁切） |
 | **Track 3（表情線稿）** | `mouthExprIndex` | `Number` | `0=smile`, `1=blep_tongue`, `2=eat_open`, `3=grumpy_frown` | 同上（例如 `eat`→`2`、`isHealthCritical`→`1`、正常→`0`） |
@@ -222,10 +222,10 @@
 
 | 測項 ID | 所屬小單 | 驗證目標與斷言條件 |
 | --- | :---: | --- |
-| **`TC-B1-01`** | `SHINUAN-B1-02` | **線稿零染色不變量：** 對同一組 `head` 資產分別以 `#F7E2BC`（奶油）、`#5C3D2E`（海豹棕）、`#9EABB8`（藍灰）執行預合成，抽樣線稿高不透明像素（`a_line >= 0.9`），確認輸出色彩恆貼近 `#3A281E`（色差 `ΔRGB <= 3`），絕不受毛色染色汙染。 |
+| **`TC-B1-01`** | `SHINUAN-B1-02` | **線稿零染色不變量：** 對同一組 `head` 資產分別以 `#F7E2BC`（奶油）、`#5C3D2E`（海豹棕）、`#9EABB8`（藍灰）執行預合成：（1）抽樣完全不透明線稿核心像素（`a_line === 1.0`，即 8-bit `alpha === 255`），驗證輸出色彩恆貼近 `#3A281E`（色差 `ΔRGB <= 3`）；（2）抽樣半透明羽化線稿邊緣像素（`0 < a_line < 1.0`），驗證輸出與非預乘 `SrcOver(C_line, C_out)` 理論值誤差 `ΔRGB <= 1`，確認 `C_line` 絕不受毛色染色汙染。 |
 | **`TC-B1-02`** | `SHINUAN-B1-02` | **純白貓防發灰檢核：** 以 `primaryHex = #FAF6F0`、`coatPattern = 'solid'` 合成 `head` 與 `body_torso`，驗證核心高光區（原 `L_fur >= 0.88`）輸出亮度 `L_out >= 0.94`，且不出現整體暗沉發灰；同時驗證未二次套用 `lightnessDelta`/`saturationDelta`。 |
 | **`TC-B1-03`** | `SHINUAN-B1-02` | **七大圖層與異色瞳相容合成：** 依序合成 `solid`、`colorpoint`、`tabby_mackerel`、`bicolor_tuxedo`、`calico`、`tortoiseshell`、`starry_rare` 共 7 種花色與 `heterochromia_blue_gold`，驗證 `slot_eye_iris_L` 主色為 `#5C95C9`、`slot_eye_iris_R` 主色為 `#D89438`、高光點維持純白 `#FFFFFF`，且所有遮罩像素嚴格裁切於 `a_fur > 0` 範圍內。 |
-| **`TC-B1-04`** | `SHINUAN-B1-02` | **效能與快取基準：** 連續合成 12 張零件（執行期目標 `512×512`）取 20 次中位數耗時 **`< 20 ms`**；相同 `cacheKey` 重複呼叫命中快取且 `0 ms` 重新計算。 |
+| **`TC-B1-04`** | `SHINUAN-B1-02` | **效能與快取基準：** 完成單隻測試貓全部需合成之動態零件槽位（對齊 §2.1／§3.1 完整組裝組，執行期目標 `512×512`）連續 20 次中位數耗時 **`< 20 ms`**；相同 `cacheKey` 重複呼叫命中快取且 `0 ms` 重新計算。 |
 | **`TC-B2-01`** | `SHINUAN-B2-01` | **鐵律 A（眼皮 Clipping Path）：** 於重點色、虎斑與三花 3 種多色額頭上切換 `eyelidExprIndex = 0..4` 與觸發 `blinkTrigger`，確認額頭花紋連續完整、零單色塊接縫。 |
 | **`TC-B2-02`** | `SHINUAN-B2-01` | **鐵律 B（2.5D 轉身＋異色瞳保護）：** 連續掃描 `turnDir` 自 `-1.0 → 0.0 → +1.0`，驗證全過程 `scaleX >= 0.90` 無紙片翻面，且藍金異色瞳左藍右金位置始終正確不對調。 |
 | **`TC-B2-03`** | `SHINUAN-B2-01` | **Phase B 動作範圍與安全降級：** 驗證 `coreAnimIndex = 0..5`（6 支 P0-B）與 `tailStateIndex = 0..7`（8 種尾巴軌）獨立平行運作流暢；傳入 Phase C 保留值 `6..14`（含 `8=drag`）時確定性安全回退 `0 (idle)` 零崩潰，且 `packages/contracts` 與 `packages/game-core` 零修改。 |
